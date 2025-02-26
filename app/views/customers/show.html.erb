@@ -1,0 +1,35 @@
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header">
+      <h2>顧客詳細</h2>
+    </div>
+    <div class="card-body">
+      <dl class="row">
+        <dt class="col-sm-3">顧客コード:</dt>
+        <dd class="col-sm-9"><%= @customer.customer_code %></dd>
+
+        <dt class="col-sm-3">社名（屋号）:</dt>
+        <dd class="col-sm-9"><%= @customer.company_name %></dd>
+
+        <dt class="col-sm-3">郵便番号:</dt>
+        <dd class="col-sm-9"><%= @customer.postal_code %></dd>
+
+        <dt class="col-sm-3">住所:</dt>
+        <dd class="col-sm-9"><%= @customer.address %></dd>
+
+        <dt class="col-sm-3">担当者名:</dt>
+        <dd class="col-sm-9"><%= @customer.contact_name %></dd>
+
+        <dt class="col-sm-3">電話番号:</dt>
+        <dd class="col-sm-9"><%= @customer.phone_number %></dd>
+
+        <dt class="col-sm-3">メールアドレス:</dt>
+        <dd class="col-sm-9"><%= @customer.email %></dd>
+      </dl>
+    </div>
+    <div class="card-footer">
+      <%= link_to '編集', edit_customer_path(@customer), class: 'btn btn-success' %>
+      <%= link_to '戻る', customers_path, class: 'btn btn-secondary' %>
+    </div>
+  </div>
+</div> 

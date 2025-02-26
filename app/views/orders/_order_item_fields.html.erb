@@ -1,0 +1,33 @@
+<tr class="nested-fields">
+  <td>
+    <%= f.select :product_id, Product.all.map { |p| [p.name, p.id, {'data-price': p.price, 'data-tax-rate': p.tax_rate.rate}] }, 
+        { include_blank: "商品を選択してください" }, 
+        { class: "form-control product-select", style: "width: 100%;", required: true } %>
+  </td>
+  <td>
+    <%= f.hidden_field :unit_price %>
+    <span class="unit-price-display" style="display: inline-block; min-width: 80px; text-align: right;">
+      <%= f.object.unit_price.present? ? f.object.unit_price : 0 %>
+    </span>円
+  </td>
+  <td>
+    <%= f.hidden_field :tax_rate %>
+    <span class="tax-rate-display" style="text-align: right; display: inline-block; min-width: 30px;">
+      <%= f.object.tax_rate.present? ? f.object.tax_rate : 0 %>
+    </span>%
+  </td>
+  <td>
+    <%= f.select :quantity, options_for_select((1..10).map {|n| [n, n]}, f.object.quantity), 
+        { include_blank: "数量" }, 
+        { class: "form-control quantity-select", style: "width: 100%;", required: true } %>
+  </td>
+  <td>
+    <span class="subtotal" style="display: inline-block; min-width: 120px; text-align: right;">
+      <%= f.object.subtotal.present? ? f.object.subtotal : 0 %>
+    </span>円
+  </td>
+  <td class="text-center">
+    <%= f.hidden_field :_destroy %>
+    <%= link_to "削除", '#', class: "btn btn-sm btn-danger remove-item" %>
+  </td>
+</tr> 

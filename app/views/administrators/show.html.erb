@@ -1,0 +1,20 @@
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header">
+      <h2>管理者詳細</h2>
+    </div>
+    <div class="card-body">
+      <dl class="row">
+        <dt class="col-sm-3">メールアドレス:</dt>
+        <dd class="col-sm-9"><%= @administrator.email %></dd>
+
+        <dt class="col-sm-3">権限:</dt>
+        <dd class="col-sm-9"><%= @administrator.role_name %></dd>
+      </dl>
+    </div>
+    <div class="card-footer">
+      <%= link_to '編集', edit_administrator_path(@administrator), class: 'btn btn-success' %>
+      <%= link_to '戻る', administrators_path, class: 'btn btn-secondary' %>
+    </div>
+  </div>
+</div> 

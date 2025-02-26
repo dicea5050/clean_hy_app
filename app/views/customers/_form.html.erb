@@ -1,0 +1,51 @@
+<%= form_with(model: customer, local: true) do |form| %>
+  <% if customer.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(customer.errors.count, 'error') %> 件のエラーがあります:</h4>
+      <ul>
+        <% customer.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= form.label :customer_code, '顧客コード' %>
+    <%= form.text_field :customer_code, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :company_name, '社名（屋号）' %>
+    <%= form.text_field :company_name, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :postal_code, '郵便番号' %>
+    <%= form.text_field :postal_code, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :address, '住所' %>
+    <%= form.text_field :address, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :contact_name, '担当者名' %>
+    <%= form.text_field :contact_name, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :phone_number, '電話番号' %>
+    <%= form.text_field :phone_number, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :email, 'メールアドレス' %>
+    <%= form.email_field :email, class: 'form-control' %>
+  </div>
+
+  <div class="form-group mt-4">
+    <%= form.submit customer.new_record? ? '登録' : '更新', class: 'btn btn-primary' %>
+  </div>
+<% end %> 

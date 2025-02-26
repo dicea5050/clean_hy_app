@@ -1,0 +1,38 @@
+Rails.application.routes.draw do
+  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+
+  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
+  # Can be used by load balancers and uptime monitors to verify that the app is live.
+  get "up" => "rails/health#show", as: :rails_health_check
+
+  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
+  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
+  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+
+  # Defines the root path route ("/")
+  # root "posts#index"
+
+  # 管理者認証関連
+  get 'login', to: 'administrators#login', as: 'login'
+  post 'authenticate', to: 'administrators#authenticate', as: 'authenticate'
+  delete 'logout', to: 'administrators#logout', as: 'logout'
+  
+  # 管理者マスター
+  resources :administrators
+  
+  # マスター一覧
+  get 'masters', to: 'masters#index', as: 'masters'
+  
+  # 各種マスター
+  resources :tax_rates
+  resources :products
+  resources :customers
+  
+  # 受注情報（Orders）CRUD機能
+  resources :orders
+  
+  get 'customers/search', to: 'customers#search'
+  
+  # ルートパスの設定
+  root to: 'administrators#login'
+end

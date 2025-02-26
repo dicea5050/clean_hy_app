@@ -1,0 +1,8 @@
+// CDNからBootstrapを読み込んでいるため、このファイルには独自のスタイルだけを記述します
+// カスタムスタイルをここに記述 
+
+// 新しいSass構文を使用
+@use "bootstrap/scss/bootstrap";
+
+// または特定のコンポーネントだけを使用
+// @use "bootstrap/scss/bootstrap-grid"; 

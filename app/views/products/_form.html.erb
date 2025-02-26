@@ -1,0 +1,36 @@
+<%= form_with(model: product, local: true) do |form| %>
+  <% if product.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(product.errors.count, 'error') %> 件のエラーがあります:</h4>
+      <ul>
+        <% product.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= form.label :product_code, '商品コード' %>
+    <%= form.text_field :product_code, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :name, '商品名' %>
+    <%= form.text_field :name, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :tax_rate_id, '適用税率' %>
+    <%= form.collection_select :tax_rate_id, TaxRate.all.order(start_date: :desc), :id, :name, {}, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :price, '単価（税抜）' %>
+    <%= form.number_field :price, step: '0.01', class: 'form-control' %>
+  </div>
+
+  <div class="form-group mt-4">
+    <%= form.submit product.new_record? ? '登録' : '更新', class: 'btn btn-primary' %>
+  </div>
+<% end %> 

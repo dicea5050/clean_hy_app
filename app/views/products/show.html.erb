@@ -1,0 +1,29 @@
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header">
+      <h2>商品詳細</h2>
+    </div>
+    <div class="card-body">
+      <dl class="row">
+        <dt class="col-sm-3">商品コード:</dt>
+        <dd class="col-sm-9"><%= @product.product_code %></dd>
+
+        <dt class="col-sm-3">商品名:</dt>
+        <dd class="col-sm-9"><%= @product.name %></dd>
+
+        <dt class="col-sm-3">単価（税抜）:</dt>
+        <dd class="col-sm-9"><%= number_to_currency(@product.price, unit: '¥', format: '%u%n') if @product.price.present? %></dd>
+
+        <dt class="col-sm-3">適用税率:</dt>
+        <dd class="col-sm-9"><%= @product.tax_rate.name %></dd>
+
+        <dt class="col-sm-3">税率(%):</dt>
+        <dd class="col-sm-9"><%= @product.tax_rate.rate %></dd>
+      </dl>
+    </div>
+    <div class="card-footer">
+      <%= link_to '編集', edit_product_path(@product), class: 'btn btn-success' %>
+      <%= link_to '戻る', products_path, class: 'btn btn-secondary' %>
+    </div>
+  </div>
+</div> 

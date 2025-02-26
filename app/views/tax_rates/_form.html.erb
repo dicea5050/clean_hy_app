@@ -1,0 +1,36 @@
+<%= form_with(model: tax_rate, local: true) do |form| %>
+  <% if tax_rate.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(tax_rate.errors.count, 'error') %> 件のエラーがあります:</h4>
+      <ul>
+        <% tax_rate.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= form.label :name, '税率名' %>
+    <%= form.text_field :name, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :rate, '税率 (%)' %>
+    <%= form.number_field :rate, step: '0.01', class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :start_date, '適用開始日' %>
+    <%= form.date_field :start_date, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :end_date, '適用終了日' %>
+    <%= form.date_field :end_date, class: 'form-control' %>
+  </div>
+
+  <div class="form-group mt-4">
+    <%= form.submit tax_rate.new_record? ? '登録' : '更新', class: 'btn btn-primary' %>
+  </div>
+<% end %> 

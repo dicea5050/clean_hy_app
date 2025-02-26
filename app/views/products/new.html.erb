@@ -1,0 +1,13 @@
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header">
+      <h2>新規商品登録</h2>
+    </div>
+    <div class="card-body">
+      <%= render 'form', product: @product %>
+    </div>
+    <div class="card-footer">
+      <%= link_to '戻る', products_path, class: 'btn btn-secondary' %>
+    </div>
+  </div>
+</div> 

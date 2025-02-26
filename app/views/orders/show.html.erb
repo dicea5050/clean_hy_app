@@ -1,0 +1,64 @@
+<div class="container">
+  <h1>受注詳細</h1>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="card-title">基本情報</h5>
+      <div class="row">
+        <div class="col-md-3">
+          <strong>取引先:</strong>
+          <%= @order.customer.company_name %>
+        </div>
+        <div class="col-md-3">
+          <strong>受注日:</strong>
+          <%= l @order.order_date %>
+        </div>
+        <div class="col-md-3">
+          <strong>予定納品日:</strong>
+          <%= l @order.expected_delivery_date if @order.expected_delivery_date %>
+        </div>
+        <div class="col-md-3">
+          <strong>確定納品日:</strong>
+          <%= l @order.actual_delivery_date if @order.actual_delivery_date %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="card-title">注文明細</h5>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>商品名</th>
+            <th>単価（税抜）</th>
+            <th>税率（%）</th>
+            <th>数量</th>
+            <th>小計</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @order.order_items.each do |item| %>
+            <tr>
+              <td><%= item.product.name %></td>
+              <td><%= number_to_currency(item.unit_price) %></td>
+              <td><%= item.tax_rate %></td>
+              <td><%= item.quantity %></td>
+              <td><%= number_to_currency(item.subtotal) %></td>
+            </tr>
+          <% end %>
+          <tr>
+            <td colspan="4" class="text-right"><strong>合計:</strong></td>
+            <td><strong><%= number_to_currency(@order.order_items.sum { |item| item.subtotal }) %></strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div>
+    <%= link_to '編集', edit_order_path(@order), class: 'btn btn-primary' %>
+    <%= link_to '一覧に戻る', orders_path, class: 'btn btn-secondary' %>
+  </div>
+</div> 

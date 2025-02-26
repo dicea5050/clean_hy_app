@@ -1,0 +1,39 @@
+<div class="container">
+  <h1>受注一覧</h1>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>取引先</th>
+        <th>受注日</th>
+        <th>予定納品日</th>
+        <th>確定納品日</th>
+        <th>合計金額</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% @orders.each do |order| %>
+        <tr>
+          <td><%= order.id %></td>
+          <td><%= order.customer.company_name %></td>
+          <td><%= l order.order_date %></td>
+          <td><%= l order.expected_delivery_date if order.expected_delivery_date %></td>
+          <td><%= l order.actual_delivery_date if order.actual_delivery_date %></td>
+          <td><%= number_to_currency(order.order_items.sum { |item| item.subtotal }) %></td>
+          <td>
+            <%= link_to '詳細', order, class: 'btn btn-sm btn-info' %>
+            <%= link_to '編集', edit_order_path(order), class: 'btn btn-sm btn-primary' %>
+            <%= link_to '削除', order, method: :delete, data: { confirm: '本当に削除しますか？' }, class: 'btn btn-sm btn-danger' %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <br>
+
+  <%= link_to '新規受注', new_order_path, class: 'btn btn-primary' %> 
+</div> 
