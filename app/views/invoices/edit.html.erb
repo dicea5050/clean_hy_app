@@ -1,0 +1,90 @@
+<div class="container">
+  <h1>請求書編集</h1>
+
+  <%= form_with(model: @invoice, local: true) do |form| %>
+    <% if @invoice.errors.any? %>
+      <div class="alert alert-danger">
+        <h2><%= pluralize(@invoice.errors.count, "エラー") %> が発生しました:</h2>
+        <ul>
+          <% @invoice.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%= hidden_field_tag :order_ids, @order_ids.join(',') if @order_ids.present? %>
+
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <div class="form-group">
+          <%= form.label :customer_id, '取引先' %>
+          <%= form.collection_select :customer_id, @customers, :id, :company_name, 
+                                    { prompt: '取引先を選択してください' }, 
+                                    { class: 'form-control', disabled: true } %>
+          <small class="form-text text-muted">取引先は変更できません</small>
+        </div>
+      </div>
+      
+      <div class="col-md-4">
+        <div class="form-group">
+          <%= form.label :invoice_date, '請求日' %>
+          <%= form.date_field :invoice_date, class: 'form-control' %>
+        </div>
+      </div>
+      
+      <div class="col-md-4">
+        <div class="form-group">
+          <%= form.label :due_date, '支払期限' %>
+          <%= form.date_field :due_date, class: 'form-control' %>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group mb-3">
+      <%= form.label :notes, '備考' %>
+      <%= form.text_area :notes, class: 'form-control' %>
+    </div>
+
+    <% if @orders.present? %>
+      <h3>選択された受注情報</h3>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>受注番号</th>
+            <th>受注日</th>
+            <th>確定納品日</th>
+            <th>合計金額（税抜）</th>
+            <th>合計金額（税込）</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @orders.each do |order| %>
+            <tr>
+              <td><%= order.order_number %></td>
+              <td><%= l order.order_date %></td>
+              <td><%= l order.actual_delivery_date if order.actual_delivery_date %></td>
+              <td><%= number_to_currency(order.order_items.sum { |item| item.subtotal_without_tax }) %></td>
+              <td><%= number_to_currency(order.order_items.sum { |item| item.subtotal }) %></td>
+            </tr>
+          <% end %>
+          <tr class="table-info">
+            <td colspan="3"><strong>合計</strong></td>
+            <td><strong><%= number_to_currency(@orders.sum { |order| order.order_items.sum { |item| item.subtotal_without_tax } }) %></strong></td>
+            <td><strong><%= number_to_currency(@orders.sum { |order| order.order_items.sum { |item| item.subtotal } }) %></strong></td>
+          </tr>
+        </tbody>
+      </table>
+    <% else %>
+      <div class="alert alert-warning">
+        選択された受注情報がありません。
+      </div>
+    <% end %>
+
+    <div class="form-group text-center mt-4">
+      <%= form.submit '更新する', class: 'btn btn-primary' %>
+      <%= link_to '表示', @invoice, class: 'btn btn-info' %>
+      <%= link_to '戻る', invoices_path, class: 'btn btn-secondary' %>
+    </div>
+  <% end %>
+</div> 

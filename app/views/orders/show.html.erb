@@ -22,7 +22,13 @@
           <%= l @order.actual_delivery_date if @order.actual_delivery_date %>
         </div>
       </div>
-      <div class="row mb-3">
+      <div class="row mt-2">
+        <div class="col-md-3">
+          <strong>支払い方法:</strong>
+          <%= @order.payment_method %>
+        </div>
+      </div>
+      <div class="row mb-3 mt-2">
         <div class="col-md-2 font-weight-bold">受注番号：</div>
         <div class="col-md-10"><%= @order.order_number %></div>
       </div>

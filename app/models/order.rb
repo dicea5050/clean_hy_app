@@ -1,10 +1,20 @@
 class Order < ApplicationRecord
   belongs_to :customer
   has_many :order_items, dependent: :destroy
+  has_many :invoice_orders, dependent: :destroy
+  has_many :invoices, through: :invoice_orders
+  
   accepts_nested_attributes_for :order_items, allow_destroy: true
 
   validates :order_date, presence: true
   validates :customer_id, presence: true
+  
+  # 支払い方法の選択肢
+  PAYMENT_METHODS = {
+    "代引き（現金）" => "cash_on_delivery",
+    "銀行振込" => "bank_transfer",
+    "口座引き落し" => "bank_debit"
+  }
   
   # 受注番号を生成するメソッド（年月ごとにリセットされる連番）
   def order_number

@@ -28,6 +28,14 @@
           <%= form.label :order_date, "受注日" %>
           <%= form.date_field :order_date, class: "form-control", required: true %>
         </div>
+        
+        <div class="col-md-4 form-group">
+          <%= form.label :payment_method, "支払い方法" %>
+          <%= form.select :payment_method, 
+              Order::PAYMENT_METHODS.keys,
+              { include_blank: "支払い方法を選択してください" }, 
+              { class: "form-control" } %>
+        </div>
       </div>
 
       <div class="row">

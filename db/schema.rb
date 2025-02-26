@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_26_081431) do
+ActiveRecord::Schema[8.0].define(version: 2025_02_26_144413) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -36,6 +36,28 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_26_081431) do
     t.index ["customer_code"], name: "index_customers_on_customer_code", unique: true
   end
 
+  create_table "invoice_orders", force: :cascade do |t|
+    t.bigint "invoice_id", null: false
+    t.bigint "order_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["invoice_id", "order_id"], name: "index_invoice_orders_on_invoice_id_and_order_id", unique: true
+    t.index ["invoice_id"], name: "index_invoice_orders_on_invoice_id"
+    t.index ["order_id"], name: "index_invoice_orders_on_order_id"
+  end
+
+  create_table "invoices", force: :cascade do |t|
+    t.string "invoice_number", null: false
+    t.bigint "customer_id", null: false
+    t.date "invoice_date", null: false
+    t.date "due_date"
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["customer_id"], name: "index_invoices_on_customer_id"
+    t.index ["invoice_number"], name: "index_invoices_on_invoice_number", unique: true
+  end
+
   create_table "order_items", force: :cascade do |t|
     t.bigint "order_id", null: false
     t.bigint "product_id", null: false
@@ -55,6 +77,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_26_081431) do
     t.date "actual_delivery_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "payment_method"
     t.index ["customer_id"], name: "index_orders_on_customer_id"
   end
 
@@ -77,6 +100,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_26_081431) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "invoice_orders", "invoices"
+  add_foreign_key "invoice_orders", "orders"
+  add_foreign_key "invoices", "customers"
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "products"
   add_foreign_key "orders", "customers"
