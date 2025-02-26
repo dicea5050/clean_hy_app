@@ -6,3 +6,21 @@
 
 // または特定のコンポーネントだけを使用
 // @use "bootstrap/scss/bootstrap-grid"; 
+
+// ヘッダーナビゲーション用のカスタムスタイル
+.navbar {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+  font-weight: bold;
+}
+
+.nav-link {
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: #fff !important;
+} 
