@@ -8,4 +8,9 @@ class OrderItem < ApplicationRecord
     return 0 if unit_price.nil? || quantity.nil? || tax_rate.nil?
     (unit_price * quantity * (1 + tax_rate / 100.0)).round
   end
+  
+  def subtotal_without_tax
+    return 0 if unit_price.nil? || quantity.nil?
+    (unit_price * quantity).round
+  end
 end 

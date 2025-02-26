@@ -1,6 +1,11 @@
 <div class="container">
   <h1>受注情報編集</h1>
 
+  <div class="row mb-3">
+    <div class="col-md-2 font-weight-bold">受注番号：</div>
+    <div class="col-md-10"><%= @order.order_number %></div>
+  </div>
+
   <%= render 'form', order: @order %>
 
   <div class="mt-3">

@@ -1,15 +1,21 @@
 <div class="container">
-  <h1>受注一覧</h1>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>受注一覧</h1>
+    <%= link_to '新規受注', new_order_path, class: 'btn btn-primary' %>
+  </div>
 
   <table class="table">
     <thead>
       <tr>
+        <th></th>
         <th>ID</th>
+        <th>受注番号</th>
         <th>取引先</th>
         <th>受注日</th>
         <th>予定納品日</th>
         <th>確定納品日</th>
-        <th>合計金額</th>
+        <th>合計金額（税抜）</th>
+        <th>合計金額（税込）</th>
         <th>操作</th>
       </tr>
     </thead>
@@ -17,23 +23,81 @@
     <tbody>
       <% @orders.each do |order| %>
         <tr>
+          <td>
+            <input type="checkbox" class="order-checkbox" 
+                   data-customer-id="<%= order.customer_id %>"
+                   data-customer-name="<%= order.customer.company_name %>">
+          </td>
           <td><%= order.id %></td>
+          <td><%= link_to order.order_number, order_path(order) %></td>
           <td><%= order.customer.company_name %></td>
           <td><%= l order.order_date %></td>
           <td><%= l order.expected_delivery_date if order.expected_delivery_date %></td>
           <td><%= l order.actual_delivery_date if order.actual_delivery_date %></td>
+          <td><%= number_to_currency(order.order_items.sum { |item| item.subtotal_without_tax }) %></td>
           <td><%= number_to_currency(order.order_items.sum { |item| item.subtotal }) %></td>
           <td>
             <%= link_to '詳細', order, class: 'btn btn-sm btn-info' %>
             <%= link_to '編集', edit_order_path(order), class: 'btn btn-sm btn-primary' %>
-            <%= link_to '削除', order, method: :delete, data: { confirm: '本当に削除しますか？' }, class: 'btn btn-sm btn-danger' %>
+            <%= form_with(url: order_path(order), method: :delete, class: 'd-inline') do |f| %>
+              <%= f.submit '削除', class: 'btn btn-sm btn-danger', data: { confirm: '本当に削除しますか？' }, 
+                          onclick: "return confirm('本当に削除しますか？');" %>
+            <% end %>
           </td>
         </tr>
       <% end %>
     </tbody>
   </table>
 
-  <br>
+  <div class="text-center mt-4 mb-4">
+    <button type="button" class="btn btn-success" id="create-invoice-btn">選択した受注情報を合算して請求書を発行</button>
+  </div>
+</div>
 
-  <%= link_to '新規受注', new_order_path, class: 'btn btn-primary' %> 
-</div> 
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.order-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', function() {
+        const customerId = this.dataset.customerId;
+        let anyChecked = false;
+        let selectedCustomerId = null;
+        
+        // どのチェックボックスがチェックされているか確認
+        checkboxes.forEach(cb => {
+          if (cb.checked) {
+            anyChecked = true;
+            selectedCustomerId = cb.dataset.customerId;
+          }
+        });
+        
+        // チェックボックスがチェックされている場合、異なる取引先のチェックボックスを無効化
+        if (anyChecked) {
+          checkboxes.forEach(cb => {
+            if (cb.dataset.customerId !== selectedCustomerId) {
+              cb.disabled = true;
+            }
+          });
+        } else {
+          // チェックされていない場合、すべてのチェックボックスを有効化
+          checkboxes.forEach(cb => {
+            cb.disabled = false;
+          });
+        }
+
+        // 選択されている受注があるか確認し、請求書発行ボタンの有効/無効を設定
+        const invoiceBtn = document.getElementById('create-invoice-btn');
+        if (invoiceBtn) {
+          invoiceBtn.disabled = !anyChecked;
+        }
+      });
+    });
+    
+    // 初期状態では請求書発行ボタンを無効化
+    const invoiceBtn = document.getElementById('create-invoice-btn');
+    if (invoiceBtn) {
+      invoiceBtn.disabled = true;
+    }
+  });
+</script> 

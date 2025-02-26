@@ -4,29 +4,34 @@
         { include_blank: "商品を選択してください" }, 
         { class: "form-control product-select", style: "width: 100%;", required: true } %>
   </td>
-  <td>
+  <td style="width: 120px;">
     <%= f.hidden_field :unit_price %>
-    <span class="unit-price-display" style="display: inline-block; min-width: 80px; text-align: right;">
+    <span class="unit-price-display" style="display: inline-block; min-width: 60px; text-align: right;">
       <%= f.object.unit_price.present? ? f.object.unit_price : 0 %>
     </span>円
   </td>
-  <td>
+  <td style="width: 80px;">
     <%= f.hidden_field :tax_rate %>
-    <span class="tax-rate-display" style="text-align: right; display: inline-block; min-width: 30px;">
+    <span class="tax-rate-display" style="text-align: right; display: inline-block; min-width: 20px;">
       <%= f.object.tax_rate.present? ? f.object.tax_rate : 0 %>
     </span>%
   </td>
-  <td>
+  <td style="width: 80px;">
     <%= f.select :quantity, options_for_select((1..10).map {|n| [n, n]}, f.object.quantity), 
         { include_blank: "数量" }, 
         { class: "form-control quantity-select", style: "width: 100%;", required: true } %>
   </td>
-  <td>
-    <span class="subtotal" style="display: inline-block; min-width: 120px; text-align: right;">
+  <td style="width: 120px;">
+    <span class="subtotal-without-tax" style="display: inline-block; min-width: 80px; text-align: right;">
+      <%= f.object.subtotal_without_tax.present? ? f.object.subtotal_without_tax : 0 %>
+    </span>円
+  </td>
+  <td style="width: 120px;">
+    <span class="subtotal-with-tax" style="display: inline-block; min-width: 80px; text-align: right;">
       <%= f.object.subtotal.present? ? f.object.subtotal : 0 %>
     </span>円
   </td>
-  <td class="text-center">
+  <td class="text-center" style="width: 80px;">
     <%= f.hidden_field :_destroy %>
     <%= link_to "削除", '#', class: "btn btn-sm btn-danger remove-item" %>
   </td>

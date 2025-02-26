@@ -106,7 +106,8 @@ function setupProductSelects() {
         row.querySelector('input[name*="[tax_rate]"]').value = '';
         row.querySelector('.tax-rate-display').textContent = '0';
         
-        row.querySelector('.subtotal').textContent = '0';
+        row.querySelector('.subtotal-without-tax').textContent = '0';
+        row.querySelector('.subtotal-with-tax').textContent = '0';
       }
       
       // 注文合計を更新
@@ -131,24 +132,49 @@ function setupQuantitySelects() {
 function calculateSubtotal(row) {
   const unitPrice = parseFloat(row.querySelector('input[name*="[unit_price]"]').value) || 0;
   const quantity = parseInt(row.querySelector('.quantity-select').value) || 0;
+  const taxRate = parseFloat(row.querySelector('input[name*="[tax_rate]"]').value) || 0;
   
-  const subtotal = unitPrice * quantity;
-  console.log('Calculating subtotal:', unitPrice, 'x', quantity, '=', subtotal);
-  row.querySelector('.subtotal').textContent = subtotal.toLocaleString();
+  // 税抜小計
+  const subtotalWithoutTax = unitPrice * quantity;
+  // 税込小計
+  const subtotalWithTax = subtotalWithoutTax * (1 + taxRate / 100);
+  
+  console.log('Calculating subtotal:', unitPrice, 'x', quantity, '=', subtotalWithoutTax, '(税抜), 税込:', subtotalWithTax);
+  
+  row.querySelector('.subtotal-without-tax').textContent = subtotalWithoutTax.toLocaleString();
+  row.querySelector('.subtotal-with-tax').textContent = subtotalWithTax.toLocaleString();
 }
 
 // 注文合計の更新
 function updateOrderTotal() {
-  let total = 0;
-  document.querySelectorAll('.subtotal').forEach(function(element) {
-    const subtotal = parseInt(element.textContent.replace(/,/g, '')) || 0;
-    total += subtotal;
+  let totalWithoutTax = 0;
+  let totalWithTax = 0;
+  
+  document.querySelectorAll('#order-items tbody tr').forEach(function(row) {
+    // 表示されている行（削除されていない行）のみを合計対象とする
+    if (row.style.display !== 'none') {
+      const subtotalWithoutTaxElement = row.querySelector('.subtotal-without-tax');
+      const subtotalWithTaxElement = row.querySelector('.subtotal-with-tax');
+      
+      const subtotalWithoutTax = parseInt(subtotalWithoutTaxElement.textContent.replace(/,/g, '')) || 0;
+      const subtotalWithTax = parseInt(subtotalWithTaxElement.textContent.replace(/,/g, '')) || 0;
+      
+      totalWithoutTax += subtotalWithoutTax;
+      totalWithTax += subtotalWithTax;
+    }
   });
   
-  console.log('Updating order total:', total);
-  const orderTotal = document.getElementById('order-total');
-  if (orderTotal) {
-    orderTotal.textContent = total.toLocaleString();
+  console.log('Updating order total - 税抜:', totalWithoutTax, '税込:', totalWithTax);
+  
+  const orderTotalWithoutTax = document.getElementById('order-total-without-tax');
+  const orderTotalWithTax = document.getElementById('order-total-with-tax');
+  
+  if (orderTotalWithoutTax) {
+    orderTotalWithoutTax.textContent = totalWithoutTax.toLocaleString();
+  }
+  
+  if (orderTotalWithTax) {
+    orderTotalWithTax.textContent = totalWithTax.toLocaleString();
   }
 }
 
@@ -199,7 +225,8 @@ function setupAddItemButton() {
           // 表示値もクリア
           newRow.querySelector('.unit-price-display').textContent = '0';
           newRow.querySelector('.tax-rate-display').textContent = '0';
-          newRow.querySelector('.subtotal').textContent = '0';
+          newRow.querySelector('.subtotal-without-tax').textContent = '0';
+          newRow.querySelector('.subtotal-with-tax').textContent = '0';
           
           // 削除フラグをリセット
           const destroyField = newRow.querySelector('input[name*="[_destroy]"]');
@@ -241,7 +268,8 @@ function setupAddItemButton() {
         // 表示値もクリア
         newRow.querySelector('.unit-price-display').textContent = '0';
         newRow.querySelector('.tax-rate-display').textContent = '0';
-        newRow.querySelector('.subtotal').textContent = '0';
+        newRow.querySelector('.subtotal-without-tax').textContent = '0';
+        newRow.querySelector('.subtotal-with-tax').textContent = '0';
         
         // 行を追加
         tbody.appendChild(newRow);
@@ -284,7 +312,10 @@ function createNewRowFromScratch(tbody) {
         </select>
       </td>
       <td>
-        <span class="subtotal" style="display: inline-block; min-width: 120px; text-align: right;">0</span>円
+        <span class="subtotal-without-tax" style="display: inline-block; min-width: 120px; text-align: right;">0</span>円
+      </td>
+      <td>
+        <span class="subtotal-with-tax" style="display: inline-block; min-width: 120px; text-align: right;">0</span>円
       </td>
       <td class="text-center">
         <input type="hidden" name="order[order_items_attributes][${newId}][_destroy]" id="order_order_items_attributes_${newId}__destroy" value="false">

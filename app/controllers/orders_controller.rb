@@ -3,6 +3,7 @@ class OrdersController < ApplicationController
 
   def index
     @orders = Order.includes(:customer).order(order_date: :desc)
+    # ページネーションなしのシンプルな取得
   end
 
   def show

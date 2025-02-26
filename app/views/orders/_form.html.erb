@@ -50,12 +50,13 @@
       <table class="table" id="order-items" style="table-layout: fixed;">
         <thead>
           <tr>
-            <th style="width: 25%;">商品名</th>
-            <th style="width: 15%;">単価（税抜）</th>
-            <th style="width: 10%;">税率（%）</th>
-            <th style="width: 10%;">数量</th>
-            <th style="width: 25%;">小計</th>
-            <th style="width: 15%;"></th>
+            <th style="width: 200px;">商品</th>
+            <th style="width: 150px;">単価（税抜）</th>
+            <th style="width: 100px;">税率（%）</th>
+            <th style="width: 80px;">数量</th>
+            <th style="width: 150px;">小計（税抜）</th>
+            <th style="width: 150px;">小計（税込）</th>
+            <th style="width: 90px;"></th>
           </tr>
         </thead>
         <tbody>
@@ -68,16 +69,27 @@
             <% end %>
           <% end %>
         </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4" class="text-right"><strong>合計（税抜）：</strong></td>
+            <td>
+              <strong><span id="order-total-without-tax" style="display: inline-block; min-width: 80px; text-align: right;">0</span>円</strong>
+            </td>
+            <td colspan="2"></td>
+          </tr>
+          <tr>
+            <td colspan="4" class="text-right"><strong>合計（税込）：</strong></td>
+            <td></td>
+            <td>
+              <strong><span id="order-total-with-tax" style="display: inline-block; min-width: 80px; text-align: right;">0</span>円</strong>
+            </td>
+            <td></td>
+          </tr>
+        </tfoot>
       </table>
       
       <div class="links mb-3">
         <%= link_to '商品を追加', '#', class: 'btn btn-outline-primary add-item' %>
-      </div>
-      
-      <div class="row">
-        <div class="col-md-12 text-right">
-          <strong>合計: <span id="order-total" style="display: inline-block; min-width: 100px; text-align: right;">0</span>円</strong>
-        </div>
       </div>
     </div>
   </div>

@@ -22,6 +22,10 @@
           <%= l @order.actual_delivery_date if @order.actual_delivery_date %>
         </div>
       </div>
+      <div class="row mb-3">
+        <div class="col-md-2 font-weight-bold">受注番号：</div>
+        <div class="col-md-10"><%= @order.order_number %></div>
+      </div>
     </div>
   </div>
 
@@ -35,7 +39,8 @@
             <th>単価（税抜）</th>
             <th>税率（%）</th>
             <th>数量</th>
-            <th>小計</th>
+            <th>小計（税抜）</th>
+            <th>小計（税込）</th>
           </tr>
         </thead>
         <tbody>
@@ -45,11 +50,18 @@
               <td><%= number_to_currency(item.unit_price) %></td>
               <td><%= item.tax_rate %></td>
               <td><%= item.quantity %></td>
+              <td><%= number_to_currency(item.subtotal_without_tax) %></td>
               <td><%= number_to_currency(item.subtotal) %></td>
             </tr>
           <% end %>
           <tr>
-            <td colspan="4" class="text-right"><strong>合計:</strong></td>
+            <td colspan="4" class="text-right"><strong>合計（税抜）:</strong></td>
+            <td><strong><%= number_to_currency(@order.order_items.sum { |item| item.subtotal_without_tax }) %></strong></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td colspan="4" class="text-right"><strong>合計（税込）:</strong></td>
+            <td></td>
             <td><strong><%= number_to_currency(@order.order_items.sum { |item| item.subtotal }) %></strong></td>
           </tr>
         </tbody>
