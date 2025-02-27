@@ -36,4 +36,14 @@ class Order < ApplicationRecord
     
     "ORD-#{date_part}-#{id_part}"
   end
+  
+  # 請求書に関連付けられているかどうかを判断するメソッド
+  def invoiced?
+    invoice_orders.exists?
+  end
+  
+  # 紐づけられている請求書を取得するメソッド
+  def related_invoices
+    invoices.pluck(:invoice_number).join(", ")
+  end
 end 

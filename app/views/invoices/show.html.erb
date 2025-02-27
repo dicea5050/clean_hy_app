@@ -57,7 +57,7 @@
     <tbody>
       <% @invoice.orders.each do |order| %>
         <tr>
-          <td><%= order.order_number %></td>
+          <td><%= link_to order.order_number, order_path(order) %></td>
           <td><%= l order.order_date %></td>
           <td><%= l order.actual_delivery_date if order.actual_delivery_date %></td>
           <td><%= number_to_currency(order.order_items.sum { |item| item.subtotal_without_tax }) %></td>

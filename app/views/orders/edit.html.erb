@@ -3,7 +3,14 @@
 
   <div class="row mb-3">
     <div class="col-md-2 font-weight-bold">受注番号：</div>
-    <div class="col-md-10"><%= @order.order_number %></div>
+    <div class="col-md-10">
+      <%= @order.order_number %>
+      <% if @order.invoiced? %>
+        <span style="display: inline-block; padding: 0.25em 0.6em; margin-left: 0.5rem; font-size: 0.75rem; font-weight: 700; line-height: 1; text-align: center; white-space: nowrap; vertical-align: baseline; border-radius: 0.375rem; color: #fff; background-color: #28a745;">請求済</span>
+      <% else %>
+        <span style="display: inline-block; padding: 0.25em 0.6em; margin-left: 0.5rem; font-size: 0.75rem; font-weight: 700; line-height: 1; text-align: center; white-space: nowrap; vertical-align: baseline; border-radius: 0.375rem; color: #fff; background-color: #6c757d;">未請求</span>
+      <% end %>
+    </div>
   </div>
 
   <%= render 'form', order: @order %>
@@ -12,4 +19,26 @@
     <%= link_to '詳細', @order, class: 'btn btn-info' %>
     <%= link_to '戻る', orders_path, class: 'btn btn-secondary' %>
   </div>
-</div> 
+</div>
+
+<% if @order.invoiced? %>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // フォームを取得
+    const orderForm = document.querySelector('form');
+    
+    // フォーム送信前の処理を追加
+    orderForm.addEventListener('submit', function(event) {
+      // デフォルトの送信動作を一時停止
+      event.preventDefault();
+      
+      // 確認ダイアログを表示
+      if (confirm('請求済みの受注情報です。本当に編集しますか？')) {
+        // OKがクリックされた場合はフォームを送信
+        this.submit();
+      }
+      // キャンセルの場合は何もしない（送信は中止される）
+    });
+  });
+</script>
+<% end %> 
