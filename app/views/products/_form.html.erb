@@ -30,6 +30,17 @@
     <%= form.number_field :price, step: '0.01', class: 'form-control' %>
   </div>
 
+  <div class="form-group">
+    <%= form.label :stock, '在庫数' %>
+    <%= form.number_field :stock, class: 'form-control' %>
+    <small class="form-text text-muted">空白の場合は在庫無制限として扱われます</small>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :is_public, '公開する' %>
+    <%= form.check_box :is_public, class: 'form-check-input ml-2' %>
+  </div>
+
   <div class="form-group mt-4">
     <%= form.submit product.new_record? ? '登録' : '更新', class: 'btn btn-primary' %>
   </div>

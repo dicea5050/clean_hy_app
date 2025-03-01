@@ -12,13 +12,21 @@ class Shop::OrdersController < ApplicationController
     @order = Order.new(order_params)
     
     if @order.save
-      # カートの内容を注文に変換
-      @cart.items.each do |item|
-        @order.order_items.create(
-          product_id: item.product_id,
-          quantity: item.quantity,
-          price: item.product.price
-        )
+      # カートの内容を注文に変換し、在庫を減らす
+      ActiveRecord::Base.transaction do
+        @cart.items.each do |item|
+          @order.order_items.create(
+            product_id: item.product_id,
+            quantity: item.quantity,
+            price: item.product.price
+          )
+          
+          # 在庫を減らす（在庫がnilの場合は減らさない）
+          product = item.product
+          if product.stock.present?
+            product.update!(stock: product.stock - item.quantity)
+          end
+        end
       end
       
       # カートを空にする
@@ -27,6 +35,7 @@ class Shop::OrdersController < ApplicationController
       # 完了ページへリダイレクト
       redirect_to shop_order_complete_path
     else
+      @payment_methods = PaymentMethod.all
       render :new
     end
   end

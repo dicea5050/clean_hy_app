@@ -14,22 +14,42 @@ class Shop::CartsController < ApplicationController
       quantity = params[:quantity].to_i
       
       if quantity > 0
-        @cart.add_item(product, quantity)
+        if product.in_stock?(quantity)
+          @cart.add_item(product, quantity)
+          flash[:notice] = '商品をカートに追加しました'
+        else
+          flash[:alert] = '商品の在庫が不足しています'
+        end
       end
     # 複数商品の一括追加の場合
     elsif params[:product_quantities].present?
+      all_available = true
+      items_to_add = []
+      
       params[:product_quantities].each do |product_id, quantity|
         quantity = quantity.to_i
         if quantity > 0
           product = Product.find(product_id)
+          unless product.in_stock?(quantity)
+            all_available = false
+            flash[:alert] = "#{product.name}の在庫が不足しています"
+            break
+          end
+          items_to_add << [product, quantity]
+        end
+      end
+      
+      if all_available && items_to_add.any?
+        items_to_add.each do |product, quantity|
           @cart.add_item(product, quantity)
         end
+        flash[:notice] = '商品をカートに追加しました'
       end
     end
     
     session[:cart] = @cart.serialize
     
-    redirect_to shop_cart_path, notice: '商品をカートに追加しました'
+    redirect_to shop_cart_path
   end
   
   def destroy

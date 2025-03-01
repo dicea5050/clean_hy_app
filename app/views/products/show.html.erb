@@ -19,6 +19,18 @@
 
         <dt class="col-sm-3">税率(%):</dt>
         <dd class="col-sm-9"><%= @product.tax_rate.rate %></dd>
+
+        <dt class="col-sm-3">在庫数:</dt>
+        <dd class="col-sm-9">
+          <% if @product.stock.nil? %>
+            無制限
+          <% else %>
+            <%= @product.stock %>個
+          <% end %>
+        </dd>
+
+        <dt class="col-sm-3">公開状態:</dt>
+        <dd class="col-sm-9"><%= @product.is_public? ? '公開' : '非公開' %></dd>
       </dl>
     </div>
     <div class="card-footer">
