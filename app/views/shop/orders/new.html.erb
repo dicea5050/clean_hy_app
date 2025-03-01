@@ -1,0 +1,70 @@
+<h1>注文確認</h1>
+
+<h2>ご注文内容</h2>
+<table class="table">
+  <thead>
+    <tr>
+      <th>商品名</th>
+      <th>単価</th>
+      <th>数量</th>
+      <th>小計</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @cart.items.each do |item| %>
+      <tr>
+        <td><%= item.product.name %></td>
+        <td>¥<%= number_with_delimiter(item.product.price) %></td>
+        <td><%= item.quantity %></td>
+        <td>¥<%= number_with_delimiter(item.subtotal) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="3" class="text-right"><strong>合計（税抜）:</strong></td>
+      <td>¥<%= number_with_delimiter(@cart.total_price) %></td>
+    </tr>
+    <tr>
+      <td colspan="3" class="text-right"><strong>消費税:</strong></td>
+      <td>¥<%= number_with_delimiter(@cart.total_tax) %></td>
+    </tr>
+    <tr>
+      <td colspan="3" class="text-right"><strong>合計（税込）:</strong></td>
+      <td>¥<%= number_with_delimiter(@cart.total_with_tax) %></td>
+    </tr>
+  </tfoot>
+</table>
+
+<h2>お客様情報・お支払い方法</h2>
+<%= form_with model: @order, url: shop_orders_path, local: true do |f| %>
+  <div class="form-group">
+    <%= f.label :name, 'お名前' %>
+    <%= f.text_field :name, class: 'form-control' %>
+  </div>
+  
+  <div class="form-group">
+    <%= f.label :email, 'メールアドレス' %>
+    <%= f.email_field :email, class: 'form-control' %>
+  </div>
+  
+  <div class="form-group">
+    <%= f.label :address, '住所' %>
+    <%= f.text_area :address, class: 'form-control' %>
+  </div>
+  
+  <div class="form-group">
+    <%= f.label :payment_method_id, 'お支払い方法' %>
+    <%= f.collection_select :payment_method_id, @payment_methods, :id, :name, {}, class: 'form-control' %>
+  </div>
+  
+  <div class="form-group">
+    <%= f.label :desired_delivery_date, '希望お届け日' %>
+    <%= f.date_field :desired_delivery_date, min: Date.tomorrow, class: 'form-control' %>
+  </div>
+  
+  <div class="form-actions">
+    <%= link_to 'カートに戻る', shop_cart_path, class: 'btn btn-outline-secondary' %>
+    <%= f.submit '注文する', class: 'btn btn-primary' %>
+  </div>
+<% end %> 

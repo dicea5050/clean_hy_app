@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>オンラインショップ</title>
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+
+  <%= stylesheet_link_tag 'application', media: 'all' %>
+  <%= javascript_include_tag 'application' %>
+</head>
+<body class="shop-layout">
+  <header class="shop-header">
+    <div class="container">
+      <h1 class="shop-title">オンラインショップ</h1>
+      <nav class="shop-nav">
+        <ul>
+          <li><%= link_to '商品一覧', shop_products_path %></li>
+          <li><%= link_to 'カート', shop_cart_path %></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <% if notice %>
+      <div class="alert alert-success"><%= notice %></div>
+    <% end %>
+    <% if alert %>
+      <div class="alert alert-danger"><%= alert %></div>
+    <% end %>
+    
+    <%= yield %>
+  </main>
+
+  <footer class="shop-footer">
+    <div class="container">
+      <p>&copy; <%= Date.current.year %> オンラインショップ</p>
+    </div>
+  </footer>
+</body>
+</html> 

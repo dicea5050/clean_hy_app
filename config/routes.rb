@@ -40,6 +40,17 @@ Rails.application.routes.draw do
     end
   end
   
+  # ショップ機能用のルート
+  namespace :shop do
+    resources :products, only: [:index, :show]
+    resource :cart, only: [:show, :update, :destroy]
+    resources :orders, only: [:new, :create]
+    get 'orders/complete', to: 'orders#complete', as: 'order_complete'
+  end
+  
+  # ショップのルートページを商品一覧に設定
+  get '/shop', to: 'shop/products#index'
+  
   # ルートパスの設定
   root to: 'administrators#login'
 end

@@ -1,0 +1,30 @@
+<h1>商品一覧</h1>
+
+<%= form_with url: shop_cart_path, method: :patch, local: true do |f| %>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>商品名</th>
+        <th>価格</th>
+        <th>数量</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @products.each do |product| %>
+        <tr>
+          <td><%= product.name %></td>
+          <td class="price">¥<%= number_with_delimiter(product.price) %></td>
+          <td>
+            <div class="quantity-select">
+              <%= f.select "product_quantities[#{product.id}]", options_for_select((0..10)), { selected: 0 }, class: 'form-control' %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  
+  <div class="cart-submit">
+    <%= f.submit 'カートに入れる', class: 'btn btn-primary btn-lg' %>
+  </div>
+<% end %> 

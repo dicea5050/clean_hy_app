@@ -1,0 +1,46 @@
+<h1>ショッピングカート</h1>
+
+<% if @cart.items.any? %>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>商品名</th>
+        <th>単価</th>
+        <th>数量</th>
+        <th>小計</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @cart.items.each do |item| %>
+        <tr>
+          <td><%= item.product.name %></td>
+          <td>¥<%= number_with_delimiter(item.product.price) %></td>
+          <td><%= item.quantity %></td>
+          <td>¥<%= number_with_delimiter(item.subtotal) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="3" class="text-right"><strong>合計（税抜）:</strong></td>
+        <td>¥<%= number_with_delimiter(@cart.total_price) %></td>
+      </tr>
+      <tr>
+        <td colspan="3" class="text-right"><strong>消費税:</strong></td>
+        <td>¥<%= number_with_delimiter(@cart.total_tax) %></td>
+      </tr>
+      <tr>
+        <td colspan="3" class="text-right"><strong>合計（税込）:</strong></td>
+        <td>¥<%= number_with_delimiter(@cart.total_with_tax) %></td>
+      </tr>
+    </tfoot>
+  </table>
+  
+  <div class="cart-actions">
+    <%= button_to 'カートを空にする', shop_cart_path, method: :delete, class: 'btn btn-outline-danger', data: { confirm: '本当にカートを空にしますか？' } %>
+    <%= link_to '注文手続きへ進む', new_shop_order_path, class: 'btn btn-success' %>
+  </div>
+<% else %>
+  <p>カートには商品が入っていません。</p>
+  <%= link_to '商品一覧に戻る', shop_products_path, class: 'btn btn-primary' %>
+<% end %> 
