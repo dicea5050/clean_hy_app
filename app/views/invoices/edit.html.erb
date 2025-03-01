@@ -16,6 +16,18 @@
     <%= hidden_field_tag :order_ids, @order_ids.join(',') if @order_ids.present? %>
 
     <div class="row mb-3">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>請求書番号</label>
+          <div class="d-flex align-items-center">
+            <span class="form-control-plaintext"><%= @invoice.invoice_number %></span>
+            <span class="<%= @invoice.approval_status_badge_class %> ms-2"><%= @invoice.approval_status %></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mb-3">
       <div class="col-md-4">
         <div class="form-group">
           <%= form.label :customer_id, '取引先' %>
@@ -51,25 +63,39 @@
       <table class="table table-striped">
         <thead>
           <tr>
-            <th>受注番号</th>
-            <th>受注日</th>
             <th>確定納品日</th>
-            <th>合計金額（税抜）</th>
-            <th>合計金額（税込）</th>
+            <th>受注番号</th>
+            <th>商品</th>
+            <th>数量</th>
+            <th>小計（税抜）</th>
+            <th>小計（税込）</th>
           </tr>
         </thead>
         <tbody>
+          <% current_order_id = nil %>
           <% @orders.each do |order| %>
-            <tr>
-              <td><%= order.order_number %></td>
-              <td><%= l order.order_date %></td>
-              <td><%= l order.actual_delivery_date if order.actual_delivery_date %></td>
-              <td><%= number_to_currency(order.order_items.sum { |item| item.subtotal_without_tax }) %></td>
-              <td><%= number_to_currency(order.order_items.sum { |item| item.subtotal }) %></td>
-            </tr>
+            <% order.order_items.each_with_index do |item, index| %>
+              <tr>
+                <td>
+                  <% if current_order_id != order.id %>
+                    <%= l order.actual_delivery_date if order.actual_delivery_date %>
+                  <% end %>
+                </td>
+                <td>
+                  <% if current_order_id != order.id %>
+                    <%= order.order_number %>
+                  <% end %>
+                </td>
+                <td><%= item.product.name %></td>
+                <td><%= item.quantity %></td>
+                <td class="text-right"><%= number_to_currency(item.subtotal_without_tax) %></td>
+                <td class="text-right"><%= number_to_currency(item.subtotal) %></td>
+              </tr>
+              <% current_order_id = order.id %>
+            <% end %>
           <% end %>
           <tr class="table-info">
-            <td colspan="3"><strong>合計</strong></td>
+            <td colspan="4"><strong>合計</strong></td>
             <td><strong><%= number_to_currency(@orders.sum { |order| order.order_items.sum { |item| item.subtotal_without_tax } }) %></strong></td>
             <td><strong><%= number_to_currency(@orders.sum { |order| order.order_items.sum { |item| item.subtotal } }) %></strong></td>
           </tr>
@@ -83,7 +109,7 @@
 
     <div class="form-group text-center mt-4">
       <%= form.submit '更新する', class: 'btn btn-primary' %>
-      <%= link_to '表示', @invoice, class: 'btn btn-info' %>
+      <%= link_to '詳細', @invoice, class: 'btn btn-info' %>
       <%= link_to '戻る', invoices_path, class: 'btn btn-secondary' %>
     </div>
   <% end %>

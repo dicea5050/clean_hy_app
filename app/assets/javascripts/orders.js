@@ -189,68 +189,20 @@ function setupAddItemButton() {
       // テーブルボディを取得
       const tbody = document.querySelector('#order-items tbody');
       
-      // 表示されている行がない場合のチェック
-      const visibleRows = Array.from(tbody.querySelectorAll('tr')).filter(function(row) {
-        return row.style.display !== 'none';
-      });
+      // 表示されている行を取得
+      const visibleRows = Array.from(tbody.querySelectorAll('tr'));
       
       if (visibleRows.length === 0) {
-        console.log('No visible rows, creating new row from template');
-        
-        // テンプレート行を使用するか、新しい行を作成
-        const hiddenRow = tbody.querySelector('tr');
-        if (hiddenRow) {
-          // 非表示になっている行があればそれをコピー
-          const newRow = hiddenRow.cloneNode(true);
-          // 表示に変更
-          newRow.style.display = '';
-          
-          // 入力値をクリア
-          newRow.querySelectorAll('select, input').forEach(function(input) {
-            if (input.name && !input.name.includes('_destroy')) {
-              // IDを新しく設定
-              const newId = new Date().getTime();
-              input.name = input.name.replace(/\d+/, newId);
-              input.id = input.id ? input.id.replace(/\d+/, newId) : '';
-              
-              // 値をクリア
-              if (input.tagName === 'SELECT') {
-                input.selectedIndex = 0;
-              } else {
-                input.value = '';
-              }
-            }
-          });
-          
-          // 表示値もクリア
-          newRow.querySelector('.unit-price-display').textContent = '0';
-          newRow.querySelector('.tax-rate-display').textContent = '0';
-          newRow.querySelector('.subtotal-without-tax').textContent = '0';
-          newRow.querySelector('.subtotal-with-tax').textContent = '0';
-          
-          // 削除フラグをリセット
-          const destroyField = newRow.querySelector('input[name*="[_destroy]"]');
-          if (destroyField) {
-            destroyField.value = 'false';
-          }
-          
-          // 行を追加
-          tbody.appendChild(newRow);
-          
-          // 新しい行のイベントを設定
-          setupRowEvents(newRow);
-        } else {
-          // 非表示行もない場合は、新規行のHTMLを直接作成（最終手段）
-          createNewRowFromScratch(tbody);
-        }
+        // 行がない場合は新しい行を作成
+        createNewRowFromScratch(tbody);
       } else {
-        // 既存の行がある場合は従来通りコピー
+        // 既存の行がある場合は最初の行をコピー
         const firstRow = visibleRows[0];
         const newRow = firstRow.cloneNode(true);
         
         // 入力値をクリア
         newRow.querySelectorAll('select, input').forEach(function(input) {
-          if (input.name && !input.name.includes('_destroy')) {
+          if (input.name) {
             // IDを新しく設定
             const newId = new Date().getTime();
             input.name = input.name.replace(/\d+/, newId);
@@ -385,8 +337,11 @@ function setupRowEvents(row) {
   if (removeButton) {
     removeButton.addEventListener('click', function(e) {
       e.preventDefault();
+      const row = this.closest('tr');
       const destroyField = row.querySelector('input[name*="[_destroy]"]');
-      destroyField.value = '1';
+      if (destroyField) {
+        destroyField.value = 'true';
+      }
       row.style.display = 'none';
       updateOrderTotal();
     });
@@ -401,11 +356,13 @@ function setupRemoveButtons() {
       console.log('Remove button clicked');
       const row = this.closest('tr');
       
-      // 削除フラグを設定
+      // _destroyフィールドを見つけて、trueに設定する
       const destroyField = row.querySelector('input[name*="[_destroy]"]');
-      destroyField.value = '1';
+      if (destroyField) {
+        destroyField.value = 'true';
+      }
       
-      // 行を非表示
+      // 行を非表示にするだけで、DOMからは削除しない
       row.style.display = 'none';
       
       // 注文合計を更新

@@ -2,8 +2,11 @@ class OrdersController < ApplicationController
   before_action :set_order, only: [:show, :edit, :update, :destroy]
 
   def index
-    @orders = Order.includes(:customer).order(order_date: :desc)
-    # ページネーションなしのシンプルな取得
+    @orders = Order.includes(:customer, :order_items)
+                   .order(order_date: :desc)
+                   .search(search_params)
+    # 検索条件をビューで再表示するために保持
+    @search_params = search_params
   end
 
   def show
@@ -59,7 +62,8 @@ class OrdersController < ApplicationController
 
     def order_params
       params.require(:order).permit(
-        :customer_id, :order_date, :expected_delivery_date, :actual_delivery_date, :payment_method,
+        :customer_id, :order_date, :expected_delivery_date, 
+        :actual_delivery_date, :payment_method,
         order_items_attributes: [:id, :product_id, :quantity, :unit_price, :tax_rate, :_destroy]
       )
     end
@@ -73,5 +77,17 @@ class OrdersController < ApplicationController
           item.tax_rate = product.tax_rate if item.tax_rate.blank?
         end
       end
+    end
+
+    def search_params
+      params.fetch(:search, {}).permit(
+        :customer_name,
+        :order_date_from, :order_date_to,
+        :expected_delivery_date_from, :expected_delivery_date_to,
+        :actual_delivery_date_from, :actual_delivery_date_to,
+        :total_without_tax,
+        :payment_method,
+        :invoice_status
+      )
     end
 end 

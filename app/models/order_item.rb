@@ -2,7 +2,11 @@ class OrderItem < ApplicationRecord
   belongs_to :order
   belongs_to :product
 
-  validates :quantity, presence: true, numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: 10 }
+  validates :quantity, presence: true,
+    numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: 10 },
+    unless: :marked_for_destruction?
+  
+  validates :product, presence: true, unless: :marked_for_destruction?
   
   def subtotal
     return 0 if unit_price.nil? || quantity.nil? || tax_rate.nil?

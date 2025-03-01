@@ -4,6 +4,114 @@
     <%= link_to '新規受注', new_order_path, class: 'btn btn-primary' %>
   </div>
 
+  <%# 検索フォームを追加 %>
+  <div class="card mb-4">
+    <div class="card-body">
+      <%= form_with(url: orders_path, method: :get, local: true) do |f| %>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="form-group">
+              <%= f.label :customer_name, '取引先名' %>
+              <%= f.text_field :customer_name, 
+                  value: @search_params&.dig(:customer_name),
+                  class: 'form-control' %>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-group">
+              <%= f.label :order_date_from, '受注日（開始）' %>
+              <%= f.date_field :order_date_from,
+                  value: @search_params&.dig(:order_date_from),
+                  class: 'form-control' %>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-group">
+              <%= f.label :order_date_to, '受注日（終了）' %>
+              <%= f.date_field :order_date_to,
+                  value: @search_params&.dig(:order_date_to),
+                  class: 'form-control' %>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-group">
+              <%= f.label :expected_delivery_date_from, '予定納品日（開始）' %>
+              <%= f.date_field :expected_delivery_date_from,
+                  value: @search_params&.dig(:expected_delivery_date_from),
+                  class: 'form-control' %>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-group">
+              <%= f.label :expected_delivery_date_to, '予定納品日（終了）' %>
+              <%= f.date_field :expected_delivery_date_to,
+                  value: @search_params&.dig(:expected_delivery_date_to),
+                  class: 'form-control' %>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-group">
+              <%= f.label :actual_delivery_date_from, '確定納品日（開始）' %>
+              <%= f.date_field :actual_delivery_date_from,
+                  value: @search_params&.dig(:actual_delivery_date_from),
+                  class: 'form-control' %>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-group">
+              <%= f.label :actual_delivery_date_to, '確定納品日（終了）' %>
+              <%= f.date_field :actual_delivery_date_to,
+                  value: @search_params&.dig(:actual_delivery_date_to),
+                  class: 'form-control' %>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-group">
+              <%= f.label :total_without_tax, '合計金額（税抜）' %>
+              <%= f.number_field :total_without_tax,
+                  value: @search_params&.dig(:total_without_tax),
+                  class: 'form-control' %>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-group">
+              <%= f.label :payment_method, '支払い方法' %>
+              <%= f.select :payment_method,
+                  Order::PAYMENT_METHODS.invert,
+                  { include_blank: '選択してください' },
+                  { class: 'form-control',
+                    value: @search_params&.dig(:payment_method) } %>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-group">
+              <%= f.label :invoice_status, '請求状況' %>
+              <%= f.select :invoice_status,
+                  { '未請求': 'not_invoiced', '請求済': 'invoiced' },
+                  { include_blank: '選択してください' },
+                  { class: 'form-control',
+                    value: @search_params&.dig(:invoice_status) } %>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3">
+          <%= f.submit '検索', class: 'btn btn-primary me-2' %>
+          <%= link_to 'クリア', orders_path, class: 'btn btn-secondary' %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
   <form id="selected-orders-form" action="<%= new_invoice_path %>" method="get">
     <input type="hidden" name="order_ids" id="selected-order-ids" value="">
 
@@ -33,6 +141,8 @@
                     data-customer-id="<%= order.customer_id %>"
                     data-customer-name="<%= order.customer.company_name %>"
                     data-order-id="<%= order.id %>"
+                    data-payment-method="<%= order.payment_method %>"
+                    data-actual-delivery-date="<%= order.actual_delivery_date.present? %>"
                     <%= 'disabled' if order.invoiced? %>>
             </td>
             <td><%= order.id %></td>
@@ -78,17 +188,35 @@
     const form = document.getElementById('selected-orders-form');
     
     // 請求書発行ボタンのクリックイベント
-    createInvoiceBtn.addEventListener('click', function() {
-      const selectedOrderIds = [];
+    createInvoiceBtn.addEventListener('click', function(e) {
+      const selectedOrders = Array.from(checkboxes)
+        .filter(cb => cb.checked)
+        .map(cb => ({
+          id: cb.dataset.orderId,
+          customerId: cb.dataset.customerId,
+          paymentMethod: cb.dataset.paymentMethod,
+          hasActualDeliveryDate: cb.dataset.actualDeliveryDate === 'true'
+        }));
+
+      // 確定納品日が未入力の受注がないかチェック
+      const hasUnconfirmedDelivery = selectedOrders.some(order => !order.hasActualDeliveryDate);
+      if (hasUnconfirmedDelivery) {
+        e.preventDefault();
+        alert('納品日が確定していない取引が含まれています');
+        return false;
+      }
+
+      // 支払い方法の一意性をチェック
+      const uniquePaymentMethods = new Set(selectedOrders.map(order => order.paymentMethod));
       
-      checkboxes.forEach(cb => {
-        if (cb.checked) {
-          selectedOrderIds.push(cb.dataset.orderId);
-        }
-      });
+      if (uniquePaymentMethods.size > 1) {
+        e.preventDefault();
+        alert('複数の支払い方法の取引が選択されているため、発行できません');
+        return false;
+      }
       
-      if (selectedOrderIds.length > 0) {
-        selectedOrderIdsInput.value = selectedOrderIds.join(',');
+      if (selectedOrders.length > 0) {
+        selectedOrderIdsInput.value = selectedOrders.map(order => order.id).join(',');
         form.submit();
       }
     });

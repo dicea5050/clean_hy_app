@@ -4,7 +4,9 @@ class Order < ApplicationRecord
   has_many :invoice_orders, dependent: :destroy
   has_many :invoices, through: :invoice_orders
   
-  accepts_nested_attributes_for :order_items, allow_destroy: true
+  accepts_nested_attributes_for :order_items,
+    allow_destroy: true,
+    reject_if: :all_blank
 
   validates :order_date, presence: true
   validates :customer_id, presence: true
@@ -45,5 +47,66 @@ class Order < ApplicationRecord
   # 紐づけられている請求書を取得するメソッド
   def related_invoices
     invoices.pluck(:invoice_number).join(", ")
+  end
+
+  def self.search(params)
+    return all if params.blank?
+
+    rel = all
+    
+    # 取引先名での検索
+    if params[:customer_name].present?
+      rel = rel.joins(:customer)
+               .where('customers.company_name LIKE ?', "%#{params[:customer_name]}%")
+    end
+
+    # 受注日での検索
+    if params[:order_date_from].present?
+      rel = rel.where('order_date >= ?', params[:order_date_from])
+    end
+    if params[:order_date_to].present?
+      rel = rel.where('order_date <= ?', params[:order_date_to])
+    end
+
+    # 予定納品日での検索
+    if params[:expected_delivery_date_from].present?
+      rel = rel.where('expected_delivery_date >= ?', params[:expected_delivery_date_from])
+    end
+    if params[:expected_delivery_date_to].present?
+      rel = rel.where('expected_delivery_date <= ?', params[:expected_delivery_date_to])
+    end
+
+    # 確定納品日での検索
+    if params[:actual_delivery_date_from].present?
+      rel = rel.where('actual_delivery_date >= ?', params[:actual_delivery_date_from])
+    end
+    if params[:actual_delivery_date_to].present?
+      rel = rel.where('actual_delivery_date <= ?', params[:actual_delivery_date_to])
+    end
+
+    # 合計金額（税抜）での検索
+    if params[:total_without_tax].present?
+      rel = rel.joins(:order_items)
+               .group('orders.id')
+               .having('SUM(order_items.unit_price * order_items.quantity) = ?', 
+                      params[:total_without_tax].to_i)
+    end
+
+    # 支払い方法での検索
+    if params[:payment_method].present?
+      rel = rel.where(payment_method: params[:payment_method])
+    end
+
+    # 請求状況での検索
+    if params[:invoice_status].present?
+      case params[:invoice_status]
+      when 'invoiced'
+        rel = rel.where(id: InvoiceOrder.select(:order_id))
+      when 'not_invoiced'
+        rel = rel.where.not(id: InvoiceOrder.select(:order_id))
+      end
+    end
+
+    rel
   end
 end 

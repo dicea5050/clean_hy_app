@@ -86,6 +86,30 @@ class InvoicesController < ApplicationController
     redirect_to invoices_path, notice: '請求書が正常に削除されました。'
   end
 
+  # 一括承認申請アクションを追加
+  def bulk_request_approval
+    invoice_ids = params[:invoice_ids]&.split(',')
+    
+    if invoice_ids.present?
+      invoices = Invoice.where(id: invoice_ids, approval_status: '未申請')
+      
+      Invoice.transaction do
+        invoices.each do |invoice|
+          invoice.update!(approval_status: '承認待ち')
+        end
+      end
+      
+      flash[:notice] = "#{invoices.count}件の請求書を承認申請しました。"
+    else
+      flash[:alert] = "請求書が選択されていません。"
+    end
+    
+    redirect_to invoices_path
+  rescue => e
+    flash[:error] = "承認申請に失敗しました: #{e.message}"
+    redirect_to invoices_path
+  end
+
   private
     def set_invoice
       @invoice = Invoice.includes(:orders).find(params[:id])

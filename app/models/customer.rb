@@ -1,10 +1,8 @@
 class Customer < ApplicationRecord
   has_many :orders, dependent: :destroy
   
-  validates :name, presence: true
-
   def display_name
-    name
+    company_name
   end
 
   validates :customer_code, presence: true, uniqueness: true

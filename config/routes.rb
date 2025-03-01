@@ -34,7 +34,11 @@ Rails.application.routes.draw do
   get 'customers/search', to: 'customers#search'
   
   # 請求書発行機能
-  resources :invoices
+  resources :invoices do
+    collection do
+      post :bulk_request_approval
+    end
+  end
   
   # ルートパスの設定
   root to: 'administrators#login'
