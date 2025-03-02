@@ -45,6 +45,9 @@ Rails.application.routes.draw do
     collection do
       post :bulk_request_approval
     end
+    member do
+      get :pdf
+    end
   end
   
   # ショップ機能用のルート

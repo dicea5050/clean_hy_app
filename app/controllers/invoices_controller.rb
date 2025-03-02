@@ -110,6 +110,21 @@ class InvoicesController < ApplicationController
     redirect_to invoices_path
   end
 
+  def pdf
+    @invoice = Invoice.includes(orders: [:customer, :order_items]).find(params[:id])
+    company_info = CompanyInformation.first
+    
+    respond_to do |format|
+      format.pdf do
+        pdf = InvoicePdf.new(@invoice, company_info)
+        send_data pdf.render,
+          filename: "請求書_#{@invoice.invoice_number}.pdf",
+          type: 'application/pdf',
+          disposition: 'inline'
+      end
+    end
+  end
+
   private
     def set_invoice
       @invoice = Invoice.includes(:orders).find(params[:id])
