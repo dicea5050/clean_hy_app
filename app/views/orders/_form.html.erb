@@ -30,9 +30,11 @@
         </div>
         
         <div class="col-md-4 form-group">
-          <%= form.label :payment_method, "支払い方法" %>
-          <%= form.select :payment_method, 
-              Order::PAYMENT_METHODS.keys,
+          <%= form.label :payment_method_id, "支払い方法" %>
+          <%= form.collection_select :payment_method_id, 
+              @payment_methods, 
+              :id, 
+              :name, 
               { include_blank: "支払い方法を選択してください" }, 
               { class: "form-control" } %>
         </div>

@@ -28,6 +28,11 @@ class CustomersController < ApplicationController
   end
 
   def update
+    # パスワードが空欄の場合、パラメータから削除して更新しない
+    if params[:customer][:password].blank?
+      params[:customer].delete(:password)
+    end
+    
     if @customer.update(customer_params)
       redirect_to customers_path, notice: '顧客が正常に更新されました。'
     else
@@ -52,6 +57,10 @@ class CustomersController < ApplicationController
   end
 
   def customer_params
-    params.require(:customer).permit(:customer_code, :company_name, :postal_code, :address, :contact_name, :phone_number, :email)
+    params.require(:customer).permit(
+      :customer_code, :company_name, :postal_code, :address, 
+      :contact_name, :phone_number, :email, :fax_number, 
+      :password, :password_confirmation
+    )
   end
 end 

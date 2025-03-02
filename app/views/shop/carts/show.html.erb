@@ -38,7 +38,11 @@
   
   <div class="cart-actions">
     <%= button_to 'カートを空にする', shop_cart_path, method: :delete, class: 'btn btn-outline-danger', data: { confirm: '本当にカートを空にしますか？' } %>
-    <%= link_to '注文手続きへ進む', new_shop_order_path, class: 'btn btn-success' %>
+    <% if customer_signed_in? %>
+      <%= link_to '注文手続きへ進む', new_shop_order_path, class: 'btn btn-success' %>
+    <% else %>
+      <%= link_to '注文手続きへ進む', shop_login_path, class: 'btn btn-success' %>
+    <% end %>
   </div>
 <% else %>
   <p>カートには商品が入っていません。</p>

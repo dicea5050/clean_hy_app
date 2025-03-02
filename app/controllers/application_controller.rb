@@ -2,7 +2,7 @@ class ApplicationController < ActionController::Base
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
   
-  helper_method :current_administrator, :administrator_signed_in?
+  helper_method :current_administrator, :administrator_signed_in?, :current_customer, :customer_signed_in?
   
   private
   
@@ -23,6 +23,20 @@ class ApplicationController < ActionController::Base
   def require_editor
     unless administrator_signed_in? && (current_administrator.editor? || current_administrator.admin?)
       redirect_to masters_path, alert: 'この操作を行う権限がありません。'
+    end
+  end
+  
+  def current_customer
+    @current_customer ||= Customer.find_by(id: session[:customer_id]) if session[:customer_id]
+  end
+  
+  def customer_signed_in?
+    current_customer.present?
+  end
+  
+  def authenticate_customer!
+    unless customer_signed_in?
+      redirect_to shop_login_path, alert: 'ログインしてください'
     end
   end
 end

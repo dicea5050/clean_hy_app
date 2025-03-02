@@ -1,0 +1,53 @@
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header">
+      <h1>支払方法の詳細</h1>
+    </div>
+    <div class="card-body">
+      <% if notice.present? %>
+        <div class="alert alert-success"><%= notice %></div>
+      <% end %>
+
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">ID:</div>
+        <div class="col-md-9"><%= @payment_method.id %></div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">名前:</div>
+        <div class="col-md-9"><%= @payment_method.name %></div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">説明:</div>
+        <div class="col-md-9"><%= @payment_method.description %></div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">ステータス:</div>
+        <div class="col-md-9">
+          <% if @payment_method.active? %>
+            <span class="badge badge-success">有効</span>
+          <% else %>
+            <span class="badge badge-secondary">無効</span>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">作成日時:</div>
+        <div class="col-md-9"><%= @payment_method.created_at.strftime('%Y/%m/%d %H:%M') %></div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">更新日時:</div>
+        <div class="col-md-9"><%= @payment_method.updated_at.strftime('%Y/%m/%d %H:%M') %></div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <%= link_to '編集', edit_payment_method_path(@payment_method), class: 'btn btn-warning' %>
+      <%= link_to '削除', payment_method_path(@payment_method), method: :delete, data: { confirm: '本当に削除しますか？' }, class: 'btn btn-danger' %>
+      <%= link_to '一覧に戻る', payment_methods_path, class: 'btn btn-secondary' %>
+    </div>
+  </div>
+</div> 

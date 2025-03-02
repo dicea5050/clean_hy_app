@@ -27,6 +27,7 @@ Rails.application.routes.draw do
   resources :tax_rates
   resources :products
   resources :customers
+  resources :payment_methods
   
   # 受注情報（Orders）CRUD機能
   resources :orders
@@ -46,6 +47,11 @@ Rails.application.routes.draw do
     resource :cart, only: [:show, :update, :destroy]
     resources :orders, only: [:new, :create]
     get 'orders/complete', to: 'orders#complete', as: 'order_complete'
+    
+    # カスタマーログイン関連
+    get 'login', to: 'sessions#new', as: 'login'
+    post 'login', to: 'sessions#create'
+    delete 'logout', to: 'sessions#destroy', as: 'logout'
   end
   
   # ショップのルートページを商品一覧に設定

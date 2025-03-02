@@ -1,7 +1,7 @@
 <%= form_with(model: customer, local: true) do |form| %>
   <% if customer.errors.any? %>
     <div class="alert alert-danger">
-      <h4><%= pluralize(customer.errors.count, 'error') %> 件のエラーがあります:</h4>
+      <h4><%= pluralize(customer.errors.count, "つのエラー") %> が発生しました:</h4>
       <ul>
         <% customer.errors.full_messages.each do |message| %>
           <li><%= message %></li>
@@ -43,6 +43,21 @@
   <div class="form-group">
     <%= form.label :email, 'メールアドレス' %>
     <%= form.email_field :email, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :password, 'パスワード' %>
+    <%= form.password_field :password, class: 'form-control' %>
+    <% if customer.persisted? && customer.password_set? %>
+      <small class="form-text text-muted">パスワードが設定済みです。変更する場合のみ入力してください。</small>
+    <% else %>
+      <small class="form-text text-muted">パスワードが未設定です。ログインを許可する場合は設定してください。</small>
+    <% end %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :password_confirmation, 'パスワード（確認）' %>
+    <%= form.password_field :password_confirmation, class: 'form-control' %>
   </div>
 
   <div class="form-group mt-4">

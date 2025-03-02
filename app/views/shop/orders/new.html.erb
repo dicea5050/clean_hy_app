@@ -39,18 +39,18 @@
 <h2>お客様情報・お支払い方法</h2>
 <%= form_with model: @order, url: shop_orders_path, local: true do |f| %>
   <div class="form-group">
-    <%= f.label :name, 'お名前' %>
-    <%= f.text_field :name, class: 'form-control' %>
+    <label>お名前</label>
+    <p class="form-control-static"><%= current_customer.contact_name %></p>
   </div>
   
   <div class="form-group">
-    <%= f.label :email, 'メールアドレス' %>
-    <%= f.email_field :email, class: 'form-control' %>
+    <label>メールアドレス</label>
+    <p class="form-control-static"><%= current_customer.email %></p>
   </div>
   
   <div class="form-group">
-    <%= f.label :address, '住所' %>
-    <%= f.text_area :address, class: 'form-control' %>
+    <label>住所</label>
+    <p class="form-control-static"><%= current_customer.address %></p>
   </div>
   
   <div class="form-group">

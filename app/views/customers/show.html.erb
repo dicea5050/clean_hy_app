@@ -25,6 +25,15 @@
 
         <dt class="col-sm-3">メールアドレス:</dt>
         <dd class="col-sm-9"><%= @customer.email %></dd>
+
+        <dt class="col-sm-3">パスワード設定状況:</dt>
+        <dd class="col-sm-9">
+          <% if @customer.password_set? %>
+            <span class="badge bg-success">パスワード設定済み</span>
+          <% else %>
+            <span class="badge bg-warning">パスワード未設定</span>
+          <% end %>
+        </dd>
       </dl>
     </div>
     <div class="card-footer">

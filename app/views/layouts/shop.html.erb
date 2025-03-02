@@ -16,6 +16,14 @@
         <ul>
           <li><%= link_to '商品一覧', shop_products_path %></li>
           <li><%= link_to 'カート', shop_cart_path %></li>
+          <% if customer_signed_in? %>
+            <li>
+              <%= current_customer.name %>様 | 
+              <%= button_to 'ログアウト', shop_logout_path, method: :delete, class: 'btn btn-link' %>
+            </li>
+          <% else %>
+            <li><%= link_to 'ログイン', shop_login_path %></li>
+          <% end %>
         </ul>
       </nav>
     </div>

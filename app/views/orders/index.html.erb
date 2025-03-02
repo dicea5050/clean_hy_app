@@ -83,12 +83,14 @@
 
           <div class="col-md-4">
             <div class="form-group">
-              <%= f.label :payment_method, '支払い方法' %>
-              <%= f.select :payment_method,
-                  Order::PAYMENT_METHODS.invert,
+              <%= f.label :payment_method_id, '支払い方法' %>
+              <%= f.collection_select :payment_method_id,
+                  @payment_methods,
+                  :id,
+                  :name,
                   { include_blank: '選択してください' },
                   { class: 'form-control',
-                    value: @search_params&.dig(:payment_method) } %>
+                    selected: @search_params&.dig(:payment_method_id) } %>
             </div>
           </div>
 
@@ -153,7 +155,7 @@
             <td><%= l order.actual_delivery_date if order.actual_delivery_date %></td>
             <td><%= number_to_currency(order.order_items.sum { |item| item.subtotal_without_tax }) %></td>
             <td><%= number_to_currency(order.order_items.sum { |item| item.subtotal }) %></td>
-            <td><%= order.payment_method %></td>
+            <td><%= order.payment_method&.name %></td>
             <td>
               <% if order.invoiced? %>
                 <span style="display: inline-block; padding: 0.25em 0.6em; font-size: 0.75rem; font-weight: 700; line-height: 1; text-align: center; white-space: nowrap; vertical-align: baseline; border-radius: 0.375rem; color: #fff; background-color: #28a745;">請求済</span>

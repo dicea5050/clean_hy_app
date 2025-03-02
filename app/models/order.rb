@@ -1,5 +1,6 @@
 class Order < ApplicationRecord
   belongs_to :customer
+  belongs_to :payment_method, optional: true
   has_many :order_items, dependent: :destroy
   has_many :invoice_orders, dependent: :destroy
   has_many :invoices, through: :invoice_orders
@@ -10,13 +11,6 @@ class Order < ApplicationRecord
 
   validates :order_date, presence: true
   validates :customer_id, presence: true
-  
-  # 支払い方法の選択肢
-  PAYMENT_METHODS = {
-    "代引き（現金）" => "cash_on_delivery",
-    "銀行振込" => "bank_transfer",
-    "口座引き落し" => "bank_debit"
-  }
   
   # 受注番号を生成するメソッド（年月ごとにリセットされる連番）
   def order_number
@@ -93,8 +87,8 @@ class Order < ApplicationRecord
     end
 
     # 支払い方法での検索
-    if params[:payment_method].present?
-      rel = rel.where(payment_method: params[:payment_method])
+    if params[:payment_method_id].present?
+      rel = rel.where(payment_method_id: params[:payment_method_id])
     end
 
     # 請求状況での検索

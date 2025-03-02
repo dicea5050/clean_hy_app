@@ -17,3 +17,10 @@ Administrator.create!(
 ) if Administrator.count.zero?
 
 puts "管理者ユーザーが作成されました。メールアドレス: admin@example.com, パスワード: password123"
+
+# 支払い方法のデータを追加
+PaymentMethod.create([
+  { name: '銀行振込' },
+  { name: '口座引き落とし' },
+  { name: '代金引換' }
+])
