@@ -164,6 +164,7 @@
             <td>
               <%= link_to '詳細', order, class: 'btn btn-sm btn-info' %>
               <%= link_to '編集', edit_order_path(order), class: 'btn btn-sm btn-primary' %>
+              <%= link_to '納品書', delivery_slip_order_path(order, format: :pdf), class: 'btn btn-sm btn-success', target: '_blank' %>
               <%= form_with(url: order_path(order), method: :delete, class: 'd-inline') do |f| %>
                 <%= f.submit '削除', class: 'btn btn-sm btn-danger', data: { confirm: '本当に削除しますか？' }, 
                             onclick: "return confirm('本当に削除しますか？');" %>

@@ -57,6 +57,21 @@ class OrdersController < ApplicationController
     redirect_to orders_path, notice: '受注情報が正常に削除されました。'
   end
 
+  def delivery_slip
+    @order = Order.includes(:order_items, :customer, :payment_method).find(params[:id])
+    @company_info = CompanyInformation.first
+    
+    respond_to do |format|
+      format.pdf do
+        pdf = ::DeliverySlipPdf.new(@order, @company_info)
+        send_data pdf.render, 
+                  filename: "納品書_#{@order.order_number}.pdf",
+                  type: 'application/pdf',
+                  disposition: 'inline'
+      end
+    end
+  end
+
   private
     def set_order
       @order = Order.includes(:order_items, :customer, :payment_method).find(params[:id])

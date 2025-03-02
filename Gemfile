@@ -46,10 +46,6 @@ gem "thruster", require: false
 # gem 'sassc-rails'
 # gem 'jquery-rails'
 
-# JavaScript関連
-gem 'stimulus-rails'
-gem 'turbo-rails'
-
 # Select2は削除またはコメントアウト
 # gem 'select2-rails'
 # jQuery
@@ -57,6 +53,10 @@ gem 'jquery-rails'
 
 # ページネーション機能追加のためのエラー修正
 gem 'kaminari'
+
+# PDF生成用のgem
+gem 'prawn'
+gem 'prawn-table'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

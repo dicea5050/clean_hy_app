@@ -39,6 +39,13 @@
           <%= @order.payment_method&.name %>
         </div>
       </div>
+      <div class="row mt-3">
+        <div class="col-md-12">
+          <%= link_to '納品書PDF発行', delivery_slip_order_path(@order, format: :pdf), 
+                  class: 'btn btn-success', target: '_blank',
+                  data: { bs_toggle: 'tooltip', bs_placement: 'top', title: '納品書PDFを表示します' } %>
+        </div>
+      </div>
     </div>
   </div>
 

@@ -32,7 +32,11 @@ Rails.application.routes.draw do
   resources :bank_accounts
   
   # 受注情報（Orders）CRUD機能
-  resources :orders
+  resources :orders do
+    member do
+      get :delivery_slip
+    end
+  end
   
   get 'customers/search', to: 'customers#search'
   

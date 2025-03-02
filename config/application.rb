@@ -34,5 +34,6 @@ module CleanHyApp
 
     # Bootstrapのアセット設定
     config.assets.paths << Rails.root.join('node_modules')
+
   end
 end
