@@ -23,6 +23,15 @@
         <dt class="col-sm-3">電話番号:</dt>
         <dd class="col-sm-9"><%= @customer.phone_number %></dd>
 
+        <dt class="col-sm-3">請求書送付方法:</dt>
+        <dd class="col-sm-9">
+          <% if @customer.electronic? %>
+            <span class="badge bg-info">電子請求</span>
+          <% else %>
+            <span class="badge bg-secondary">郵送</span>
+          <% end %>
+        </dd>
+
         <dt class="col-sm-3">メールアドレス:</dt>
         <dd class="col-sm-9"><%= @customer.email %></dd>
 

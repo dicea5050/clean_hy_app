@@ -8,12 +8,24 @@ ja:
           has_many: "%{record}が存在しているので削除できません"
     models:
       tax_rate: 税率
+      customer: 顧客
     attributes:
       tax_rate:
         name: 税率名
         rate: 税率
         start_date: 適用開始日
         end_date: 適用終了日
+      customer:
+        customer_code: 顧客ID
+        company_name: 社名（屋号）
+        postal_code: 郵便番号
+        address: 住所
+        contact_name: 担当者名
+        phone_number: 電話番号
+        email: メールアドレス
+        invoice_delivery_method: 請求書送付方法
+        password: パスワード
+        password_confirmation: パスワード（確認）
   date:
     abbr_day_names:
     - 日
@@ -211,4 +223,9 @@ ja:
       default: "%Y年%m月%d日(%a) %H時%M分%S秒 %z"
       long: "%Y/%m/%d %H:%M"
       short: "%m/%d %H:%M"
-    pm: 午後 
+    pm: 午後
+  enums:
+    customer:
+      invoice_delivery_method:
+        electronic: '電子請求'
+        postal: '郵送' 
