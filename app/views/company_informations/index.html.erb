@@ -1,0 +1,48 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>自社情報一覧</h1>
+    <%= link_to '新規作成', new_company_information_path, class: 'btn btn-primary' %>
+  </div>
+
+  <% if notice.present? %>
+    <div class="alert alert-success">
+      <%= notice %>
+    </div>
+  <% end %>
+
+  <div class="card shadow">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>社名</th>
+              <th>郵便番号</th>
+              <th>住所</th>
+              <th>電話番号</th>
+              <th>適格請求書番号</th>
+              <th colspan="3"></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @company_informations.each do |company_information| %>
+              <tr>
+                <td><%= company_information.name %></td>
+                <td><%= company_information.postal_code %></td>
+                <td><%= company_information.address %></td>
+                <td><%= company_information.phone_number %></td>
+                <td><%= company_information.invoice_registration_number %></td>
+                <td>
+                  <%= link_to '詳細', company_information, class: 'btn btn-sm btn-info text-white' %>
+                  <%= link_to '編集', edit_company_information_path(company_information), class: 'btn btn-sm btn-warning text-white' %>
+                  <%= link_to '削除', company_information, method: :delete, data: { confirm: '本当に削除しますか？' }, class: 'btn btn-sm btn-danger' %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div> 

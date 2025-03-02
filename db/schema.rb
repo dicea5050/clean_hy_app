@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_01_124854) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_02_024522) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -21,6 +21,28 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_01_124854) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_administrators_on_email", unique: true
+  end
+
+  create_table "bank_accounts", force: :cascade do |t|
+    t.string "bank_name", null: false
+    t.string "branch_name", null: false
+    t.string "account_type", null: false
+    t.string "account_number", null: false
+    t.string "account_holder", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "company_informations", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "postal_code", null: false
+    t.text "address", null: false
+    t.string "phone_number", null: false
+    t.string "fax_number"
+    t.string "invoice_registration_number", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_company_informations_on_name"
   end
 
   create_table "customers", force: :cascade do |t|

@@ -71,5 +71,27 @@
         </div>
       </div>
     </div>
+
+    <!-- 自社情報マスターカードを追加 -->
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">自社情報マスター</h5>
+          <p class="card-text">自社の基本情報を管理します。</p>
+          <%= link_to '管理する', company_informations_path, class: 'btn btn-primary' %>
+        </div>
+      </div>
+    </div>
+
+    <!-- 銀行口座マスターカードを追加 -->
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">銀行口座マスター</h5>
+          <p class="card-text">銀行口座情報を管理します。</p>
+          <%= link_to '管理する', bank_accounts_path, class: 'btn btn-primary' %>
+        </div>
+      </div>
+    </div>
   </div>
 </div> 

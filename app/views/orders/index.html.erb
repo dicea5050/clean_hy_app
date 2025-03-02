@@ -128,7 +128,6 @@
           <th>予定納品日</th>
           <th>確定納品日</th>
           <th>合計金額（税抜）</th>
-          <th>合計金額（税込）</th>
           <th>支払い方法</th>
           <th>請求状況</th>
           <th>操作</th>
@@ -154,7 +153,6 @@
             <td><%= l order.expected_delivery_date if order.expected_delivery_date %></td>
             <td><%= l order.actual_delivery_date if order.actual_delivery_date %></td>
             <td><%= number_to_currency(order.order_items.sum { |item| item.subtotal_without_tax }) %></td>
-            <td><%= number_to_currency(order.order_items.sum { |item| item.subtotal }) %></td>
             <td><%= order.payment_method&.name %></td>
             <td>
               <% if order.invoiced? %>

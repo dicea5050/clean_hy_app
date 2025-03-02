@@ -28,6 +28,8 @@ Rails.application.routes.draw do
   resources :products
   resources :customers
   resources :payment_methods
+  resources :company_informations
+  resources :bank_accounts
   
   # 受注情報（Orders）CRUD機能
   resources :orders

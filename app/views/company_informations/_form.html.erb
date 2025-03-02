@@ -1,0 +1,48 @@
+<%= form_with(model: company_information, local: true) do |form| %>
+  <% if company_information.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(company_information.errors.count, "error") %> 保存できませんでした:</h4>
+      <ul>
+        <% company_information.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= form.label :name, '社名', class: 'form-label' %>
+    <%= form.text_field :name, class: 'form-control' %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :postal_code, '郵便番号', class: 'form-label' %>
+    <%= form.text_field :postal_code, class: 'form-control', placeholder: '123-4567' %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :address, '住所', class: 'form-label' %>
+    <%= form.text_area :address, class: 'form-control', rows: 3 %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :phone_number, '電話番号', class: 'form-label' %>
+    <%= form.text_field :phone_number, class: 'form-control', placeholder: '03-1234-5678' %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :fax_number, 'FAX番号（任意）', class: 'form-label' %>
+    <%= form.text_field :fax_number, class: 'form-control', placeholder: '03-1234-5679' %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :invoice_registration_number, '適格請求書番号', class: 'form-label' %>
+    <%= form.text_field :invoice_registration_number, class: 'form-control', placeholder: 'T1234567890123' %>
+    <div class="form-text">大文字のTで始まる13桁の数字を入力してください</div>
+  </div>
+
+  <div class="mb-3">
+    <%= form.submit '保存', class: 'btn btn-primary me-2' %>
+    <%= link_to 'キャンセル', company_informations_path, class: 'btn btn-secondary' %>
+  </div>
+<% end %> 

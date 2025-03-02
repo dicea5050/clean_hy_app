@@ -1,0 +1,42 @@
+<%= form_with(model: bank_account, local: true) do |form| %>
+  <% if bank_account.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(bank_account.errors.count, "error") %> 保存できませんでした:</h4>
+      <ul>
+        <% bank_account.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= form.label :bank_name, '銀行名', class: 'form-label' %>
+    <%= form.text_field :bank_name, class: 'form-control' %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :branch_name, '支店名', class: 'form-label' %>
+    <%= form.text_field :branch_name, class: 'form-control' %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :account_type, '口座種別', class: 'form-label' %>
+    <%= form.select :account_type, ['普通', '当座'], {}, class: 'form-select' %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :account_number, '口座番号', class: 'form-label' %>
+    <%= form.text_field :account_number, class: 'form-control' %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :account_holder, '口座名義', class: 'form-label' %>
+    <%= form.text_field :account_holder, class: 'form-control' %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.submit '保存', class: 'btn btn-primary me-2' %>
+    <%= link_to 'キャンセル', bank_accounts_path, class: 'btn btn-secondary' %>
+  </div>
+<% end %> 
