@@ -39,6 +39,20 @@
         <div class="col-md-3 fw-bold">適格請求書番号</div>
         <div class="col-md-9"><%= @company_information.invoice_registration_number %></div>
       </div>
+      
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">社印</div>
+        <div class="col-md-9">
+          <% if @company_information.company_seal.attached? %>
+            <p>添付ファイル情報: <%= @company_information.company_seal.blob.filename %></p>
+            <p>コンテンツタイプ: <%= @company_information.company_seal.blob.content_type %></p>
+            <p>サイズ: <%= @company_information.company_seal.blob.byte_size %> bytes</p>
+            <%= image_tag @company_information.company_seal, class: 'img-thumbnail', style: 'max-width: 150px; max-height: 150px;' %>
+          <% else %>
+            未設定
+          <% end %>
+        </div>
+      </div>
     </div>
     <div class="card-footer">
       <%= link_to '編集', edit_company_information_path(@company_information), class: 'btn btn-warning text-white me-2' %>
