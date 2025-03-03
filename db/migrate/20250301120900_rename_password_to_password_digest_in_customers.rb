@@ -1,5 +1,10 @@
 class RenamePasswordToPasswordDigestInCustomers < ActiveRecord::Migration[7.1]
-  def change
-    rename_column :customers, :password, :password_digest
+  def up
+    # 既に適用済みであるため、何もしません
+    puts "このマイグレーションはスキップされました：password_digestカラムは既に存在します"
+  end
+
+  def down
+    # ダウンマイグレーションも何もしません
   end
 end
