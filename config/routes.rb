@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get "invoice_approvals/create"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -68,4 +69,14 @@ Rails.application.routes.draw do
   
   # ルートパスの設定
   root to: 'administrators#login'
+
+  resources :invoice_approvals, only: [:index] do
+    collection do
+      post :bulk_create
+    end
+    member do
+      post :approve
+      post :reject
+    end
+  end
 end

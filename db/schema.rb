@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_03_063659) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_05_070845) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -86,6 +86,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_03_063659) do
     t.string "password_digest"
     t.integer "invoice_delivery_method"
     t.index ["customer_code"], name: "index_customers_on_customer_code", unique: true
+  end
+
+  create_table "invoice_approvals", force: :cascade do |t|
+    t.bigint "invoice_id", null: false
+    t.string "status", null: false
+    t.string "approver_type", null: false
+    t.bigint "approver_id", null: false
+    t.datetime "approved_at"
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["approver_type", "approver_id"], name: "index_invoice_approvals_on_approver"
+    t.index ["invoice_id", "status"], name: "index_invoice_approvals_on_invoice_id_and_status"
+    t.index ["invoice_id"], name: "index_invoice_approvals_on_invoice_id"
   end
 
   create_table "invoice_orders", force: :cascade do |t|
@@ -167,6 +181,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_03_063659) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "invoice_approvals", "invoices"
   add_foreign_key "invoice_orders", "invoices"
   add_foreign_key "invoice_orders", "orders"
   add_foreign_key "invoices", "customers"

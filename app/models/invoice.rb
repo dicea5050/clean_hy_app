@@ -13,10 +13,11 @@ class Invoice < ApplicationRecord
   
   validates :invoice_date, presence: true
   validates :customer_id, presence: true
-  validates :invoice_number, presence: true, uniqueness: true
+  validates :invoice_number, presence: true, uniqueness: { conditions: -> { where.not(id: nil) } }
   validates :approval_status, presence: true, inclusion: { in: APPROVAL_STATUSES.values }
   
   before_validation :generate_invoice_number, on: :create
+  before_validation :set_default_approval_status, on: :create
   
   # 請求書番号を生成（年月ごとにリセットされる連番）
   def generate_invoice_number
@@ -29,10 +30,27 @@ class Invoice < ApplicationRecord
       invoice_date.month
     ).order(:created_at)
     
+    # 現在存在する（削除されていない）請求書の数を取得
     position = same_month_invoices.count + 1
-    id_part = sprintf("%04d", position)
     
-    self.invoice_number = "INV-#{date_part}-#{id_part}"
+    # 新しい請求書番号を生成
+    loop do
+      id_part = sprintf("%04d", position)
+      temp_number = "INV-#{date_part}-#{id_part}"
+      
+      # この番号が使用されていなければ採用
+      unless Invoice.exists?(invoice_number: temp_number)
+        self.invoice_number = temp_number
+        break
+      end
+      
+      position += 1
+    end
+  end
+  
+  # デフォルトの承認状態を設定
+  def set_default_approval_status
+    self.approval_status ||= APPROVAL_STATUSES[:pending]
   end
   
   # 合計金額（税抜）

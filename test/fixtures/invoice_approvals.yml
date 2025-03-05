@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  invoice: one
+  status: MyString
+  approver: one
+  approver_type: Approver
+  approved_at: 2025-03-05 16:08:45
+  notes: MyText
+
+two:
+  invoice: two
+  status: MyString
+  approver: two
+  approver_type: Approver
+  approved_at: 2025-03-05 16:08:45
+  notes: MyText

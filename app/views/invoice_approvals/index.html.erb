@@ -1,0 +1,52 @@
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>請求書承認一覧</h1>
+  </div>
+
+  <% if @invoice_approvals.any? %>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>請求書番号</th>
+          <th>取引先</th>
+          <th>請求日</th>
+          <th>支払期限</th>
+          <th>合計金額（税込）</th>
+          <th>申請日時</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @invoice_approvals.each do |approval| %>
+          <tr>
+            <td><%= link_to approval.invoice.invoice_number, invoice_path(approval.invoice) %></td>
+            <td><%= approval.invoice.customer.company_name %></td>
+            <td><%= l approval.invoice.invoice_date %></td>
+            <td><%= l approval.invoice.due_date if approval.invoice.due_date %></td>
+            <td><%= number_to_currency(approval.invoice.total_amount) %></td>
+            <td><%= l approval.created_at, format: :month_day_time %></td>
+            <td>
+              <%= link_to '詳細', invoice_path(approval.invoice), class: 'btn btn-sm btn-info me-2' %>
+              <%= link_to 'PDF', pdf_invoice_path(approval.invoice, format: :pdf), 
+                          class: 'btn btn-sm btn-secondary me-2', 
+                          target: '_blank' %>
+              <%= button_to '承認', approve_invoice_approval_path(approval), 
+                          class: 'btn btn-sm btn-success me-2 d-inline',
+                          form: { class: 'd-inline' },
+                          data: { turbo_confirm: '承認してよろしいですか？' } %>
+              <%= button_to '差戻', reject_invoice_approval_path(approval), 
+                          class: 'btn btn-sm btn-danger d-inline',
+                          form: { class: 'd-inline' },
+                          data: { turbo_confirm: '差し戻してよろしいですか？' } %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <div class="alert alert-info">
+      承認待ちの請求書はありません。
+    </div>
+  <% end %>
+</div> 

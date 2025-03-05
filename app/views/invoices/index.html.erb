@@ -20,8 +20,8 @@
         <th>取引先</th>
         <th>請求日</th>
         <th>支払期限</th>
-        <th>合計金額（税抜）</th>
         <th>合計金額（税込）</th>
+        <th>請求書送付方法</th>
         <th>承認状態</th>
         <th>操作</th>
       </tr>
@@ -40,8 +40,8 @@
           <td><%= invoice.customer.company_name %></td>
           <td><%= l invoice.invoice_date %></td>
           <td><%= l invoice.due_date if invoice.due_date %></td>
-          <td><%= number_to_currency(invoice.total_amount_without_tax) %></td>
           <td><%= number_to_currency(invoice.total_amount) %></td>
+          <td><%= invoice.customer.invoice_delivery_method_i18n %></td>
           <td><span class="<%= invoice.approval_status_badge_class %>"><%= invoice.approval_status %></span></td>
           <td>
             <%= link_to '詳細', invoice, class: 'btn btn-sm btn-info' %>
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // フォームを動的に作成して送信
       const form = document.createElement('form');
       form.method = 'POST';
-      form.action = '/invoices/bulk_request_approval';
+      form.action = '/invoice_approvals/bulk_create';
       
       // CSRF Token
       const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
