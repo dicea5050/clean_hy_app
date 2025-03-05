@@ -93,5 +93,27 @@
         </div>
       </div>
     </div>
+
+    <!-- 商品規格マスターカードを追加 -->
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">商品規格マスター</h5>
+          <p class="card-text">商品の規格情報を管理します。</p>
+          <%= link_to '管理する', product_specifications_path, class: 'btn btn-primary' %>
+        </div>
+      </div>
+    </div>
+
+    <!-- 単位マスターカードを追加 -->
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">単位マスター</h5>
+          <p class="card-text">商品の単位情報を管理します。</p>
+          <%= link_to '管理する', units_path, class: 'btn btn-primary' %>
+        </div>
+      </div>
+    </div>
   </div>
 </div> 

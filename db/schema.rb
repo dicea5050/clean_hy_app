@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_05_070845) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_05_093011) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -133,8 +133,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_05_070845) do
     t.decimal "tax_rate", precision: 5, scale: 2, default: "10.0", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "notes"
+    t.bigint "unit_id"
     t.index ["order_id"], name: "index_order_items_on_order_id"
     t.index ["product_id"], name: "index_order_items_on_product_id"
+    t.index ["unit_id"], name: "index_order_items_on_unit_id"
   end
 
   create_table "orders", force: :cascade do |t|
@@ -158,6 +161,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_05_070845) do
     t.boolean "active", default: true
   end
 
+  create_table "product_specifications", force: :cascade do |t|
+    t.string "name", null: false
+    t.boolean "is_active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_product_specifications_on_name", unique: true
+  end
+
   create_table "products", force: :cascade do |t|
     t.string "product_code"
     t.string "name"
@@ -179,6 +190,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_05_070845) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "units", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "invoice_approvals", "invoices"
@@ -187,6 +204,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_05_070845) do
   add_foreign_key "invoices", "customers"
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "products"
+  add_foreign_key "order_items", "units"
   add_foreign_key "orders", "customers"
   add_foreign_key "products", "tax_rates"
 end

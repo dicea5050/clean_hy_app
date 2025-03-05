@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-  get "invoice_approvals/create"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -31,6 +30,8 @@ Rails.application.routes.draw do
   resources :payment_methods
   resources :company_informations
   resources :bank_accounts
+  resources :units
+  resources :product_specifications
   
   # 受注情報（Orders）CRUD機能
   resources :orders do

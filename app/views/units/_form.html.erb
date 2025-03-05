@@ -1,0 +1,22 @@
+<%= form_with(model: unit, local: true) do |f| %>
+  <% if unit.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(unit.errors.count, "error") %> prohibited this unit from being saved:</h4>
+      <ul>
+        <% unit.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group mb-3">
+    <%= f.label :name, '単位名', class: 'form-label' %>
+    <%= f.text_field :name, class: 'form-control' %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit '保存', class: 'btn btn-primary' %>
+    <%= link_to 'キャンセル', units_path, class: 'btn btn-secondary ms-2' %>
+  </div>
+<% end %> 

@@ -21,6 +21,11 @@
         { include_blank: "数量" }, 
         { class: "form-control quantity-select", style: "width: 100%;", required: true } %>
   </td>
+  <td style="width: 80px;">
+    <%= f.select :unit_id, Unit.all.map { |u| [u.name, u.id] },
+        { include_blank: "単位" },
+        { class: "form-control", style: "width: 100%;" } %>
+  </td>
   <td style="width: 120px;">
     <span class="subtotal-without-tax" style="display: inline-block; min-width: 80px; text-align: right;">
       <%= f.object.subtotal_without_tax.present? ? f.object.subtotal_without_tax : 0 %>
@@ -30,6 +35,9 @@
     <span class="subtotal-with-tax" style="display: inline-block; min-width: 80px; text-align: right;">
       <%= f.object.subtotal.present? ? f.object.subtotal : 0 %>
     </span>円
+  </td>
+  <td style="width: 200px;">
+    <%= f.text_field :notes, class: "form-control", placeholder: "備考" %>
   </td>
   <td class="text-center" style="width: 80px;">
     <%= f.hidden_field :_destroy %>

@@ -96,9 +96,9 @@
 
           <div class="col-md-4">
             <div class="form-group">
-              <%= f.label :invoice_status, '請求状況' %>
+              <%= f.label :invoice_status, '請求書' %>
               <%= f.select :invoice_status,
-                  { '未請求': 'not_invoiced', '請求済': 'invoiced' },
+                  { '未発行': 'not_invoiced', '発行済み': 'invoiced' },
                   { include_blank: '選択してください' },
                   { class: 'form-control',
                     value: @search_params&.dig(:invoice_status) } %>
@@ -127,9 +127,9 @@
           <th>受注日</th>
           <th>予定納品日</th>
           <th>確定納品日</th>
-          <th>合計金額（税抜）</th>
+          <th>取引額</th>
           <th>支払い方法</th>
-          <th>請求状況</th>
+          <th>請求書</th>
           <th>操作</th>
         </tr>
       </thead>
@@ -156,9 +156,9 @@
             <td><%= order.payment_method&.name %></td>
             <td>
               <% if order.invoiced? %>
-                <span style="display: inline-block; padding: 0.25em 0.6em; font-size: 0.75rem; font-weight: 700; line-height: 1; text-align: center; white-space: nowrap; vertical-align: baseline; border-radius: 0.375rem; color: #fff; background-color: #28a745;">請求済</span>
+                <span style="display: inline-block; padding: 0.25em 0.6em; font-size: 0.75rem; font-weight: 700; line-height: 1; text-align: center; white-space: nowrap; vertical-align: baseline; border-radius: 0.375rem; color: #fff; background-color: #28a745;">発行済</span>
               <% else %>
-                <span style="display: inline-block; padding: 0.25em 0.6em; font-size: 0.75rem; font-weight: 700; line-height: 1; text-align: center; white-space: nowrap; vertical-align: baseline; border-radius: 0.375rem; color: #fff; background-color: #6c757d;">未請求</span>
+                <span style="display: inline-block; padding: 0.25em 0.6em; font-size: 0.75rem; font-weight: 700; line-height: 1; text-align: center; white-space: nowrap; vertical-align: baseline; border-radius: 0.375rem; color: #fff; background-color: #6c757d;">未発行</span>
               <% end %>
             </td>
             <td>
