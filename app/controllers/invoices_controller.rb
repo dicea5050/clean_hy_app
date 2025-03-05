@@ -2,7 +2,7 @@ class InvoicesController < ApplicationController
   before_action :set_invoice, only: [:show, :edit, :update, :destroy]
 
   def index
-    @invoices = Invoice.all
+    @invoices = Invoice.all.order(created_at: :desc).page(params[:page]).per(25)
   end
 
   def show

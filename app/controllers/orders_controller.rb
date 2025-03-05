@@ -6,6 +6,7 @@ class OrdersController < ApplicationController
     @orders = Order.includes(:customer, :order_items, :payment_method)
                    .order(order_date: :desc)
                    .search(search_params)
+                   .page(params[:page]).per(25)
     # 検索条件をビューで再表示するために保持
     @search_params = search_params
     @payment_methods = PaymentMethod.all
