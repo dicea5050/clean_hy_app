@@ -53,8 +53,7 @@ class ProductsController < ApplicationController
       :tax_rate_id,
       :price,
       :stock,
-      :is_public,
-      :is_discount
+      :is_public
     )
   end
 end

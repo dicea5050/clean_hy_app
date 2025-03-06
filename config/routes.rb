@@ -35,6 +35,11 @@ Rails.application.routes.draw do
 
   # 受注情報（Orders）CRUD機能
   resources :orders do
+    collection do
+      get :import_csv
+      post :process_csv
+    end
+    
     member do
       get :delivery_slip
     end

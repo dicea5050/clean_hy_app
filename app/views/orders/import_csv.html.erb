@@ -1,0 +1,297 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">CSVファイルからの一括受注登録</h3>
+        </div>
+        
+        <div class="card-body">
+          <% if flash[:alert] %>
+            <div class="alert alert-danger">
+              <%= simple_format(flash[:alert]) %>
+            </div>
+          <% end %>
+          
+          <form action="<%= process_csv_orders_path %>" method="post" enctype="multipart/form-data" class="mb-4">
+            <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+            <div class="row mb-3">
+              <div class="col-12">
+                <div class="form-group">
+                  <label class="form-label">基本情報の入力方法</label>
+                  <div class="form-check">
+                    <input type="radio" name="use_form_values" value="1" class="form-check-input" id="use_form_values_yes" checked>
+                    <label for="use_form_values_yes" class="form-check-label">下記フォームの値を使用する</label>
+                  </div>
+                  <div class="form-check">
+                    <input type="radio" name="use_form_values" value="0" class="form-check-input" id="use_form_values_no">
+                    <label for="use_form_values_no" class="form-check-label">CSVファイルの値を使用する</label>
+                  </div>
+                  <small class="text-muted">※CSVファイルの値を使用する場合、取引先コード/取引先名、受注日などの列がCSVに必要です</small>
+                </div>
+              </div>
+            </div>
+            
+            <div id="form_values_section">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <div class="form-group">
+                    <label for="customer_id" class="form-label">取引先<span class="text-danger">*</span></label>
+                    <select name="customer_id" id="customer_id" class="form-control">
+                      <option value="">取引先を選択してください</option>
+                      <% @customers.each do |c| %>
+                        <option value="<%= c.id %>"><%= c.company_name %></option>
+                      <% end %>
+                    </select>
+                    <div class="invalid-feedback">取引先を選択してください</div>
+                  </div>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                  <div class="form-group">
+                    <label for="payment_method_id" class="form-label">支払方法</label>
+                    <select name="payment_method_id" id="payment_method_id" class="form-control">
+                      <option value="">支払方法を選択してください</option>
+                      <% @payment_methods.each do |pm| %>
+                        <option value="<%= pm.id %>"><%= pm.name %></option>
+                      <% end %>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <div class="form-group">
+                    <label for="order_date" class="form-label">受注日<span class="text-danger">*</span></label>
+                    <input type="date" name="order_date" id="order_date" class="form-control" value="<%= Date.today %>">
+                    <div class="invalid-feedback">受注日を入力してください</div>
+                  </div>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                  <div class="form-group">
+                    <label for="expected_delivery_date" class="form-label">予定納品日</label>
+                    <input type="date" name="expected_delivery_date" id="expected_delivery_date" class="form-control">
+                  </div>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                  <div class="form-group">
+                    <label for="actual_delivery_date" class="form-label">確定納品日</label>
+                    <input type="date" name="actual_delivery_date" id="actual_delivery_date" class="form-control">
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-12 mb-3">
+                <div class="form-group">
+                  <label for="file" class="form-label">CSVファイル<span class="text-danger">*</span></label>
+                  <input type="file" name="file" id="file" class="form-control" required accept=".csv">
+                  <small class="text-muted">※CSVファイルはUTF-8エンコーディングで保存されたものをご使用ください</small>
+                </div>
+              </div>
+            </div>
+            
+            <div class="d-flex justify-content-between mt-3">
+              <div>
+                <a href="<%= orders_path %>" class="btn btn-secondary">戻る</a>
+              </div>
+              <div>
+                <button type="submit" class="btn btn-primary">CSVファイルをアップロードして一括登録</button>
+              </div>
+            </div>
+          </form>
+          
+          <div class="card mt-4">
+            <div class="card-header">
+              <h4 class="card-title">CSVファイルのフォーマット</h4>
+            </div>
+            <div class="card-body">
+              <p>CSVファイルは以下のヘッダーを持つことができます：</p>
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>列名</th>
+                      <th>説明</th>
+                      <th>必須</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>取引先コード</td>
+                      <td>取引先コード（取引先マスタに登録されているもの）</td>
+                      <td>CSVから基本情報を入力する場合、取引先コードまたは取引先名のいずれか必須</td>
+                    </tr>
+                    <tr>
+                      <td>取引先名</td>
+                      <td>取引先名（取引先マスタに登録されているもの）</td>
+                      <td>CSVから基本情報を入力する場合、取引先コードまたは取引先名のいずれか必須</td>
+                    </tr>
+                    <tr>
+                      <td>支払方法</td>
+                      <td>支払方法名（支払方法マスタに登録されているもの）</td>
+                      <td>任意</td>
+                    </tr>
+                    <tr>
+                      <td>受注日</td>
+                      <td>受注日（yyyy-mm-dd形式）</td>
+                      <td>CSVから基本情報を入力する場合、必須</td>
+                    </tr>
+                    <tr>
+                      <td>予定納品日</td>
+                      <td>予定納品日（yyyy-mm-dd形式）</td>
+                      <td>任意</td>
+                    </tr>
+                    <tr>
+                      <td>確定納品日</td>
+                      <td>確定納品日（yyyy-mm-dd形式）</td>
+                      <td>任意</td>
+                    </tr>
+                    <tr>
+                      <td>商品コード</td>
+                      <td>商品コード（商品マスタに登録されているもの）</td>
+                      <td>商品コードまたは商品名のいずれか必須</td>
+                    </tr>
+                    <tr>
+                      <td>商品名</td>
+                      <td>商品名（商品マスタに登録されているもの）</td>
+                      <td>商品コードまたは商品名のいずれか必須</td>
+                    </tr>
+                    <tr>
+                      <td>数量</td>
+                      <td>商品の数量（1以上の整数）</td>
+                      <td>必須</td>
+                    </tr>
+                    <tr>
+                      <td>単価</td>
+                      <td>商品の単価（指定しない場合は商品マスタの単価が使用されます）</td>
+                      <td>任意</td>
+                    </tr>
+                    <tr>
+                      <td>税率</td>
+                      <td>適用税率（指定しない場合は商品マスタの税率が使用されます）</td>
+                      <td>任意</td>
+                    </tr>
+                    <tr>
+                      <td>単位</td>
+                      <td>単位名（単位マスタに登録されているもの）</td>
+                      <td>任意</td>
+                    </tr>
+                    <tr>
+                      <td>備考</td>
+                      <td>各商品に関する備考</td>
+                      <td>任意</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <div class="mt-3">
+                <h5>サンプルCSV（フォームの値を使用する場合）：</h5>
+                <pre class="bg-light p-3">商品コード,商品名,数量,単価,税率,単位,備考
+P001,商品A,2,1000,10,個,サンプル備考1
+P002,商品B,3,2000,8,箱,サンプル備考2</pre>
+              </div>
+              
+              <div class="mt-3">
+                <h5>サンプルCSV（CSVの値を使用する場合）：</h5>
+                <pre class="bg-light p-3">取引先コード,取引先名,支払方法,受注日,予定納品日,確定納品日,商品コード,商品名,数量,単価,税率,単位,備考
+C001,株式会社A,銀行振込,2023-05-01,2023-05-10,,P001,商品A,2,1000,10,個,サンプル備考1
+C001,株式会社A,銀行振込,2023-05-01,2023-05-10,,P002,商品B,3,2000,8,箱,サンプル備考2
+C002,株式会社B,代金引換,2023-05-02,2023-05-15,,P003,商品C,1,3000,10,セット,サンプル備考3</pre>
+              </div>
+              
+              <div class="mt-3">
+                <a href="/sample_orders_form.csv" download class="btn btn-outline-primary me-2">
+                  <i class="fas fa-download"></i> サンプルCSVファイル（フォーム用）
+                </a>
+                <a href="/sample_orders_full.csv" download class="btn btn-outline-primary">
+                  <i class="fas fa-download"></i> サンプルCSVファイル（基本情報含む）
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const useFormValuesYes = document.getElementById('use_form_values_yes');
+    const useFormValuesNo = document.getElementById('use_form_values_no');
+    const formValuesSection = document.getElementById('form_values_section');
+    const importForm = document.querySelector('form');
+    
+    // フォーム送信のデバッグとバリデーション
+    if (importForm) {
+      importForm.addEventListener('submit', function(event) {
+        console.log('フォーム送信イベントが発生しました');
+        
+        // フォームバリデーション
+        let isValid = true;
+        
+        // フォームの値を使用する場合のバリデーション
+        if (useFormValuesYes.checked) {
+          const customerSelect = document.getElementById('customer_id');
+          const orderDateInput = document.getElementById('order_date');
+          
+          // 取引先のバリデーション
+          if (!customerSelect.value) {
+            customerSelect.classList.add('is-invalid');
+            isValid = false;
+          } else {
+            customerSelect.classList.remove('is-invalid');
+          }
+          
+          // 受注日のバリデーション
+          if (!orderDateInput.value) {
+            orderDateInput.classList.add('is-invalid');
+            isValid = false;
+          } else {
+            orderDateInput.classList.remove('is-invalid');
+          }
+        }
+        
+        // ファイル選択確認
+        const fileInput = document.getElementById('file');
+        if (!fileInput || fileInput.files.length === 0) {
+          alert('CSVファイルを選択してください');
+          isValid = false;
+        } else {
+          console.log('選択されたファイル:', fileInput.files[0].name);
+        }
+        
+        // バリデーションエラーがある場合は送信をキャンセル
+        if (!isValid) {
+          event.preventDefault();
+          return false;
+        }
+        
+        // フォーム送信を許可
+        return true;
+      });
+    } else {
+      console.error('フォーム要素が見つかりません');
+    }
+    
+    function toggleFormValues() {
+      if (useFormValuesYes.checked) {
+        formValuesSection.style.display = 'block';
+      } else {
+        formValuesSection.style.display = 'none';
+      }
+    }
+    
+    useFormValuesYes.addEventListener('change', toggleFormValues);
+    useFormValuesNo.addEventListener('change', toggleFormValues);
+    
+    // 初期状態を設定
+    toggleFormValues();
+  });
+</script> 

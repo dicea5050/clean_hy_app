@@ -5,7 +5,6 @@ class Product < ApplicationRecord
   validates :name, presence: true
   validates :tax_rate_id, presence: true
   validates :price, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
-  validates :is_discount, inclusion: { in: [true, false] }
 
   # 利用可能な商品を取得するスコープを修正
   scope :available, -> {
@@ -24,15 +23,5 @@ class Product < ApplicationRecord
   # 単価が固定かどうかを判断するメソッド
   def fixed_price?
     price.present?
-  end
-
-  validate :validate_discount_price, if: :is_discount
-
-  private
-
-  def validate_discount_price
-    if price.present? && price >= 0
-      errors.add(:price, "値引き商品の場合、価格はマイナスである必要があります")
-    end
   end
 end

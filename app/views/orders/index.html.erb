@@ -1,7 +1,10 @@
 <div class="container">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1>受注一覧</h1>
-    <%= link_to '新規受注', new_order_path, class: 'btn btn-primary' %>
+    <div>
+      <%= link_to 'CSVインポート', import_csv_orders_path, class: 'btn btn-success me-2' %>
+      <%= link_to '新規受注', new_order_path, class: 'btn btn-primary' %>
+    </div>
   </div>
 
   <%# 検索フォームを追加 %>
