@@ -9,7 +9,7 @@ class CreateInvoices < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
+
     add_index :invoices, :invoice_number, unique: true
   end
-end 
+end

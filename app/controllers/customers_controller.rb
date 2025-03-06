@@ -1,7 +1,7 @@
 class CustomersController < ApplicationController
   before_action :require_login
-  before_action :require_editor, only: [:new, :create, :edit, :update, :destroy]
-  before_action :set_customer, only: [:show, :edit, :update, :destroy]
+  before_action :require_editor, only: [ :new, :create, :edit, :update, :destroy ]
+  before_action :set_customer, only: [ :show, :edit, :update, :destroy ]
 
   def index
     @customers = Customer.order(:company_name).page(params[:page]).per(25)
@@ -21,7 +21,7 @@ class CustomersController < ApplicationController
     @customer = Customer.new(customer_params)
 
     if @customer.save
-      redirect_to customers_path, notice: '顧客が正常に作成されました。'
+      redirect_to customers_path, notice: "顧客が正常に作成されました。"
     else
       render :new
     end
@@ -32,9 +32,9 @@ class CustomersController < ApplicationController
     if params[:customer][:password].blank?
       params[:customer].delete(:password)
     end
-    
+
     if @customer.update(customer_params)
-      redirect_to customers_path, notice: '顧客が正常に更新されました。'
+      redirect_to customers_path, notice: "顧客が正常に更新されました。"
     else
       render :edit
     end
@@ -42,11 +42,11 @@ class CustomersController < ApplicationController
 
   def destroy
     @customer.destroy
-    redirect_to customers_path, notice: '顧客が正常に削除されました。'
+    redirect_to customers_path, notice: "顧客が正常に削除されました。"
   end
 
   def search
-    @customers = Customer.where('company_name LIKE ?', "%#{params[:q]}%").limit(10)
+    @customers = Customer.where("company_name LIKE ?", "%#{params[:q]}%").limit(10)
     render json: @customers.map { |c| { id: c.id, text: c.company_name } }
   end
 
@@ -58,9 +58,9 @@ class CustomersController < ApplicationController
 
   def customer_params
     params.require(:customer).permit(
-      :customer_code, :company_name, :postal_code, :address, 
-      :contact_name, :phone_number, :email, :fax_number, 
+      :customer_code, :company_name, :postal_code, :address,
+      :contact_name, :phone_number, :email, :fax_number,
       :password, :password_confirmation, :invoice_delivery_method
     )
   end
-end 
+end

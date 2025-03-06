@@ -1,14 +1,14 @@
 class Customer < ApplicationRecord
   has_many :orders, dependent: :destroy
   has_secure_password validations: false # バリデーションは無効化して必須項目にしない
-  
+
   # 請求書送付方法の列挙型を定義
   enum :invoice_delivery_method, { electronic: 0, postal: 1 }
-  
+
   def password_set?
     password_digest.present?
   end
-  
+
   def display_name
     company_name
   end
@@ -29,4 +29,4 @@ class Customer < ApplicationRecord
   def invoice_delivery_method_i18n
     I18n.t("enums.customer.invoice_delivery_method.#{invoice_delivery_method}")
   end
-end 
+end

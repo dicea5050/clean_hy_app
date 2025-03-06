@@ -1,12 +1,12 @@
 class InvoiceApprovalsController < ApplicationController
   before_action :require_administrator_login
-  before_action :set_invoice_approval, only: [:approve, :reject]
+  before_action :set_invoice_approval, only: [ :approve, :reject ]
 
   private
 
   def require_administrator_login
     unless administrator_signed_in?
-      redirect_to login_path, alert: '管理者としてログインしてください。'
+      redirect_to login_path, alert: "管理者としてログインしてください。"
     end
   end
 
@@ -55,10 +55,10 @@ class InvoiceApprovalsController < ApplicationController
   end
 
   def bulk_create
-    invoice_ids = params[:invoice_ids]&.split(',')
-    
+    invoice_ids = params[:invoice_ids]&.split(",")
+
     if invoice_ids.blank?
-      return redirect_to invoices_path, alert: '請求書が選択されていません。'
+      return redirect_to invoices_path, alert: "請求書が選択されていません。"
     end
 
     ActiveRecord::Base.transaction do

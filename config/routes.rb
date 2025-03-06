@@ -13,16 +13,16 @@ Rails.application.routes.draw do
   # root "posts#index"
 
   # 管理者認証関連
-  get 'login', to: 'administrators#login', as: 'login'
-  post 'authenticate', to: 'administrators#authenticate', as: 'authenticate'
-  delete 'logout', to: 'administrators#logout', as: 'logout'
-  
+  get "login", to: "administrators#login", as: "login"
+  post "authenticate", to: "administrators#authenticate", as: "authenticate"
+  delete "logout", to: "administrators#logout", as: "logout"
+
   # 管理者マスター
   resources :administrators
-  
+
   # マスター一覧
-  get 'masters', to: 'masters#index', as: 'masters'
-  
+  get "masters", to: "masters#index", as: "masters"
+
   # 各種マスター
   resources :tax_rates
   resources :products
@@ -32,16 +32,16 @@ Rails.application.routes.draw do
   resources :bank_accounts
   resources :units
   resources :product_specifications
-  
+
   # 受注情報（Orders）CRUD機能
   resources :orders do
     member do
       get :delivery_slip
     end
   end
-  
-  get 'customers/search', to: 'customers#search'
-  
+
+  get "customers/search", to: "customers#search"
+
   # 請求書発行機能
   resources :invoices do
     collection do
@@ -51,27 +51,27 @@ Rails.application.routes.draw do
       get :pdf
     end
   end
-  
+
   # ショップ機能用のルート
   namespace :shop do
-    resources :products, only: [:index, :show]
-    resource :cart, only: [:show, :update, :destroy]
-    resources :orders, only: [:new, :create]
-    get 'orders/complete', to: 'orders#complete', as: 'order_complete'
-    
-    # カスタマーログイン関連
-    get 'login', to: 'sessions#new', as: 'login'
-    post 'login', to: 'sessions#create'
-    delete 'logout', to: 'sessions#destroy', as: 'logout'
-  end
-  
-  # ショップのルートページを商品一覧に設定
-  get '/shop', to: 'shop/products#index'
-  
-  # ルートパスの設定
-  root to: 'administrators#login'
+    resources :products, only: [ :index, :show ]
+    resource :cart, only: [ :show, :update, :destroy ]
+    resources :orders, only: [ :new, :create ]
+    get "orders/complete", to: "orders#complete", as: "order_complete"
 
-  resources :invoice_approvals, only: [:index] do
+    # カスタマーログイン関連
+    get "login", to: "sessions#new", as: "login"
+    post "login", to: "sessions#create"
+    delete "logout", to: "sessions#destroy", as: "logout"
+  end
+
+  # ショップのルートページを商品一覧に設定
+  get "/shop", to: "shop/products#index"
+
+  # ルートパスの設定
+  root to: "administrators#login"
+
+  resources :invoice_approvals, only: [ :index ] do
     collection do
       post :bulk_create
     end

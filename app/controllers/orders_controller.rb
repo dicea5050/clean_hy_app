@@ -1,6 +1,6 @@
 class OrdersController < ApplicationController
-  before_action :set_order, only: [:show, :edit, :update, :destroy]
-  before_action :set_payment_methods, only: [:new, :edit, :create, :update]
+  before_action :set_order, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_payment_methods, only: [ :new, :edit, :create, :update ]
 
   def index
     @orders = Order.includes(:customer, :order_items, :payment_method)
@@ -28,12 +28,12 @@ class OrdersController < ApplicationController
 
   def create
     @order = Order.new(order_params)
-    
+
     # 単価と税率を商品から設定
     set_price_and_tax_rate(@order.order_items)
-    
+
     if @order.save
-      redirect_to @order, notice: '受注情報が正常に作成されました。'
+      redirect_to @order, notice: "受注情報が正常に作成されました。"
     else
       @customers = Customer.all.order(:company_name)
       render :new
@@ -45,8 +45,8 @@ class OrdersController < ApplicationController
       # 単価と税率を商品から設定
       set_price_and_tax_rate(@order.order_items)
       @order.save
-      
-      redirect_to @order, notice: '受注情報が正常に更新されました。'
+
+      redirect_to @order, notice: "受注情報が正常に更新されました。"
     else
       @customers = Customer.all.order(:company_name)
       render :edit
@@ -55,20 +55,20 @@ class OrdersController < ApplicationController
 
   def destroy
     @order.destroy
-    redirect_to orders_path, notice: '受注情報が正常に削除されました。'
+    redirect_to orders_path, notice: "受注情報が正常に削除されました。"
   end
 
   def delivery_slip
     @order = Order.includes(:order_items, :customer, :payment_method).find(params[:id])
     @company_info = CompanyInformation.first
-    
+
     respond_to do |format|
       format.pdf do
         pdf = ::DeliverySlipPdf.new(@order, @company_info)
-        send_data pdf.render, 
+        send_data pdf.render,
                   filename: "納品書_#{@order.order_number}.pdf",
-                  type: 'application/pdf',
-                  disposition: 'inline'
+                  type: "application/pdf",
+                  disposition: "inline"
       end
     end
   end
@@ -80,12 +80,12 @@ class OrdersController < ApplicationController
 
     def order_params
       params.require(:order).permit(
-        :customer_id, :order_date, :expected_delivery_date, 
+        :customer_id, :order_date, :expected_delivery_date,
         :actual_delivery_date, :payment_method_id,
-        order_items_attributes: [:id, :product_id, :quantity, :unit_price, :tax_rate, :notes, :unit_id, :_destroy]
+        order_items_attributes: [ :id, :product_id, :quantity, :unit_price, :tax_rate, :notes, :unit_id, :_destroy ]
       )
     end
-    
+
     # 単価と税率を商品マスタから設定するヘルパーメソッド
     def set_price_and_tax_rate(order_items)
       order_items.each do |item|
@@ -112,4 +112,4 @@ class OrdersController < ApplicationController
         :invoice_status
       )
     end
-end 
+end

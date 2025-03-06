@@ -6,7 +6,7 @@ class CreateInvoiceOrders < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
-    add_index :invoice_orders, [:invoice_id, :order_id], unique: true
+
+    add_index :invoice_orders, [ :invoice_id, :order_id ], unique: true
   end
 end

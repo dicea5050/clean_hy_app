@@ -4,4 +4,4 @@
 # Mime::Type.register "text/richtext", :rtf
 
 # PDFのMIMEタイプを登録
-Mime::Type.register "application/pdf", :pdf 
+Mime::Type.register "application/pdf", :pdf

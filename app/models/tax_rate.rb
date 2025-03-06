@@ -11,4 +11,4 @@ class TaxRate < ApplicationRecord
       errors.add(:end_date, "は開始日より後の日付にしてください")
     end
   end
-end 
+end

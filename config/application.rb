@@ -2,7 +2,7 @@ require_relative "boot"
 
 require "rails/all"
 require "propshaft"
-require 'bcrypt'
+require "bcrypt"
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -28,12 +28,11 @@ module CleanHyApp
 
     # デフォルトのロケールを日本語(:ja)に設定
     config.i18n.default_locale = :ja
-    
+
     # タイムゾーンを東京(JST +9:00)に設定
-    config.time_zone = 'Tokyo'
+    config.time_zone = "Tokyo"
 
     # Bootstrapのアセット設定
-    config.assets.paths << Rails.root.join('node_modules')
-
+    config.assets.paths << Rails.root.join("node_modules")
   end
 end

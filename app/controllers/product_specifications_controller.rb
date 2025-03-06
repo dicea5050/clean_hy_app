@@ -1,7 +1,7 @@
 class ProductSpecificationsController < ApplicationController
   before_action :require_login
   before_action :require_editor
-  before_action :set_product_specification, only: [:show, :edit, :update, :destroy]
+  before_action :set_product_specification, only: [ :show, :edit, :update, :destroy ]
 
   def index
     @product_specifications = ProductSpecification.all
@@ -21,7 +21,7 @@ class ProductSpecificationsController < ApplicationController
     @product_specification = ProductSpecification.new(product_specification_params)
 
     if @product_specification.save
-      redirect_to product_specifications_path, notice: '商品規格が正常に作成されました。'
+      redirect_to product_specifications_path, notice: "商品規格が正常に作成されました。"
     else
       render :new
     end
@@ -29,7 +29,7 @@ class ProductSpecificationsController < ApplicationController
 
   def update
     if @product_specification.update(product_specification_params)
-      redirect_to product_specifications_path, notice: '商品規格が正常に更新されました。'
+      redirect_to product_specifications_path, notice: "商品規格が正常に更新されました。"
     else
       render :edit
     end
@@ -37,7 +37,7 @@ class ProductSpecificationsController < ApplicationController
 
   def destroy
     @product_specification.destroy
-    redirect_to product_specifications_path, notice: '商品規格が正常に削除されました。'
+    redirect_to product_specifications_path, notice: "商品規格が正常に削除されました。"
   end
 
   private

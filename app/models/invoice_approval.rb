@@ -4,9 +4,9 @@ class InvoiceApproval < ApplicationRecord
 
   # 承認状態の定義
   STATUSES = {
-    pending: '承認待ち',
-    approved: '承認済み',
-    rejected: '差し戻し'
+    pending: "承認待ち",
+    approved: "承認済み",
+    rejected: "差し戻し"
   }.freeze
 
   validates :invoice_id, presence: true

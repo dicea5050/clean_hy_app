@@ -1,22 +1,22 @@
 class Shop::OrdersController < ApplicationController
-  layout 'shop'
+  layout "shop"
   before_action :authenticate_customer!
-  before_action :set_payment_methods, only: [:new, :create]
-  
+  before_action :set_payment_methods, only: [ :new, :create ]
+
   def new
     @cart = current_cart
     @order = Order.new
-    
+
     # 顧客情報は現在ログイン中の顧客から取得
     @order.customer_id = current_customer.id
     # 注文日を本日に設定
     @order.order_date = Date.today
   end
-  
+
   def create
     @cart = current_cart
     @order = Order.new
-    
+
     # 現在のログインユーザーを顧客として設定
     @order.customer_id = current_customer.id
     # 注文日を本日に設定
@@ -25,7 +25,7 @@ class Shop::OrdersController < ApplicationController
     @order.expected_delivery_date = params[:order][:desired_delivery_date]
     # 支払い方法を設定
     @order.payment_method_id = params[:order][:payment_method_id]
-    
+
     if @order.save
       # カートの内容を注文に変換し、在庫を減らす
       ActiveRecord::Base.transaction do
@@ -36,7 +36,7 @@ class Shop::OrdersController < ApplicationController
             unit_price: item.product.price,
             tax_rate: item.product.tax_rate.try(:rate) || 10
           )
-          
+
           # 在庫を減らす（在庫がnilの場合は減らさない）
           product = item.product
           if product.stock.present?
@@ -44,28 +44,28 @@ class Shop::OrdersController < ApplicationController
           end
         end
       end
-      
+
       # カートを空にする
       session[:cart] = nil
-      
+
       # 完了ページへリダイレクト
       redirect_to shop_order_complete_path
     else
       render :new
     end
   end
-  
+
   def complete
     # 注文完了ページを表示
   end
-  
+
   private
-  
+
   def current_cart
     Cart.from_hash(session[:cart] || {})
   end
-  
+
   def set_payment_methods
     @payment_methods = PaymentMethod.all
   end
-end 
+end

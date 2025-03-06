@@ -49,18 +49,18 @@ gem "thruster", require: false
 # Select2は削除またはコメントアウト
 # gem 'select2-rails'
 # jQuery
-gem 'jquery-rails'
+gem "jquery-rails"
 
 # ページネーション機能追加のためのエラー修正
-gem 'kaminari'
+gem "kaminari"
 
 # PDF生成用のgem
-gem 'prawn'
-gem 'prawn-table'
+gem "prawn"
+gem "prawn-table"
 
 # 社印画像表示用
-gem 'image_processing', '~> 1.2'
-gem 'mini_magick'
+gem "image_processing", "~> 1.2"
+gem "mini_magick"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
@@ -71,6 +71,8 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  gem "rspec-rails"
 end
 
 group :development do

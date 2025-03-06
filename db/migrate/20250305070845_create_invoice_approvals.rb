@@ -10,6 +10,6 @@ class CreateInvoiceApprovals < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :invoice_approvals, [:invoice_id, :status]
+    add_index :invoice_approvals, [ :invoice_id, :status ]
   end
 end

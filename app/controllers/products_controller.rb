@@ -1,7 +1,7 @@
 class ProductsController < ApplicationController
   before_action :require_login
-  before_action :require_editor, only: [:new, :create, :edit, :update, :destroy]
-  before_action :set_product, only: [:show, :edit, :update, :destroy]
+  before_action :require_editor, only: [ :new, :create, :edit, :update, :destroy ]
+  before_action :set_product, only: [ :show, :edit, :update, :destroy ]
 
   def index
     @products = Product.all.includes(:tax_rate)
@@ -21,7 +21,7 @@ class ProductsController < ApplicationController
     @product = Product.new(product_params)
 
     if @product.save
-      redirect_to products_path, notice: '商品が正常に作成されました。'
+      redirect_to products_path, notice: "商品が正常に作成されました。"
     else
       render :new
     end
@@ -29,7 +29,7 @@ class ProductsController < ApplicationController
 
   def update
     if @product.update(product_params)
-      redirect_to products_path, notice: '商品が正常に更新されました。'
+      redirect_to products_path, notice: "商品が正常に更新されました。"
     else
       render :edit
     end
@@ -37,7 +37,7 @@ class ProductsController < ApplicationController
 
   def destroy
     @product.destroy
-    redirect_to products_path, notice: '商品が正常に削除されました。'
+    redirect_to products_path, notice: "商品が正常に削除されました。"
   end
 
   private
@@ -49,4 +49,4 @@ class ProductsController < ApplicationController
   def product_params
     params.require(:product).permit(:product_code, :name, :tax_rate_id, :price, :stock, :is_public)
   end
-end 
+end

@@ -9,4 +9,4 @@ class CreateAdministrators < ActiveRecord::Migration[7.0]
     end
     add_index :administrators, :email, unique: true
   end
-end 
+end

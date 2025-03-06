@@ -10,5 +10,5 @@ Rails.application.config.assets.version = "1.0"
 Rails.application.config.assets.paths << Rails.root.join("node_modules")
 
 # Rails 8でPropshaftを使用する場合の設定
-Rails.application.config.assets.paths << Rails.root.join('app/assets/javascripts')
-Rails.application.config.assets.precompile += %w( orders.js )
+Rails.application.config.assets.paths << Rails.root.join("app/assets/javascripts")
+Rails.application.config.assets.precompile += %w[ orders.js ]
