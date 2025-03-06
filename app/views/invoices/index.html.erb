@@ -14,7 +14,7 @@
     <thead>
       <tr>
         <th>
-          <input type="checkbox" id="select-all" class="form-check-input">
+          <input type="checkbox" id="select-all" class="order-checkbox">
         </th>
         <th>請求書番号</th>
         <th>取引先</th>
@@ -32,7 +32,7 @@
         <tr>
           <td>
             <input type="checkbox" 
-                   class="form-check-input invoice-checkbox" 
+                   class="order-checkbox invoice-checkbox" 
                    value="<%= invoice.id %>"
                    <%= 'disabled' unless ['未申請', '差し戻し'].include?(invoice.approval_status) %>>
           </td>
