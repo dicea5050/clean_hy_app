@@ -91,7 +91,7 @@ class InvoicesController < ApplicationController
     invoice_ids = params[:invoice_ids]&.split(",")
 
     if invoice_ids.present?
-      invoices = Invoice.where(id: invoice_ids, approval_status: "未申請")
+      invoices = Invoice.where(id: invoice_ids, approval_status: ["未申請", "差し戻し"])
 
       Invoice.transaction do
         invoices.each do |invoice|

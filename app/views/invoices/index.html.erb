@@ -34,7 +34,7 @@
             <input type="checkbox" 
                    class="form-check-input invoice-checkbox" 
                    value="<%= invoice.id %>"
-                   <%= 'disabled' if invoice.approval_status != '未申請' %>>
+                   <%= 'disabled' unless ['未申請', '差し戻し'].include?(invoice.approval_status) %>>
           </td>
           <td><%= link_to invoice.invoice_number, invoice_path(invoice) %></td>
           <td><%= invoice.customer.company_name %></td>

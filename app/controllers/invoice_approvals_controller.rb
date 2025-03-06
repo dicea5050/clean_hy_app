@@ -17,7 +17,11 @@ class InvoiceApprovalsController < ApplicationController
   public
 
   def index
-    @invoice_approvals = InvoiceApproval.includes(:invoice).order(created_at: :desc).page(params[:page]).per(25)
+    @invoice_approvals = InvoiceApproval.includes(:invoice)
+                                      .where(status: InvoiceApproval::STATUSES[:pending])
+                                      .order(created_at: :desc)
+                                      .page(params[:page])
+                                      .per(25)
   end
 
   def approve
