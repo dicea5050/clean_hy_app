@@ -89,15 +89,18 @@ class OrdersController < ApplicationController
     # 単価と税率を商品マスタから設定するヘルパーメソッド
     def set_price_and_tax_rate(order_items)
       order_items.each do |item|
-        if item.product_id.present? && (item.unit_price.blank? || item.tax_rate.blank?)
+        if item.product_id.present?
           product = Product.find(item.product_id)
-          # 値引き商品の場合は入力された金額をマイナスに変換
-          if product.is_discount
-            item.unit_price = -item.unit_price.abs if item.unit_price.present?
-          else
-            item.unit_price = product.price if item.unit_price.blank?
+          
+          # 単価が未入力かつ商品マスタに単価がある場合のみセット
+          if item.unit_price.blank? && product.price.present?
+            item.unit_price = product.price
           end
-          item.tax_rate = product.tax_rate if item.tax_rate.blank?
+          
+          # 税率が未入力の場合のみセット
+          if item.tax_rate.blank?
+            item.tax_rate = product.tax_rate.rate if product.tax_rate.present?
+          end
         end
       end
     end

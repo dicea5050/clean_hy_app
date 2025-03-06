@@ -31,12 +31,52 @@ function setupOrderForm() {
   setupRemoveButtons();
   
   // 初期計算
-  document.querySelectorAll('#order-items tbody tr').forEach(function(row) {
+  document.querySelectorAll('#order-items tbody tr:not(.empty-row)').forEach(function(row) {
     calculateSubtotal(row);
   });
   
   // 合計金額の更新
   updateOrderTotal();
+
+  // フォーム送信時の処理追加
+  setupFormSubmission();
+}
+
+// フォーム送信時の前処理
+function setupFormSubmission() {
+  const form = document.querySelector('form');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      // 表示されていない行（削除された行）以外の行を処理
+      const rows = document.querySelectorAll('#order-items tbody tr:not([style*="display: none"])');
+      
+      // 空の行をチェック
+      let hasEmptyRows = false;
+      
+      rows.forEach(function(row) {
+        const productSelect = row.querySelector('.product-select');
+        const quantitySelect = row.querySelector('.quantity-select');
+        
+        // 商品と数量の両方が選択されていない行は空の行と見なす
+        if ((!productSelect || !productSelect.value) && 
+            (!quantitySelect || !quantitySelect.value)) {
+          const destroyField = row.querySelector('input[name*="[_destroy]"]');
+          if (destroyField) {
+            destroyField.value = 'true';
+          }
+          hasEmptyRows = true;
+        }
+        
+        // 単価入力欄のバリデーション
+        const unitPriceInput = row.querySelector('input[name*="[unit_price]"]');
+        if (unitPriceInput && unitPriceInput.type === 'text' && !unitPriceInput.value) {
+          unitPriceInput.setCustomValidity('単価を入力してください');
+        } else if (unitPriceInput) {
+          unitPriceInput.setCustomValidity('');
+        }
+      });
+    });
+  }
 }
 
 // 既存データの表示を初期化する関数
@@ -62,6 +102,11 @@ function initializeExistingItems() {
     const productSelect = row.querySelector('.product-select');
     if (productSelect && productSelect.value) {
       const selectedOption = productSelect.options[productSelect.selectedIndex];
+      const price = selectedOption.getAttribute('data-price');
+      
+      // 単価の表示と入力を設定
+      configureUnitPriceField(row, price);
+      
       if (!selectedOption.getAttribute('data-price') && unitPriceInput) {
         selectedOption.setAttribute('data-price', unitPriceInput.value);
       }
@@ -93,25 +138,8 @@ function setupProductSelects() {
         const unitPriceDisplay = row.querySelector('.unit-price-display');
         const unitPriceInput = row.querySelector('input[name*="[unit_price]"]');
         
-        if (price && price !== '') {  // 単価が登録されている場合
-          unitPriceDisplay.style.display = 'inline-block';
-          unitPriceInput.type = 'hidden';
-          unitPriceInput.value = price;
-          unitPriceDisplay.textContent = parseFloat(price).toLocaleString();
-        } else {  // 単価が未登録の場合
-          unitPriceDisplay.style.display = 'none';
-          unitPriceInput.type = 'text';
-          unitPriceInput.className = 'form-control';
-          unitPriceInput.style.width = '100px';
-          unitPriceInput.value = '';
-          unitPriceInput.required = true;
-          
-          // 手入力された単価での計算を有効にする
-          unitPriceInput.addEventListener('input', function() {
-            calculateSubtotal(row);
-            updateOrderTotal();
-          });
-        }
+        // 単価の表示と入力を設定
+        configureUnitPriceField(row, price);
         
         // 税率の設定
         row.querySelector('input[name*="[tax_rate]"]').value = taxRate;
@@ -264,27 +292,35 @@ function createNewRowFromScratch(tbody) {
           ${generateProductOptions()}
         </select>
       </td>
-      <td>
-        <input type="hidden" name="order[order_items_attributes][${newId}][unit_price]" id="order_order_items_attributes_${newId}_unit_price">
-        <span class="unit-price-display" style="display: inline-block; min-width: 80px; text-align: right;">0</span>円
+      <td style="width: 120px;">
+        <input type="hidden" name="order[order_items_attributes][${newId}][unit_price]" id="order_order_items_attributes_${newId}_unit_price" class="unit-price-input">
+        <span class="unit-price-display" style="display: inline-block; min-width: 60px; text-align: right;">0</span>円
       </td>
-      <td>
+      <td style="width: 80px;">
         <input type="hidden" name="order[order_items_attributes][${newId}][tax_rate]" id="order_order_items_attributes_${newId}_tax_rate">
-        <span class="tax-rate-display" style="text-align: right; display: inline-block; min-width: 30px;">0</span>%
+        <span class="tax-rate-display" style="text-align: right; display: inline-block; min-width: 20px;">0</span>%
       </td>
-      <td>
+      <td style="width: 80px;">
         <select name="order[order_items_attributes][${newId}][quantity]" id="order_order_items_attributes_${newId}_quantity" class="form-control quantity-select" style="width: 100%;" required>
           <option value="">数量</option>
           ${generateQuantityOptions()}
         </select>
       </td>
-      <td>
-        <span class="subtotal-without-tax" style="display: inline-block; min-width: 120px; text-align: right;">0</span>円
+      <td style="width: 80px;">
+        <select name="order[order_items_attributes][${newId}][unit_id]" id="order_order_items_attributes_${newId}_unit_id" class="form-control" style="width: 100%;">
+          <option value="">単位</option>
+        </select>
       </td>
-      <td>
-        <span class="subtotal-with-tax" style="display: inline-block; min-width: 120px; text-align: right;">0</span>円
+      <td style="width: 120px;">
+        <span class="subtotal-without-tax" style="display: inline-block; min-width: 80px; text-align: right;">0</span>円
       </td>
-      <td class="text-center">
+      <td style="width: 120px;">
+        <span class="subtotal-with-tax" style="display: inline-block; min-width: 80px; text-align: right;">0</span>円
+      </td>
+      <td style="width: 200px;">
+        <input type="text" name="order[order_items_attributes][${newId}][notes]" id="order_order_items_attributes_${newId}_notes" class="form-control" placeholder="備考">
+      </td>
+      <td class="text-center" style="width: 80px;">
         <input type="hidden" name="order[order_items_attributes][${newId}][_destroy]" id="order_order_items_attributes_${newId}__destroy" value="false">
         <a href="#" class="btn btn-sm btn-danger remove-item">削除</a>
       </td>
@@ -308,7 +344,7 @@ function generateProductOptions() {
 
 // 数量選択肢を生成
 function generateQuantityOptions() {
-  let options = '';
+  let options = '<option value="">数量</option>';
   for (let i = 1; i <= 10; i++) {
     options += `<option value="${i}">${i}</option>`;
   }
@@ -326,8 +362,8 @@ function setupRowEvents(row) {
         const price = selectedOption.getAttribute('data-price');
         const taxRate = selectedOption.getAttribute('data-tax-rate');
         
-        row.querySelector('input[name*="[unit_price]"]').value = price;
-        row.querySelector('.unit-price-display').textContent = price;
+        // 単価の表示と入力を設定
+        configureUnitPriceField(row, price);
         
         row.querySelector('input[name*="[tax_rate]"]').value = taxRate;
         row.querySelector('.tax-rate-display').textContent = taxRate;
@@ -384,4 +420,62 @@ function setupRemoveButtons() {
       updateOrderTotal();
     });
   });
+}
+
+// 単価フィールドの設定を行う共通関数
+function configureUnitPriceField(row, price) {
+  const unitPriceDisplay = row.querySelector('.unit-price-display');
+  const unitPriceInput = row.querySelector('input[name*="[unit_price]"]');
+  
+  if (price && price !== '') {  // 単価が登録されている場合
+    // 表示モードに設定
+    unitPriceDisplay.style.display = 'inline-block';
+    unitPriceInput.type = 'hidden';
+    unitPriceInput.value = price;
+    unitPriceDisplay.textContent = parseFloat(price).toLocaleString();
+    
+    // 既存のイベントリスナーを削除（もし存在すれば）
+    if (unitPriceInput._hasInputListener) {
+      unitPriceInput.removeEventListener('input', unitPriceInput._calculateAndUpdateHandler);
+      unitPriceInput._hasInputListener = false;
+    }
+    
+    // バリデーションメッセージをクリア
+    unitPriceInput.setCustomValidity('');
+  } else {  // 単価が未登録の場合
+    // 編集モードに設定
+    unitPriceDisplay.style.display = 'none';
+    unitPriceInput.type = 'text';
+    unitPriceInput.className = 'form-control unit-price-editable';
+    unitPriceInput.style.width = '100px';
+    unitPriceInput.style.textAlign = 'right';
+    unitPriceInput.placeholder = '0';
+    unitPriceInput.value = unitPriceInput.value || '';
+    unitPriceInput.required = true;
+    
+    // バリデーションメッセージを設定（値が空の場合）
+    if (!unitPriceInput.value) {
+      unitPriceInput.setCustomValidity('単価を入力してください');
+    } else {
+      unitPriceInput.setCustomValidity('');
+    }
+    
+    // 手入力された単価での計算を有効にする
+    if (!unitPriceInput._hasInputListener) {
+      unitPriceInput._calculateAndUpdateHandler = function() {
+        // 値が入力されたらバリデーションメッセージをクリア
+        if (this.value) {
+          this.setCustomValidity('');
+        } else {
+          this.setCustomValidity('単価を入力してください');
+        }
+        
+        const row = this.closest('tr');
+        calculateSubtotal(row);
+        updateOrderTotal();
+      };
+      unitPriceInput.addEventListener('input', unitPriceInput._calculateAndUpdateHandler);
+      unitPriceInput._hasInputListener = true;
+    }
+  }
 } 

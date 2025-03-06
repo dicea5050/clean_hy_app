@@ -75,7 +75,7 @@
           <%= form.fields_for :order_items do |item_form| %>
             <%= render 'order_item_fields', f: item_form %>
           <% end %>
-          <% if !form.object.order_items.present? || form.object.order_items.empty? %>
+          <% if (!form.object.persisted? && !form.object.order_items.present?) || form.object.order_items.empty? %>
             <%= form.fields_for :order_items, OrderItem.new, child_index: Time.now.to_i do |item_form| %>
               <%= render 'order_item_fields', f: item_form %>
             <% end %>
