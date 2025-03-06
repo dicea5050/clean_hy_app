@@ -86,7 +86,7 @@
             <td><strong><%= number_to_currency(@order.order_items.sum { |item| item.subtotal_without_tax }) %></strong></td>
           </tr>
           <tr>
-            <td colspan="4" class="text-right"><strong>合計（税込）:</strong></td>
+            <td colspan="5" class="text-right"><strong>合計（税込）:</strong></td>
             <td></td>
             <td><strong><%= number_to_currency(@order.order_items.sum { |item| item.subtotal }) %></strong></td>
           </tr>

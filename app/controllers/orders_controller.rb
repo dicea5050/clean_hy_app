@@ -91,7 +91,12 @@ class OrdersController < ApplicationController
       order_items.each do |item|
         if item.product_id.present? && (item.unit_price.blank? || item.tax_rate.blank?)
           product = Product.find(item.product_id)
-          item.unit_price = product.price if item.unit_price.blank?
+          # 値引き商品の場合は入力された金額をマイナスに変換
+          if product.is_discount
+            item.unit_price = -item.unit_price.abs if item.unit_price.present?
+          else
+            item.unit_price = product.price if item.unit_price.blank?
+          end
           item.tax_rate = product.tax_rate if item.tax_rate.blank?
         end
       end

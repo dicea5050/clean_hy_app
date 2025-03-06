@@ -11,7 +11,7 @@ class ProductsController < ApplicationController
   end
 
   def new
-    @product = Product.new
+    @product = Product.new(is_public: false)
   end
 
   def edit
@@ -47,6 +47,14 @@ class ProductsController < ApplicationController
   end
 
   def product_params
-    params.require(:product).permit(:product_code, :name, :tax_rate_id, :price, :stock, :is_public)
+    params.require(:product).permit(
+      :product_code,
+      :name,
+      :tax_rate_id,
+      :price,
+      :stock,
+      :is_public,
+      :is_discount
+    )
   end
 end

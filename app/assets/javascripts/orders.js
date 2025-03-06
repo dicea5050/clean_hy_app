@@ -75,7 +75,7 @@ function initializeExistingItems() {
   });
 }
 
-// 商品選択時の処理
+// 商品選択時の処理を修正
 function setupProductSelects() {
   console.log('Setting up product selects');
   document.querySelectorAll('.product-select').forEach(function(select) {
@@ -89,28 +89,46 @@ function setupProductSelects() {
         const taxRate = selectedOption.getAttribute('data-tax-rate');
         console.log('Selected product with price:', price, 'tax rate:', taxRate);
         
-        // 単価と税率をフォームに設定
-        row.querySelector('input[name*="[unit_price]"]').value = price;
-        row.querySelector('.unit-price-display').textContent = price;
+        // 単価の表示要素を取得
+        const unitPriceDisplay = row.querySelector('.unit-price-display');
+        const unitPriceInput = row.querySelector('input[name*="[unit_price]"]');
         
+        if (price && price !== '') {  // 単価が登録されている場合
+          unitPriceDisplay.style.display = 'inline-block';
+          unitPriceInput.type = 'hidden';
+          unitPriceInput.value = price;
+          unitPriceDisplay.textContent = parseFloat(price).toLocaleString();
+        } else {  // 単価が未登録の場合
+          unitPriceDisplay.style.display = 'none';
+          unitPriceInput.type = 'text';
+          unitPriceInput.className = 'form-control';
+          unitPriceInput.style.width = '100px';
+          unitPriceInput.value = '';
+          unitPriceInput.required = true;
+          
+          // 手入力された単価での計算を有効にする
+          unitPriceInput.addEventListener('input', function() {
+            calculateSubtotal(row);
+            updateOrderTotal();
+          });
+        }
+        
+        // 税率の設定
         row.querySelector('input[name*="[tax_rate]"]').value = taxRate;
         row.querySelector('.tax-rate-display').textContent = taxRate;
         
         // 数量があれば小計を計算
         calculateSubtotal(row);
       } else {
-        // 未選択時はクリア
+        // 未選択時の処理
         row.querySelector('input[name*="[unit_price]"]').value = '';
         row.querySelector('.unit-price-display').textContent = '0';
-        
         row.querySelector('input[name*="[tax_rate]"]').value = '';
         row.querySelector('.tax-rate-display').textContent = '0';
-        
         row.querySelector('.subtotal-without-tax').textContent = '0';
         row.querySelector('.subtotal-with-tax').textContent = '0';
       }
       
-      // 注文合計を更新
       updateOrderTotal();
     });
   });
@@ -153,11 +171,8 @@ function updateOrderTotal() {
   document.querySelectorAll('#order-items tbody tr').forEach(function(row) {
     // 表示されている行（削除されていない行）のみを合計対象とする
     if (row.style.display !== 'none') {
-      const subtotalWithoutTaxElement = row.querySelector('.subtotal-without-tax');
-      const subtotalWithTaxElement = row.querySelector('.subtotal-with-tax');
-      
-      const subtotalWithoutTax = parseInt(subtotalWithoutTaxElement.textContent.replace(/,/g, '')) || 0;
-      const subtotalWithTax = parseInt(subtotalWithTaxElement.textContent.replace(/,/g, '')) || 0;
+      const subtotalWithoutTax = parseInt(row.querySelector('.subtotal-without-tax').textContent.replace(/,/g, '')) || 0;
+      const subtotalWithTax = parseInt(row.querySelector('.subtotal-with-tax').textContent.replace(/,/g, '')) || 0;
       
       totalWithoutTax += subtotalWithoutTax;
       totalWithTax += subtotalWithTax;

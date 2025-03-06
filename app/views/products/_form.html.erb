@@ -32,13 +32,20 @@
 
   <div class="form-group">
     <%= form.label :stock, '在庫数' %>
-    <%= form.number_field :stock, class: 'form-control' %>
     <small class="form-text text-muted">空白の場合は在庫無制限として扱われます</small>
+    <%= form.number_field :stock, class: 'form-control' %>
   </div>
 
   <div class="form-group">
-    <%= form.label :is_public, '公開する' %>
+    <%= form.label :is_public, 'ネットショップで公開する' %>
     <%= form.check_box :is_public, class: 'form-check-input ml-2' %>
+    <small class="form-text text-muted">ネットショップで販売する商品として登録する場合はチェックしてください</small>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :is_discount, '値引き商品' %>
+    <%= form.check_box :is_discount, class: 'form-check-input ml-2' %>
+    <small class="form-text text-muted">値引き商品として登録する場合はチェックしてください</small>
   </div>
 
   <div class="form-group mt-4">
