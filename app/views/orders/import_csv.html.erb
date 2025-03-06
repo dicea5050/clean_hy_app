@@ -1,4 +1,4 @@
-<div class="container-fluid">
+<div class="container">
   <div class="row">
     <div class="col-12">
       <div class="card">
@@ -13,77 +13,8 @@
             </div>
           <% end %>
           
-          <form action="<%= process_csv_orders_path %>" method="post" enctype="multipart/form-data" class="mb-4">
+          <form action="<%= process_csv_orders_path %>" method="post" enctype="multipart/form-data" class="mb-4" data-controller="orders--import-csv">
             <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
-            <div class="row mb-3">
-              <div class="col-12">
-                <div class="form-group">
-                  <label class="form-label">基本情報の入力方法</label>
-                  <div class="form-check">
-                    <input type="radio" name="use_form_values" value="1" class="form-check-input" id="use_form_values_yes" checked>
-                    <label for="use_form_values_yes" class="form-check-label">下記フォームの値を使用する</label>
-                  </div>
-                  <div class="form-check">
-                    <input type="radio" name="use_form_values" value="0" class="form-check-input" id="use_form_values_no">
-                    <label for="use_form_values_no" class="form-check-label">CSVファイルの値を使用する</label>
-                  </div>
-                  <small class="text-muted">※CSVファイルの値を使用する場合、取引先コード/取引先名、受注日などの列がCSVに必要です</small>
-                </div>
-              </div>
-            </div>
-            
-            <div id="form_values_section">
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <div class="form-group">
-                    <label for="customer_id" class="form-label">取引先<span class="text-danger">*</span></label>
-                    <select name="customer_id" id="customer_id" class="form-control">
-                      <option value="">取引先を選択してください</option>
-                      <% @customers.each do |c| %>
-                        <option value="<%= c.id %>"><%= c.company_name %></option>
-                      <% end %>
-                    </select>
-                    <div class="invalid-feedback">取引先を選択してください</div>
-                  </div>
-                </div>
-                
-                <div class="col-md-6 mb-3">
-                  <div class="form-group">
-                    <label for="payment_method_id" class="form-label">支払方法</label>
-                    <select name="payment_method_id" id="payment_method_id" class="form-control">
-                      <option value="">支払方法を選択してください</option>
-                      <% @payment_methods.each do |pm| %>
-                        <option value="<%= pm.id %>"><%= pm.name %></option>
-                      <% end %>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="row">
-                <div class="col-md-4 mb-3">
-                  <div class="form-group">
-                    <label for="order_date" class="form-label">受注日<span class="text-danger">*</span></label>
-                    <input type="date" name="order_date" id="order_date" class="form-control" value="<%= Date.today %>">
-                    <div class="invalid-feedback">受注日を入力してください</div>
-                  </div>
-                </div>
-                
-                <div class="col-md-4 mb-3">
-                  <div class="form-group">
-                    <label for="expected_delivery_date" class="form-label">予定納品日</label>
-                    <input type="date" name="expected_delivery_date" id="expected_delivery_date" class="form-control">
-                  </div>
-                </div>
-                
-                <div class="col-md-4 mb-3">
-                  <div class="form-group">
-                    <label for="actual_delivery_date" class="form-label">確定納品日</label>
-                    <input type="date" name="actual_delivery_date" id="actual_delivery_date" class="form-control">
-                  </div>
-                </div>
-              </div>
-            </div>
             
             <div class="row">
               <div class="col-12 mb-3">
@@ -91,6 +22,7 @@
                   <label for="file" class="form-label">CSVファイル<span class="text-danger">*</span></label>
                   <input type="file" name="file" id="file" class="form-control" required accept=".csv">
                   <small class="text-muted">※CSVファイルはUTF-8エンコーディングで保存されたものをご使用ください</small>
+                  <small class="d-block text-muted">※取引先コード/取引先名、受注日などの列がCSVに必要です</small>
                 </div>
               </div>
             </div>
@@ -219,79 +151,4 @@ C002,株式会社B,代金引換,2023-05-02,2023-05-15,,P003,商品C,1,3000,10,�
       </div>
     </div>
   </div>
-</div>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const useFormValuesYes = document.getElementById('use_form_values_yes');
-    const useFormValuesNo = document.getElementById('use_form_values_no');
-    const formValuesSection = document.getElementById('form_values_section');
-    const importForm = document.querySelector('form');
-    
-    // フォーム送信のデバッグとバリデーション
-    if (importForm) {
-      importForm.addEventListener('submit', function(event) {
-        console.log('フォーム送信イベントが発生しました');
-        
-        // フォームバリデーション
-        let isValid = true;
-        
-        // フォームの値を使用する場合のバリデーション
-        if (useFormValuesYes.checked) {
-          const customerSelect = document.getElementById('customer_id');
-          const orderDateInput = document.getElementById('order_date');
-          
-          // 取引先のバリデーション
-          if (!customerSelect.value) {
-            customerSelect.classList.add('is-invalid');
-            isValid = false;
-          } else {
-            customerSelect.classList.remove('is-invalid');
-          }
-          
-          // 受注日のバリデーション
-          if (!orderDateInput.value) {
-            orderDateInput.classList.add('is-invalid');
-            isValid = false;
-          } else {
-            orderDateInput.classList.remove('is-invalid');
-          }
-        }
-        
-        // ファイル選択確認
-        const fileInput = document.getElementById('file');
-        if (!fileInput || fileInput.files.length === 0) {
-          alert('CSVファイルを選択してください');
-          isValid = false;
-        } else {
-          console.log('選択されたファイル:', fileInput.files[0].name);
-        }
-        
-        // バリデーションエラーがある場合は送信をキャンセル
-        if (!isValid) {
-          event.preventDefault();
-          return false;
-        }
-        
-        // フォーム送信を許可
-        return true;
-      });
-    } else {
-      console.error('フォーム要素が見つかりません');
-    }
-    
-    function toggleFormValues() {
-      if (useFormValuesYes.checked) {
-        formValuesSection.style.display = 'block';
-      } else {
-        formValuesSection.style.display = 'none';
-      }
-    }
-    
-    useFormValuesYes.addEventListener('change', toggleFormValues);
-    useFormValuesNo.addEventListener('change', toggleFormValues);
-    
-    // 初期状態を設定
-    toggleFormValues();
-  });
-</script> 
+</div> 

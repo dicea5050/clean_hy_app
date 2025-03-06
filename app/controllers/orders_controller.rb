@@ -4,7 +4,7 @@ class OrdersController < ApplicationController
 
   def index
     @orders = Order.includes(:customer, :order_items, :payment_method)
-                   .order(order_date: :desc)
+                   .order(id: :desc)
                    .search(search_params)
                    .page(params[:page]).per(25)
     # 検索条件をビューで再表示するために保持

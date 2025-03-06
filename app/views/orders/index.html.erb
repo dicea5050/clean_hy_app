@@ -1,10 +1,6 @@
 <div class="container">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1>受注一覧</h1>
-    <div>
-      <%= link_to 'CSVインポート', import_csv_orders_path, class: 'btn btn-success me-2' %>
-      <%= link_to '新規受注', new_order_path, class: 'btn btn-primary' %>
-    </div>
   </div>
 
   <%# 検索フォームを追加 %>
@@ -120,6 +116,12 @@
   <form id="selected-orders-form" action="<%= new_invoice_path %>" method="get">
     <input type="hidden" name="order_ids" id="selected-order-ids" value="">
 
+    <div class="text-left mt-4 mb-4">
+      <button type="button" class="btn btn-success me-2" id="create-invoice-btn" disabled>選択した受注情報を合算して請求書を発行</button>
+      <%= link_to 'CSVインポート', import_csv_orders_path, class: 'btn btn-success me-2' %>
+      <%= link_to '新規受注', new_order_path, class: 'btn btn-primary' %>
+    </div>
+
     <table class="table">
       <thead>
         <tr>
@@ -178,9 +180,6 @@
       </tbody>
     </table>
 
-    <div class="text-center mt-4 mb-4">
-      <button type="button" class="btn btn-success" id="create-invoice-btn" disabled>選択した受注情報を合算して請求書を発行</button>
-    </div>
   </form>
 
   <div class="d-flex justify-content-center">
