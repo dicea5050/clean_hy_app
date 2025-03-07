@@ -16,10 +16,14 @@ class ProductsController < ApplicationController
           if @product
             Rails.logger.info "Found product: #{@product.inspect}"
             # 実際のモデルデータを使用
+            tax_rate_value = @product.tax_rate&.rate || 0
+            Rails.logger.info "Tax rate for product: #{tax_rate_value}"
+
             render json: {
               product_id: @product.id,
               unit_price: @product.price,  # priceフィールドを使用
               tax_rate_id: @product.tax_rate_id,
+              tax_rate: tax_rate_value,  # 実際の税率の値（0%の場合も含む）
               unit_id: 1  # unit_idフィールドがないため、デフォルト値を使用
             }
           else

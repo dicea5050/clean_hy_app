@@ -17,8 +17,8 @@ class OrdersController < ApplicationController
 
   def new
     @order = Order.new
-    @order.order_items.build
     @customers = Customer.all.order(:company_name)
+    @payment_methods = PaymentMethod.all
   end
 
   def edit
@@ -326,6 +326,12 @@ class OrdersController < ApplicationController
       error_message += "エラー発生場所: #{e.backtrace.first(5).join("\n")}" if Rails.env.development?
       redirect_to import_csv_orders_path, alert: error_message
     end
+  end
+
+  def new_order_item
+    @order = Order.new
+    @order_item = @order.order_items.build
+    render partial: 'order_item_fields', locals: { f: ActionView::Helpers::FormBuilder.new('order[order_items_attributes][TIME_PLACEHOLDER]', @order_item, view_context, {}) }, layout: false
   end
 
   private

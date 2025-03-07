@@ -39,6 +39,7 @@ Rails.application.routes.draw do
     collection do
       get :import_csv
       post :process_csv
+      get :new_order_item
     end
 
     member do
