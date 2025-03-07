@@ -32,6 +32,7 @@ Rails.application.routes.draw do
   resources :bank_accounts
   resources :units
   resources :product_specifications
+  resources :delivery_locations
 
   # 受注情報（Orders）CRUD機能
   resources :orders do

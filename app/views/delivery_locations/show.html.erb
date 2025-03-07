@@ -1,0 +1,48 @@
+<div class="container mt-4">
+  <% if notice.present? %>
+    <div class="alert alert-success">
+      <%= notice %>
+    </div>
+  <% end %>
+
+  <div class="card shadow mb-4">
+    <div class="card-header bg-primary text-white">
+      <h2 class="mb-0">納品先詳細</h2>
+    </div>
+    <div class="card-body">
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">取引先</div>
+        <div class="col-md-9"><%= @delivery_location.customer.name %></div>
+      </div>
+      
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">納品先名</div>
+        <div class="col-md-9"><%= @delivery_location.name %></div>
+      </div>
+      
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">郵便番号</div>
+        <div class="col-md-9"><%= @delivery_location.postal_code.present? ? @delivery_location.postal_code : '未設定' %></div>
+      </div>
+      
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">住所</div>
+        <div class="col-md-9"><%= @delivery_location.address %></div>
+      </div>
+      
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">電話番号</div>
+        <div class="col-md-9"><%= @delivery_location.phone.present? ? @delivery_location.phone : '未設定' %></div>
+      </div>
+      
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">担当者名</div>
+        <div class="col-md-9"><%= @delivery_location.contact_person.present? ? @delivery_location.contact_person : '未設定' %></div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <%= link_to '編集', edit_delivery_location_path(@delivery_location), class: 'btn btn-warning text-white me-2' %>
+      <%= link_to '一覧に戻る', delivery_locations_path, class: 'btn btn-secondary' %>
+    </div>
+  </div>
+</div>

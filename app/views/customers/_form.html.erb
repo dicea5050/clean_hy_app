@@ -31,6 +31,11 @@
   </div>
 
   <div class="form-group">
+    <%= form.label :department, '部署名' %>
+    <%= form.text_field :department, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
     <%= form.label :contact_name, '担当者名' %>
     <%= form.text_field :contact_name, class: 'form-control' %>
   </div>
@@ -59,7 +64,7 @@
     <% if customer.persisted? && customer.password_set? %>
       <small class="form-text text-muted">パスワードが設定済みです。変更する場合のみ入力してください。</small>
     <% else %>
-      <small class="form-text text-muted">パスワードが未設定です。ログインを許可する場合は設定してください。</small>
+      <small class="form-text text-muted">ネットショップ用のパスワードが未設定です。ネットショップでの袋購入をする場合は設定してください。</small>
     <% end %>
   </div>
 
