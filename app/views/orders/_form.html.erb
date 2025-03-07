@@ -1,4 +1,4 @@
-<div>
+<div data-controller="order-form">
   <%= form_with(model: @order, local: true, class: "order-form") do |f| %>
     <% if @order.errors.any? %>
       <div id="error_explanation" class="alert alert-danger">
@@ -112,5 +112,3 @@
     </div>
   <% end %>
 </div>
-
-<%= javascript_include_tag "orders" %>

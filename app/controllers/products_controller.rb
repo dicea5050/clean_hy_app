@@ -8,6 +8,31 @@ class ProductsController < ApplicationController
   end
 
   def show
+    respond_to do |format|
+      format.html
+      format.json {
+        begin
+          Rails.logger.info "Product ID: #{params[:id]}"
+          if @product
+            Rails.logger.info "Found product: #{@product.inspect}"
+            # 実際のモデルデータを使用
+            render json: {
+              product_id: @product.id,
+              unit_price: @product.price,  # priceフィールドを使用
+              tax_rate_id: @product.tax_rate_id,
+              unit_id: 1  # unit_idフィールドがないため、デフォルト値を使用
+            }
+          else
+            Rails.logger.error "Product not found with ID: #{params[:id]}"
+            render json: { error: "Product not found" }, status: :not_found
+          end
+        rescue => e
+          Rails.logger.error "Error in ProductsController#show: #{e.message}"
+          Rails.logger.error e.backtrace.join("\n")
+          render json: { error: e.message }, status: :internal_server_error
+        end
+      }
+    end
   end
 
   def new
