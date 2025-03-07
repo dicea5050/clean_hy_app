@@ -22,7 +22,7 @@ class Customer < ApplicationRecord
   # パスワードは任意項目
 
   def name
-    contact_name # または company_name、あるいは "#{company_name} (#{contact_name})" など
+    company_name
   end
 
   # i18n用のヘルパーメソッド
