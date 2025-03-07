@@ -1,10 +1,10 @@
-<div data-controller="order-form">
-  <%= form_with(model: order, local: true) do |form| %>
-    <% if order.errors.any? %>
+<div>
+  <%= form_with(model: @order, local: true, class: "order-form") do |f| %>
+    <% if @order.errors.any? %>
       <div id="error_explanation" class="alert alert-danger">
-        <h2><%= pluralize(order.errors.count, "つのエラー") %> があります:</h2>
+        <h2><%= pluralize(@order.errors.count, "つのエラー") %> があります:</h2>
         <ul>
-          <% order.errors.full_messages.each do |message| %>
+          <% @order.errors.full_messages.each do |message| %>
             <li><%= message %></li>
           <% end %>
         </ul>
@@ -16,40 +16,40 @@
         <h5 class="card-title">基本情報</h5>
         <div class="row">
           <div class="col-md-4 form-group">
-            <%= form.label :customer_id, "取引先" %>
-            <%= form.collection_select :customer_id, 
-                @customers, 
-                :id, 
-                :company_name, 
-                { include_blank: "取引先を選択してください" }, 
+            <%= f.label :customer_id, "取引先" %>
+            <%= f.collection_select :customer_id,
+                @customers,
+                :id,
+                :company_name,
+                { include_blank: "取引先を選択してください" },
                 { class: "form-control", required: true } %>
           </div>
 
           <div class="col-md-4 form-group">
-            <%= form.label :order_date, "受注日" %>
-            <%= form.date_field :order_date, class: "form-control", required: true %>
+            <%= f.label :order_date, "受注日" %>
+            <%= f.date_field :order_date, class: "form-control", required: true %>
           </div>
-          
+
           <div class="col-md-4 form-group">
-            <%= form.label :payment_method_id, "支払い方法" %>
-            <%= form.collection_select :payment_method_id, 
-                @payment_methods, 
-                :id, 
-                :name, 
-                { include_blank: "支払い方法を選択してください" }, 
+            <%= f.label :payment_method_id, "支払い方法" %>
+            <%= f.collection_select :payment_method_id,
+                @payment_methods,
+                :id,
+                :name,
+                { include_blank: "支払い方法を選択してください" },
                 { class: "form-control" } %>
           </div>
         </div>
 
         <div class="row">
           <div class="col-md-4 form-group">
-            <%= form.label :expected_delivery_date, "予定納品日" %>
-            <%= form.date_field :expected_delivery_date, class: "form-control" %>
+            <%= f.label :expected_delivery_date, "予定納品日" %>
+            <%= f.date_field :expected_delivery_date, class: "form-control" %>
           </div>
 
           <div class="col-md-4 form-group">
-            <%= form.label :actual_delivery_date, "確定納品日" %>
-            <%= form.date_field :actual_delivery_date, class: "form-control" %>
+            <%= f.label :actual_delivery_date, "確定納品日" %>
+            <%= f.date_field :actual_delivery_date, class: "form-control" %>
           </div>
         </div>
       </div>
@@ -73,11 +73,11 @@
             </tr>
           </thead>
           <tbody>
-            <%= form.fields_for :order_items do |item_form| %>
+            <%= f.fields_for :order_items do |item_form| %>
               <%= render 'order_item_fields', f: item_form %>
             <% end %>
-            <% if (!form.object.persisted? && !form.object.order_items.present?) || form.object.order_items.empty? %>
-              <%= form.fields_for :order_items, OrderItem.new, child_index: Time.now.to_i do |item_form| %>
+            <% if (!f.object.persisted? && !f.object.order_items.present?) || f.object.order_items.empty? %>
+              <%= f.fields_for :order_items, OrderItem.new, child_index: Time.now.to_i do |item_form| %>
                 <%= render 'order_item_fields', f: item_form %>
               <% end %>
             <% end %>
@@ -100,7 +100,7 @@
             </tr>
           </tfoot>
         </table>
-        
+
         <div class="links mb-3">
           <%= link_to '商品を追加', '#', class: 'btn btn-outline-primary add-item' %>
         </div>
@@ -108,11 +108,9 @@
     </div>
 
     <div class="actions">
-      <%= form.submit order.persisted? ? "更新" : "登録", class: "btn btn-success" %>
+      <%= f.submit @order.persisted? ? "更新" : "登録", class: "btn btn-success" %>
     </div>
   <% end %>
 </div>
 
-<% content_for :head do %>
-  <%= javascript_include_tag 'orders', 'data-turbolinks-track': 'reload' %>
-<% end %> 
+<%= javascript_include_tag "orders" %>

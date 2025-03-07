@@ -1,30 +1,41 @@
 <tr class="nested-fields">
   <td>
-    <%= f.select :product_id, 
-        Product.all.map { |p| 
-          [p.name, 
-           p.id, 
-           {'data-price': p.price.present? ? p.price : '',
-            'data-tax-rate': p.tax_rate.rate}] 
-        },
-        { include_blank: "商品を選択してください" },
-        { class: "form-control product-select", style: "width: 100%;", required: true } %>
+    <select name="order[order_items_attributes][<%= f.index %>][product_id]"
+            id="order_order_items_attributes_<%= f.index %>_product_id"
+            class="form-control product-select"
+            style="width: 100%;"
+            required>
+      <option value="">商品を選択してください</option>
+      <% Product.all.each do |p| %>
+        <option value="<%= p.id %>"
+                data-price="<%= p.fixed_price? ? p.price.to_i : '' %>"
+                data-tax-rate="<%= p.tax_rate.rate.to_i %>"
+                <%= 'selected' if f.object.product_id == p.id %>><%= p.name %></option>
+      <% end %>
+    </select>
   </td>
   <td style="width: 120px;">
     <%= f.hidden_field :unit_price, class: "unit-price-input" %>
-    <span class="unit-price-display" style="display: inline-block; min-width: 60px; text-align: right;">
-      <%= f.object.unit_price.present? ? f.object.unit_price : 0 %>
-    </span>円
+    <div class="input-group">
+      <input type="text"
+             class="form-control unit-price-display text-right"
+             style="min-width: 60px;"
+             value="<%= f.object.unit_price.present? && f.object.product_id.present? ? f.object.unit_price : '' %>"
+             <%= 'readonly' if f.object.product&.fixed_price? %>>
+      <div class="input-group-append">
+        <span class="input-group-text">円</span>
+      </div>
+    </div>
   </td>
   <td style="width: 80px;">
     <%= f.hidden_field :tax_rate %>
     <span class="tax-rate-display" style="text-align: right; display: inline-block; min-width: 20px;">
-      <%= f.object.tax_rate.present? ? f.object.tax_rate : 0 %>
+      <%= f.object.tax_rate.present? && f.object.product_id.present? ? f.object.tax_rate : '' %>
     </span>%
   </td>
   <td style="width: 80px;">
-    <%= f.select :quantity, options_for_select((1..10).map {|n| [n, n]}, nil), 
-        { include_blank: "数量" }, 
+    <%= f.select :quantity, options_for_select((1..10).map {|n| [n, n]}, nil),
+        { include_blank: "数量" },
         { class: "form-control quantity-select", style: "width: 100%;", required: true } %>
   </td>
   <td style="width: 80px;">
@@ -49,4 +60,4 @@
     <%= f.hidden_field :_destroy %>
     <%= link_to "削除", '#', class: "btn btn-sm btn-danger remove-item" %>
   </td>
-</tr> 
+</tr>
