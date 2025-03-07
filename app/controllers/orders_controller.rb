@@ -331,7 +331,7 @@ class OrdersController < ApplicationController
   def new_order_item
     @order = Order.new
     @order_item = @order.order_items.build
-    render partial: 'order_item_fields', locals: { f: ActionView::Helpers::FormBuilder.new('order[order_items_attributes][TIME_PLACEHOLDER]', @order_item, view_context, {}) }, layout: false
+    render partial: "order_item_fields", locals: { f: ActionView::Helpers::FormBuilder.new("order[order_items_attributes][TIME_PLACEHOLDER]", @order_item, view_context, {}) }, layout: false
   end
 
   private
