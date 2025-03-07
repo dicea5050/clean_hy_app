@@ -40,7 +40,7 @@ Rails.application.routes.draw do
       get :import_csv
       post :process_csv
     end
-    
+
     member do
       get :delivery_slip
     end

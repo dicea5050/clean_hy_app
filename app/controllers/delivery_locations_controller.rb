@@ -1,5 +1,5 @@
 class DeliveryLocationsController < ApplicationController
-  before_action :set_delivery_location, only: [:show, :edit, :update, :destroy]
+  before_action :set_delivery_location, only: [ :show, :edit, :update, :destroy ]
 
   def index
     @delivery_locations = DeliveryLocation.all
@@ -19,7 +19,7 @@ class DeliveryLocationsController < ApplicationController
     @delivery_location = DeliveryLocation.new(delivery_location_params)
 
     if @delivery_location.save
-      redirect_to @delivery_location, notice: '納品先を登録しました。'
+      redirect_to @delivery_location, notice: "納品先を登録しました。"
     else
       render :new
     end
@@ -27,7 +27,7 @@ class DeliveryLocationsController < ApplicationController
 
   def update
     if @delivery_location.update(delivery_location_params)
-      redirect_to @delivery_location, notice: '納品先を更新しました。'
+      redirect_to @delivery_location, notice: "納品先を更新しました。"
     else
       render :edit
     end
@@ -35,7 +35,7 @@ class DeliveryLocationsController < ApplicationController
 
   def destroy
     @delivery_location.destroy
-    redirect_to delivery_locations_url, notice: '納品先を削除しました。'
+    redirect_to delivery_locations_url, notice: "納品先を削除しました。"
   end
 
   private
