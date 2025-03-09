@@ -19,11 +19,21 @@ class OrdersController < ApplicationController
     @order = Order.new
     @customers = Customer.all.order(:company_name)
     @payment_methods = PaymentMethod.all
+
+    # 顧客が選択されている場合は納品先を取得
+    if params[:customer_id].present?
+      @customer = Customer.find(params[:customer_id])
+      @delivery_locations = @customer.delivery_locations.order(is_main_office: :desc, name: :asc)
+    else
+      # 顧客未選択時は空の配列を設定
+      @delivery_locations = []
+    end
   end
 
   def edit
     @order.order_items.build if @order.order_items.empty?
     @customers = Customer.all.order(:company_name)
+    @delivery_locations = @order.customer.delivery_locations.order(is_main_office: :desc, name: :asc)
   end
 
   def create
@@ -336,13 +346,13 @@ class OrdersController < ApplicationController
 
   private
     def set_order
-      @order = Order.includes(:order_items, :customer, :payment_method).find(params[:id])
+      @order = Order.includes(:order_items, :customer, :payment_method, :delivery_location).find(params[:id])
     end
 
     def order_params
       params.require(:order).permit(
         :customer_id, :order_date, :expected_delivery_date,
-        :actual_delivery_date, :payment_method_id,
+        :actual_delivery_date, :payment_method_id, :delivery_location_id,
         order_items_attributes: [ :id, :product_id, :quantity, :unit_price, :tax_rate, :notes, :unit_id, :_destroy ]
       )
     end

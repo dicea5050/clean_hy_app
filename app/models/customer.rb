@@ -1,9 +1,14 @@
 class Customer < ApplicationRecord
   has_many :orders, dependent: :destroy
+  has_many :delivery_locations, dependent: :destroy
   has_secure_password validations: false # バリデーションは無効化して必須項目にしない
 
   # 請求書送付方法の列挙型を定義
   enum :invoice_delivery_method, { electronic: 0, postal: 1 }
+
+  # コールバック：顧客作成時と更新時に本社納品先も同期する
+  after_create :create_main_office_delivery_location
+  after_update :update_main_office_delivery_location, if: :address_changed?
 
   def password_set?
     password_digest.present?
@@ -28,5 +33,46 @@ class Customer < ApplicationRecord
   # i18n用のヘルパーメソッド
   def invoice_delivery_method_i18n
     I18n.t("enums.customer.invoice_delivery_method.#{invoice_delivery_method}")
+  end
+
+  private
+
+  # 顧客作成時に本社納品先を自動登録
+  def create_main_office_delivery_location
+    delivery_locations.create(
+      name: "#{company_name}（本社）",
+      postal_code: postal_code,
+      address: address,
+      phone: phone_number,
+      contact_person: contact_name,
+      is_main_office: true
+    )
+  end
+
+  # 顧客情報更新時に本社納品先も更新
+  def update_main_office_delivery_location
+    main_office = delivery_locations.find_by(is_main_office: true)
+
+    if main_office
+      main_office.update(
+        name: "#{company_name}（本社）",
+        postal_code: postal_code,
+        address: address,
+        phone: phone_number,
+        contact_person: contact_name
+      )
+    else
+      # 本社情報がなければ新規作成
+      create_main_office_delivery_location
+    end
+  end
+
+  # 住所関連のフィールドが変更されたかを確認
+  def address_changed?
+    saved_change_to_postal_code? ||
+    saved_change_to_address? ||
+    saved_change_to_company_name? ||
+    saved_change_to_phone_number? ||
+    saved_change_to_contact_name?
   end
 end

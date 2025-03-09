@@ -46,6 +46,36 @@
   <div class="card mb-4">
     <div class="card-body">
       <h5 class="card-title">納品情報</h5>
+      <% if @order.delivery_location.present? %>
+        <div class="row mb-3">
+          <div class="col-md-12">
+            <strong>納品先:</strong>
+            <%= @order.delivery_location.name %>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-12">
+            <strong>納品先住所:</strong>
+            〒<%= @order.delivery_location.postal_code %> <%= @order.delivery_location.address %>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <strong>電話番号:</strong>
+            <%= @order.delivery_location.phone %>
+          </div>
+          <div class="col-md-6">
+            <strong>担当者:</strong>
+            <%= @order.delivery_location.contact_person %>
+          </div>
+        </div>
+      <% else %>
+        <div class="row mb-3">
+          <div class="col-md-12">
+            <span class="text-muted">納品先情報がありません</span>
+          </div>
+        </div>
+      <% end %>
       <div class="row">
         <div class="col-md-6">
           <strong>予定納品日:</strong>

@@ -50,6 +50,20 @@ class CustomersController < ApplicationController
     render json: @customers.map { |c| { id: c.id, text: c.company_name } }
   end
 
+  # 顧客に紐づく納品先を取得するAPIエンドポイント
+  def delivery_locations
+    @customer = Customer.find(params[:id])
+    @delivery_locations = @customer.delivery_locations.order(is_main_office: :desc, name: :asc)
+
+    # デバッグ用にログ出力
+    Rails.logger.debug "納品先データ取得: 顧客ID=#{@customer.id}, 納品先数=#{@delivery_locations.size}"
+    @delivery_locations.each do |loc|
+      Rails.logger.debug "  - ID:#{loc.id}, 名前:#{loc.name}, 本社:#{loc.is_main_office}"
+    end
+
+    render json: @delivery_locations.map { |loc| { id: loc.id, name: loc.name } }
+  end
+
   private
 
   def set_customer

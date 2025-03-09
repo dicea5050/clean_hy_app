@@ -22,7 +22,7 @@
                 :id,
                 :company_name,
                 { include_blank: "取引先を選択してください" },
-                { class: "form-control", required: true } %>
+                { class: "form-control", required: true, id: "order_customer_id" } %>
           </div>
 
           <div class="col-md-4 form-group">
@@ -46,6 +46,20 @@
     <div class="card mb-4">
       <div class="card-body">
         <h5 class="card-title">納品情報</h5>
+        <div class="row">
+          <div class="col-md-6 form-group">
+            <%= f.label :delivery_location_id, "納品先" %>
+            <%= f.collection_select :delivery_location_id,
+                @delivery_locations || [],
+                :id,
+                :name,
+                { include_blank: "納品先を選択してください" },
+                { class: "form-control", required: true, disabled: @delivery_locations.blank? } %>
+            <% if @delivery_locations.blank? %>
+              <small class="form-text text-muted">先に取引先を選択してください</small>
+            <% end %>
+          </div>
+        </div>
         <div class="row">
           <div class="col-md-6 form-group">
             <%= f.label :expected_delivery_date, "予定納品日" %>
@@ -117,3 +131,70 @@
     </div>
   <% end %>
 </div>
+
+<script>
+  $(document).ready(function() {
+    console.log('注文フォームのJavaScriptが読み込まれました');
+
+    // 顧客選択時のイベント処理
+    $('#order_customer_id').on('change', function() {
+      var customerId = $(this).val();
+      console.log('顧客選択変更:', customerId);
+
+      var select = $('#order_delivery_location_id');
+
+      if (customerId) {
+        // 納品先を取得するAPIリクエスト
+        var url = '/customers/' + customerId + '/delivery_locations';
+        console.log('APIリクエスト:', url);
+
+        // リクエスト中は選択できないようにする
+        select.prop('disabled', true).empty().append('<option value="">読み込み中...</option>');
+
+        $.ajax({
+          url: url,
+          type: 'GET',
+          dataType: 'json',
+          success: function(data) {
+            console.log('納品先データ取得成功:', data);
+            updateDeliveryLocationSelect(data);
+          },
+          error: function(xhr, status, error) {
+            console.error('納品先の取得に失敗しました:', error);
+            console.error('ステータス:', status);
+            console.error('レスポンス:', xhr.responseText);
+
+            // エラー時の処理
+            select.empty().append('<option value="">取得できませんでした</option>');
+            select.prop('disabled', true);
+          }
+        });
+      } else {
+        // 顧客が選択されていない場合、納品先選択肢をクリア
+        select.empty().append('<option value="">納品先を選択してください</option>');
+        select.prop('disabled', true);
+      }
+    });
+
+    function updateDeliveryLocationSelect(deliveryLocations) {
+      var select = $('#order_delivery_location_id');
+
+      // セレクトボックスをクリアして再構築
+      select.empty().append('<option value="">納品先を選択してください</option>');
+
+      if (deliveryLocations && deliveryLocations.length > 0) {
+        // 納品先オプションを追加
+        $.each(deliveryLocations, function(index, location) {
+          select.append('<option value="' + location.id + '">' + location.name + '</option>');
+        });
+
+        // 選択可能にする
+        select.prop('disabled', false);
+      } else {
+        // 納品先がない場合
+        select.append('<option value="">納品先がありません</option>');
+        select.prop('disabled', true);
+      }
+    }
+  });
+</script>

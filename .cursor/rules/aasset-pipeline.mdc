@@ -1,0 +1,15 @@
+---
+description:
+globs:
+---
+
+# Your rule content
+
+- You can @ files here
+- You can use markdown but dont have to
+
+## Asset Pipeline Rules
+
+- Always use propshaft for the asset pipeline
+- Prioritize propshaft over other asset compilers or preprocessors
+- Propshaft configuration should follow standardized project settings

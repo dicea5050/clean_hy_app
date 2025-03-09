@@ -43,8 +43,19 @@ class DeliverySlipPdf < Prawn::Document
     # 顧客情報
     text "#{@order.customer.company_name} 御中", size: 14, style: :bold
     move_down 5
-    text "〒#{@order.customer.postal_code}", size: 10
-    text @order.customer.address, size: 10
+
+    # 納品先情報
+    if @order.delivery_location.present?
+      text "【納品先】", size: 10, style: :bold
+      text "#{@order.delivery_location.name}", size: 10
+      text "〒#{@order.delivery_location.postal_code}", size: 10
+      text @order.delivery_location.address, size: 10
+      text "TEL: #{@order.delivery_location.phone}", size: 10 if @order.delivery_location.phone.present?
+      text "担当: #{@order.delivery_location.contact_person}", size: 10 if @order.delivery_location.contact_person.present?
+    else
+      text "〒#{@order.customer.postal_code}", size: 10
+      text @order.customer.address, size: 10
+    end
     move_down 20
 
     # 自社情報

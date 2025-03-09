@@ -15,3 +15,10 @@ Rails.application.config.assets.paths << Rails.root.join("node_modules")
 
 # Rails 8でPropshaftを使用する場合の設定
 Rails.application.config.assets.paths << Rails.root.join("app/assets/javascripts")
+
+# Propshaftの標準ルールに従い、JSファイルはapp/assets/javascriptsディレクトリに保存する
+# このルールを守ることでアセットの管理が一貫して行えます
+#
+# 例: app/assets/javascripts/application.js
+#     app/assets/javascripts/components/user_form.js
+#     app/assets/javascripts/controllers/home_controller.js

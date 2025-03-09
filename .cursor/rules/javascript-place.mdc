@@ -1,0 +1,29 @@
+---
+description: description: Propshaftの標準ルールに従ったJavaScriptファイルの配置規則 globs: ["**/*.js"]
+globs: 
+alwaysApply: false
+---
+# JavaScriptファイル配置ルール
+
+## 基本ルール
+
+- **すべてのJavaScriptファイルは `app/assets/javascripts` ディレクトリに保存する**
+- このルールはPropshaftの標準に従ったものであり、チーム全体で一貫したアセット管理を行うために必須
+
+## 推奨ディレクトリ構造
+
+```
+app/assets/javascripts/
+├── application.js      # メインのJavaScriptファイル
+├── components/         # 再利用可能なUIコンポーネント
+│   └── user_form.js
+├── controllers/        # 特定のページやセクション用のコントローラ
+│   └── home_controller.js
+└── utilities/          # ヘルパー関数やユーティリティ
+    └── helpers.js
+```
+
+## 参考ファイル
+
+- @config/initializers/assets.rb - アセット設定ファイル
+- @README.md - プロジェクトルールドキュメント

@@ -1,6 +1,7 @@
 class Order < ApplicationRecord
   belongs_to :customer
   belongs_to :payment_method, optional: true
+  belongs_to :delivery_location, optional: true
   has_many :order_items, dependent: :destroy
   has_many :invoice_orders, dependent: :destroy
   has_many :invoices, through: :invoice_orders
@@ -11,6 +12,7 @@ class Order < ApplicationRecord
 
   validates :order_date, presence: true
   validates :customer_id, presence: true
+  validates :delivery_location_id, presence: true
 
   # 受注番号を生成するメソッド（年月ごとにリセットされる連番）
   def order_number
