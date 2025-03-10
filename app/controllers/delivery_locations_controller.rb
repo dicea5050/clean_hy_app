@@ -10,6 +10,8 @@ class DeliveryLocationsController < ApplicationController
 
   def new
     @delivery_location = DeliveryLocation.new
+    @delivery_location.customer_id = params[:customer_id] if params[:customer_id].present?
+    @customers = Customer.all.order(:company_name)
   end
 
   def edit

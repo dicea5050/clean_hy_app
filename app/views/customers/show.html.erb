@@ -47,10 +47,64 @@
           <% end %>
         </dd>
       </dl>
+
+      <h4 class="mt-4 mb-3">納品先一覧</h4>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>納品先名</th>
+              <th>郵便番号</th>
+              <th>住所</th>
+              <th>電話番号</th>
+              <th>担当者</th>
+              <th>種別</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if @delivery_locations.present? %>
+              <% @delivery_locations.each do |location| %>
+                <tr>
+                  <td><%= location.name %></td>
+                  <td><%= location.postal_code %></td>
+                  <td><%= location.address %></td>
+                  <td><%= location.phone %></td>
+                  <td><%= location.contact_person %></td>
+                  <td>
+                    <% if location.is_main_office? %>
+                      <span class="badge bg-primary">本社</span>
+                    <% else %>
+                      <span class="badge bg-secondary">支店</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <%= link_to '編集', edit_delivery_location_path(location), class: 'btn btn-sm btn-info' %>
+                    <% unless location.is_main_office? %>
+                      <%= link_to '削除', delivery_location_path(location),
+                          method: :delete,
+                          data: { confirm: '本当に削除しますか？' },
+                          class: 'btn btn-sm btn-danger' %>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="7" class="text-center">納品先が登録されていません</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-3">
+        <%= link_to '新規納品先追加', new_delivery_location_path(customer_id: @customer.id), class: 'btn btn-primary' %>
+      </div>
     </div>
     <div class="card-footer">
       <%= link_to '編集', edit_customer_path(@customer), class: 'btn btn-success' %>
       <%= link_to '戻る', customers_path, class: 'btn btn-secondary' %>
     </div>
   </div>
-</div> 
+</div>

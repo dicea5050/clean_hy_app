@@ -1,3 +1,6 @@
+// 納品先選択機能を読み込み
+//= require delivery_locations_form
+
 // 商品選択時にAjaxで情報を取得
 $(document).ready(function() {
   console.log("Document ready, setting up product selects");

@@ -8,6 +8,7 @@ class CustomersController < ApplicationController
   end
 
   def show
+    @delivery_locations = @customer.delivery_locations.order(is_main_office: :desc, name: :asc)
   end
 
   def new
