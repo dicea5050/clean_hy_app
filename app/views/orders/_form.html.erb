@@ -96,7 +96,8 @@
               <%= render 'order_item_fields', f: item_form %>
             <% end %>
             <% if (!f.object.persisted? && !f.object.order_items.present?) || f.object.order_items.empty? %>
-              <%= f.fields_for :order_items, OrderItem.new, child_index: Time.now.to_i do |item_form| %>
+              <% new_item = OrderItem.new(quantity: nil) %>
+              <%= f.fields_for :order_items, new_item, child_index: Time.now.to_i do |item_form| %>
                 <%= render 'order_item_fields', f: item_form %>
               <% end %>
             <% end %>

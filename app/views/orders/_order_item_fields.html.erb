@@ -36,7 +36,7 @@
   <td style="width: 80px;">
     <%= f.select :quantity,
         (1..10).map {|n| [n, n]},
-        { include_blank: true, selected: "" },
+        { include_blank: true, selected: f.object.new_record? ? "" : f.object.quantity },
         { class: "form-control quantity-select", style: "width: 100%;", required: true } %>
   </td>
   <td style="width: 80px;">

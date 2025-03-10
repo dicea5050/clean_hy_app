@@ -65,8 +65,19 @@ $(document).ready(function() {
       // 数量セレクトボックスをリセット
       var quantitySelect = row.find('.quantity-select');
       if (quantitySelect.length > 0) {
-        quantitySelect.val('');
-        console.log("Reset quantity select to empty");
+        // 既存の注文かどうか判断（URL内に/edit がある場合は編集モード）
+        var isEditMode = window.location.pathname.indexOf('/edit') > -1;
+
+        // 編集モードで既存の数量がある場合のみ値を保持
+        if (isEditMode && quantitySelect.val() !== '') {
+          console.log("Edit mode - keeping quantity value:", quantitySelect.val());
+          // 既存の数量があれば、その値で小計を計算する
+          calculateLineTotal(row);
+        } else {
+          // それ以外の場合は空にリセット
+          quantitySelect.val('');
+          console.log("Reset quantity select to empty");
+        }
       }
 
       // デバッグ用：全フィールドの名前を表示

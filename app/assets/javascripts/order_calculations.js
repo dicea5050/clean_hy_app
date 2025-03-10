@@ -80,7 +80,11 @@
     console.log('注文計算機能の初期化を開始します');
     // セレクタを修正: テーブル内の全ての行に対して処理
     $('#order-items tbody tr').each(function() {
-      calculateLineTotal($(this));
+      var row = $(this);
+      // 商品選択や数量が既に入力されている場合のみ計算する
+      if (row.find('.product-select').val() && row.find('.quantity-select').val()) {
+        calculateLineTotal(row);
+      }
     });
     calculateOrderTotal();
     console.log('注文計算機能の初期化が完了しました');
