@@ -34,7 +34,7 @@
     </span>%
   </td>
   <td style="width: 80px;">
-    <%= f.select :quantity, options_for_select((1..10).map {|n| [n, n]}, nil),
+    <%= f.select :quantity, options_for_select((1..10).map {|n| [n, n]}, f.object.quantity),
         { include_blank: "数量" },
         { class: "form-control quantity-select", style: "width: 100%;", required: true } %>
   </td>
