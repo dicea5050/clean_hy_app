@@ -1,19 +1,12 @@
 // 納品先選択機能を読み込み
 //= require delivery_locations_form
+//= require order_calculations
 
 // 商品選択時にAjaxで情報を取得
 $(document).ready(function() {
   console.log("Document ready, setting up product selects");
 
-  // 単価表示フィールドの入力を監視し、隠しフィールドに反映する
-  $(document).on('input', '.unit-price-display', function() {
-    var displayField = $(this);
-    var row = displayField.closest('tr');
-    var hiddenField = row.find('.unit-price-input');
-    hiddenField.val(displayField.val());
-    console.log("Manual price entered:", displayField.val(), "-> hidden field updated");
-    calculateLineTotal(row);
-  });
+  // 注：単価表示フィールドの入力監視はorder_calculations.jsに移動しました
 
   // 商品選択時の処理
   $(document).on('change', '.product-select', function() {
@@ -81,21 +74,11 @@ $(document).ready(function() {
       console.log("All fields in row:", allFieldNames);
 
       // 数量が既に入力されていれば、小計を計算する
-      calculateLineTotal(row);
+      // 注：計算関数はorder_calculations.jsに移動しました
     });
   });
 
-  // 数量または単価変更時に小計を計算
-  $(document).on('input change', '.unit-price-display, .quantity-select', function() {
-    var row = $(this).closest('tr');
-    calculateLineTotal(row);
-  });
-
-  // 税率変更時に小計を再計算
-  $(document).on('change', 'select[name*="[tax_rate]"]', function() {
-    var row = $(this).closest('tr');
-    calculateLineTotal(row);
-  });
+  // 注：以下のイベントハンドラはorder_calculations.jsに移動しました
 
   // 商品を追加ボタン
   $('.add-item').on('click', function(e) {
@@ -164,81 +147,6 @@ $(document).ready(function() {
 
     return false;
   });
-
-  // 小計と合計の計算関数
-  function calculateLineTotal(row) {
-    // 表示用入力フィールドから直接値を取得（手動入力値を優先）
-    var unitPriceDisplayValue = row.find('.unit-price-display').val();
-    var unitPrice = 0;
-
-    if (unitPriceDisplayValue !== undefined && unitPriceDisplayValue !== '') {
-      unitPrice = parseFloat(unitPriceDisplayValue) || 0;
-    } else {
-      // フォールバックとして隠しフィールドを使用
-      unitPrice = parseFloat(row.find('.unit-price-input').val()) || 0;
-    }
-
-    var quantity = parseInt(row.find('.quantity-select').val()) || 0;
-
-    // 税率は明示的に0も処理
-    var taxRateText = row.find('.tax-rate-display').text().trim();
-    var taxRate = taxRateText === '' ? 0 : parseFloat(taxRateText);
-
-    console.log("Calculating totals: unitPrice=", unitPrice, "displayValue=", unitPriceDisplayValue, "quantity=", quantity, "taxRate=", taxRate, "taxRateText=", taxRateText);
-
-    // 値が正しいか確認
-    if (isNaN(unitPrice) || isNaN(quantity) || isNaN(taxRate)) {
-      console.error("Invalid values for calculation: unitPrice=", unitPrice, "quantity=", quantity, "taxRate=", taxRate);
-      return;
-    }
-
-    // 税抜金額
-    var totalWithoutTax = unitPrice * quantity;
-    // 税込金額（税率が0の場合も正しく計算）
-    var totalWithTax = totalWithoutTax * (1 + (taxRate / 100));
-
-    console.log("Calculated totals: withoutTax=", totalWithoutTax, "withTax=", totalWithTax);
-
-    // 表示を更新
-    row.find('.subtotal-without-tax').text(Math.round(totalWithoutTax).toLocaleString());
-    row.find('.subtotal-with-tax').text(Math.round(totalWithTax).toLocaleString());
-
-    // 全ての行の合計を計算
-    calculateOrderTotal();
-  }
-
-  // 注文合計の計算
-  function calculateOrderTotal() {
-    var orderTotalWithoutTax = 0;
-    var orderTotalWithTax = 0;
-
-    $('tbody tr').each(function() {
-      var row = $(this);
-
-      // 削除マークされた行はスキップ
-      var destroyField = row.find('input[name*="[_destroy]"]');
-      if (destroyField.length > 0 && destroyField.val() === "1") {
-        console.log("Skipping deleted row in total calculation");
-        return true; // continueと同じ
-      }
-
-      // 非表示の行もスキップ（CSSでdisplay:noneが設定されている場合）
-      if (row.css('display') === 'none') {
-        console.log("Skipping hidden row in total calculation");
-        return true;
-      }
-
-      var lineWithoutTax = parseFloat(row.find('.subtotal-without-tax').text().replace(/,/g, '')) || 0;
-      var lineWithTax = parseFloat(row.find('.subtotal-with-tax').text().replace(/,/g, '')) || 0;
-
-      orderTotalWithoutTax += lineWithoutTax;
-      orderTotalWithTax += lineWithTax;
-    });
-
-    // 合計を表示
-    $('#order-total-without-tax').text(orderTotalWithoutTax.toLocaleString());
-    $('#order-total-with-tax').text(orderTotalWithTax.toLocaleString());
-  }
 
   console.log("Product selects setup complete");
 });

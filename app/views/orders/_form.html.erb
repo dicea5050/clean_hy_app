@@ -204,88 +204,8 @@ $(document).ready(function() {
 
 <%# jQuery実装の動作確認用 %>
 <script>
-  // 小計と合計の計算関数
-  function calculateLineTotal(row) {
-    // 表示用入力フィールドから直接値を取得（手動入力値を優先）
-    var unitPriceDisplayValue = row.find('.unit-price-display').val();
-    var unitPrice = 0;
-
-    if (unitPriceDisplayValue !== undefined && unitPriceDisplayValue !== '') {
-      unitPrice = parseFloat(unitPriceDisplayValue) || 0;
-    } else {
-      // フォールバックとして隠しフィールドを使用
-      unitPrice = parseFloat(row.find('.unit-price-input').val()) || 0;
-    }
-
-    var quantity = parseInt(row.find('.quantity-select').val()) || 0;
-
-    // 税率は明示的に0も処理
-    var taxRateText = row.find('.tax-rate-display').text().trim();
-    var taxRate = taxRateText === '' ? 0 : parseFloat(taxRateText);
-
-    console.log("Calculating totals: unitPrice=", unitPrice, "displayValue=", unitPriceDisplayValue, "quantity=", quantity, "taxRate=", taxRate, "taxRateText=", taxRateText);
-
-    // 値が正しいか確認
-    if (isNaN(unitPrice) || isNaN(quantity) || isNaN(taxRate)) {
-      console.error("Invalid values for calculation: unitPrice=", unitPrice, "quantity=", quantity, "taxRate=", taxRate);
-      return;
-    }
-
-    // 税抜金額
-    var totalWithoutTax = unitPrice * quantity;
-    // 税込金額（税率が0の場合も正しく計算）
-    var totalWithTax = totalWithoutTax * (1 + (taxRate / 100));
-
-    console.log("Calculated totals: withoutTax=", totalWithoutTax, "withTax=", totalWithTax);
-
-    // 表示を更新
-    row.find('.subtotal-without-tax').text(Math.round(totalWithoutTax).toLocaleString());
-    row.find('.subtotal-with-tax').text(Math.round(totalWithTax).toLocaleString());
-
-    // 全ての行の合計を計算
-    calculateOrderTotal();
-  }
-
-  // 注文合計の計算
-  function calculateOrderTotal() {
-    var orderTotalWithoutTax = 0;
-    var orderTotalWithTax = 0;
-
-    $('tbody tr').each(function() {
-      var row = $(this);
-
-      // 削除マークされた行はスキップ
-      var destroyField = row.find('input[name*="[_destroy]"]');
-      if (destroyField.length > 0 && destroyField.val() === "1") {
-        console.log("Skipping deleted row in total calculation");
-        return true; // continueと同じ
-      }
-
-      // 非表示の行もスキップ（CSSでdisplay:noneが設定されている場合）
-      if (row.css('display') === 'none') {
-        console.log("Skipping hidden row in total calculation");
-        return true;
-      }
-
-      var lineWithoutTax = parseFloat(row.find('.subtotal-without-tax').text().replace(/,/g, '')) || 0;
-      var lineWithTax = parseFloat(row.find('.subtotal-with-tax').text().replace(/,/g, '')) || 0;
-
-      orderTotalWithoutTax += lineWithoutTax;
-      orderTotalWithTax += lineWithTax;
-    });
-
-    // 合計を表示
-    $('#order-total-without-tax').text(orderTotalWithoutTax.toLocaleString());
-    $('#order-total-with-tax').text(orderTotalWithTax.toLocaleString());
-  }
-
   document.addEventListener('DOMContentLoaded', function() {
     console.log('フォーム読み込み完了 - jQuery版の動作を確認します');
-
-    // 編集時も金額計算を実行するため、ページ読み込み時に各行の計算と合計を実行
-    $('.nested-fields').each(function() {
-      calculateLineTotal($(this));
-    });
-    calculateOrderTotal();
+    // 計算関数は外部ファイル order_calculations.js に移動しました
   });
 </script>
