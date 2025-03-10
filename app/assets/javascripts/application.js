@@ -1,4 +1,4 @@
-// 納品先選択機能を読み込み
+// 外部JavaScriptファイルを明示的に読み込み
 //= require delivery_locations_form
 //= require order_calculations
 
@@ -60,6 +60,13 @@ $(document).ready(function() {
             console.log("Element with class:", $(this).attr('class'));
           }
         });
+      }
+
+      // 数量セレクトボックスをリセット
+      var quantitySelect = row.find('.quantity-select');
+      if (quantitySelect.length > 0) {
+        quantitySelect.val('');
+        console.log("Reset quantity select to empty");
       }
 
       // デバッグ用：全フィールドの名前を表示

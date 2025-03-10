@@ -1,7 +1,7 @@
-// 納品先選択機能 - シンプルなjQuery実装
-console.log('納品先選択機能のスクリプトが読み込まれました');
+// 納品先選択機能のJavaScript
 
-$(document).ready(function() {
+// 納品先選択機能の初期化
+function initializeDeliveryLocationSelector() {
   console.log('納品先選択機能の初期化を開始します');
 
   // 顧客選択時のイベント処理
@@ -66,4 +66,14 @@ $(document).ready(function() {
   });
 
   console.log('納品先選択機能の初期化が完了しました');
+}
+
+// DOM読み込み完了時に初期化関数を実行
+$(document).ready(function() {
+  initializeDeliveryLocationSelector();
+});
+
+// Turbolinksでのページ読み込み時にも対応
+$(document).on('turbolinks:load page:load', function() {
+  initializeDeliveryLocationSelector();
 });

@@ -7,3 +7,4 @@
 //= link shop.scss.css
 //= link application.js
 //= link order_calculations.js
+//= link delivery_locations_form.js
