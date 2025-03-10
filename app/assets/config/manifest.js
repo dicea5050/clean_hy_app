@@ -3,3 +3,7 @@
 //= link_directory ../javascripts .js
 //= link_tree ../builds
 //= link orders.js
+//= link application.scss.css
+//= link shop.scss.css
+//= link application.js
+//= link order_calculations.js

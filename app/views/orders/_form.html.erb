@@ -206,6 +206,13 @@ $(document).ready(function() {
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     console.log('フォーム読み込み完了 - jQuery版の動作を確認します');
-    // 計算関数は外部ファイル order_calculations.js に移動しました
+    // 外部ファイルの関数を直接呼び出す
+    if (typeof initializeOrderCalculations === 'function') {
+      // 関数が存在する場合は呼び出す
+      initializeOrderCalculations();
+      console.log('initializeOrderCalculations関数を呼び出しました');
+    } else {
+      console.error('initializeOrderCalculations関数が見つかりません');
+    }
   });
 </script>
