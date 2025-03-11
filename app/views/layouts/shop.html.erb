@@ -6,7 +6,7 @@
   <%= csp_meta_tag %>
 
   <%= stylesheet_link_tag 'application', media: 'all' %>
-  <script type="module" src="<%= asset_path 'controllers/application.js' %>"></script>
+  <script type="module" src="<%= asset_path 'application.js' %>"></script>
 </head>
 <body class="shop-layout">
   <header class="shop-header">
@@ -18,7 +18,7 @@
           <li><%= link_to 'カート', shop_cart_path %></li>
           <% if customer_signed_in? %>
             <li>
-              <%= current_customer.name %>様 | 
+              <%= current_customer.name %>様 |
               <%= button_to 'ログアウト', shop_logout_path, method: :delete, class: 'btn btn-link' %>
             </li>
           <% else %>
@@ -36,7 +36,7 @@
     <% if alert %>
       <div class="alert alert-danger"><%= alert %></div>
     <% end %>
-    
+
     <%= yield %>
   </main>
 
@@ -46,4 +46,4 @@
     </div>
   </footer>
 </body>
-</html> 
+</html>
