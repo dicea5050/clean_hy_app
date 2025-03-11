@@ -6,6 +6,10 @@ class DeliveryLocationsController < ApplicationController
   end
 
   def show
+    respond_to do |format|
+      format.html
+      format.json { render json: @delivery_location }
+    end
   end
 
   def new

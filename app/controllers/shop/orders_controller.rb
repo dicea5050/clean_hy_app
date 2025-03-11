@@ -2,6 +2,7 @@ class Shop::OrdersController < ApplicationController
   layout "shop"
   before_action :authenticate_customer!
   before_action :set_payment_methods, only: [ :new, :create ]
+  before_action :set_delivery_locations, only: [ :new, :create ]
 
   def new
     @cart = current_cart
@@ -25,6 +26,8 @@ class Shop::OrdersController < ApplicationController
     @order.expected_delivery_date = params[:order][:desired_delivery_date]
     # 支払い方法を設定
     @order.payment_method_id = params[:order][:payment_method_id]
+    # 配送先を設定
+    @order.delivery_location_id = params[:order][:delivery_location_id]
 
     if @order.save
       # カートの内容を注文に変換し、在庫を減らす
@@ -67,5 +70,9 @@ class Shop::OrdersController < ApplicationController
 
   def set_payment_methods
     @payment_methods = PaymentMethod.all
+  end
+
+  def set_delivery_locations
+    @delivery_locations = current_customer.delivery_locations
   end
 end

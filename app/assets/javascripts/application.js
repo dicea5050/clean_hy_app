@@ -167,4 +167,23 @@ $(document).ready(function() {
   });
 
   console.log("Product selects setup complete");
+
+  // 配送先選択時の詳細表示
+  $(document).on('change', '#delivery-location-select', function() {
+    var locationId = $(this).val();
+
+    if (!locationId) {
+      // 選択がない場合は詳細を非表示
+      $('#delivery-location-details').hide();
+      return;
+    }
+
+    // 配送先情報を取得
+    $.getJSON("/delivery_locations/" + locationId + ".json", function(data) {
+      // 詳細情報を表示
+      $('#delivery-address').html('<strong>住所:</strong> 〒' + data.postal_code + ' ' + data.address);
+      $('#delivery-contact').html('<strong>連絡先:</strong> ' + data.contact_person + ' (' + data.phone + ')');
+      $('#delivery-location-details').show();
+    });
+  });
 });
