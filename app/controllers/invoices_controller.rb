@@ -2,7 +2,74 @@ class InvoicesController < ApplicationController
   before_action :set_invoice, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @invoices = Invoice.where([ "created_at >= ?", Date.today.beginning_of_month ]).order(created_at: :desc).page(params[:page]).per(25)
+    @q = Invoice.includes(:customer).order(created_at: :desc)
+
+    # 検索パラメータが存在する場合に検索
+    if params[:search].present?
+      search_params = params[:search]
+
+      # 取引先名での検索
+      @q = @q.joins(:customer).where("customers.company_name LIKE ?", "%#{search_params[:company_name]}%") if search_params[:company_name].present?
+
+      # 請求書番号での検索
+      @q = @q.where("invoice_number LIKE ?", "%#{search_params[:invoice_number]}%") if search_params[:invoice_number].present?
+
+      # 請求日の期間検索
+      @q = @q.where("invoice_date >= ?", search_params[:invoice_date_from]) if search_params[:invoice_date_from].present?
+      @q = @q.where("invoice_date <= ?", search_params[:invoice_date_to]) if search_params[:invoice_date_to].present?
+
+      # 請求金額の範囲検索
+      # 注: 実際のプロジェクトでは、total_amountをDBに保存するか、
+      # サブクエリやJOINを使用して効率的に検索する実装を検討してください
+      if search_params[:amount_from].present? || search_params[:amount_to].present?
+        # ここではパフォーマンスのため、インメモリでのフィルタリングを避け、
+        # 先に他の条件で絞り込んでから、必要なデータを取得する
+        invoice_ids = @q.pluck(:id)
+        total_amounts = {}
+
+        if invoice_ids.present?
+          # 該当する請求書の合計金額を計算
+          Invoice.includes(orders: :order_items).where(id: invoice_ids).each do |inv|
+            total_amounts[inv.id] = inv.total_amount
+          end
+
+          # 金額でフィルタリング
+          filtered_ids = invoice_ids
+
+          if search_params[:amount_from].present?
+            min_amount = search_params[:amount_from].to_i
+            filtered_ids = filtered_ids.select { |id| total_amounts[id] && total_amounts[id] >= min_amount }
+          end
+
+          if search_params[:amount_to].present?
+            max_amount = search_params[:amount_to].to_i
+            filtered_ids = filtered_ids.select { |id| total_amounts[id] && total_amounts[id] <= max_amount }
+          end
+
+          @q = @q.where(id: filtered_ids)
+        end
+      end
+
+      # 支払期限の期間検索
+      @q = @q.where("due_date >= ?", search_params[:due_date_from]) if search_params[:due_date_from].present?
+      @q = @q.where("due_date <= ?", search_params[:due_date_to]) if search_params[:due_date_to].present?
+
+      # 請求書送付方法による検索
+      if search_params[:delivery_method].present?
+        electronic = search_params[:delivery_method] == 'electronic'
+        @q = @q.joins(:customer).where(customers: { electronic: electronic })
+      end
+
+      # 承認状態による検索
+      if search_params[:approval_statuses].present?
+        @q = @q.where(approval_status: search_params[:approval_statuses])
+      end
+    else
+      # 検索していない場合はデフォルトで今月の請求書を表示
+      @q = @q.where([ "created_at >= ?", Date.today.beginning_of_month ])
+    end
+
+    @invoices = @q.page(params[:page]).per(25)
   end
 
   def show

@@ -2,11 +2,115 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
       <h1>請求書一覧</h1>
-      <%= button_tag '選択した請求書の承認申請', 
+      <%= button_tag '選択した請求書の承認申請',
           class: 'btn btn-success me-2',
           id: 'bulk-approve-button',
           disabled: true %>
       <%= link_to '新規請求書', new_invoice_path, class: 'btn btn-primary' %>
+    </div>
+  </div>
+
+  <!-- 検索フォーム -->
+  <div class="card mb-4">
+    <div class="card-header bg-light">
+      <button class="btn btn-link btn-sm text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="false" aria-controls="searchCollapse">
+        <i class="bi bi-search"></i> 検索条件
+      </button>
+    </div>
+    <div class="collapse" id="searchCollapse">
+      <div class="card-body">
+        <%= form_with url: invoices_path, method: :get, local: true, id: 'search-form', class: 'row g-3' do %>
+          <!-- 1行目：取引先名、請求書番号、請求書送付方法 -->
+          <div class="col-md-3 me-3">
+            <label class="form-label">取引先名</label>
+            <%= text_field_tag 'search[company_name]', params.dig(:search, :company_name), class: 'form-control' %>
+          </div>
+
+          <div class="col-md-2 me-3">
+            <label class="form-label">請求書番号</label>
+            <%= text_field_tag 'search[invoice_number]', params.dig(:search, :invoice_number), class: 'form-control' %>
+          </div>
+
+          <div class="col-md-2">
+            <label class="form-label">請求書送付方法</label>
+            <%= select_tag 'search[delivery_method]',
+                options_for_select([
+                  ['選択してください', ''],
+                  ['電子請求', 'electronic'],
+                  ['郵送', 'mail']
+                ], params.dig(:search, :delivery_method)),
+                class: 'form-select' %>
+          </div>
+
+          <!-- 2行目：請求日、請求金額（80%）、支払期限、承認状態 -->
+          <div class="col-md-4 me-3 clear-left">
+            <label class="form-label">請求日</label>
+            <div class="row g-2">
+              <div class="col-md-5">
+                <%= date_field_tag 'search[invoice_date_from]', params.dig(:search, :invoice_date_from), class: 'form-control', placeholder: 'From' %>
+              </div>
+              <div class="col-md-2 text-center d-flex align-items-center justify-content-center p-0">〜</div>
+              <div class="col-md-5">
+                <%= date_field_tag 'search[invoice_date_to]', params.dig(:search, :invoice_date_to), class: 'form-control', placeholder: 'To' %>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3 me-3">
+            <label class="form-label">請求金額</label>
+            <div class="row g-2">
+              <div class="col-md-5">
+                <%= number_field_tag 'search[amount_from]', params.dig(:search, :amount_from), class: 'form-control', placeholder: '最低金額' %>
+              </div>
+              <div class="col-md-2 text-center d-flex align-items-center justify-content-center p-0">〜</div>
+              <div class="col-md-5">
+                <%= number_field_tag 'search[amount_to]', params.dig(:search, :amount_to), class: 'form-control', placeholder: '最高金額' %>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3 me-3">
+            <label class="form-label">支払期限</label>
+            <div class="row g-2">
+              <div class="col-md-5">
+                <%= date_field_tag 'search[due_date_from]', params.dig(:search, :due_date_from), class: 'form-control', placeholder: 'From' %>
+              </div>
+              <div class="col-md-2 text-center d-flex align-items-center justify-content-center p-0">〜</div>
+              <div class="col-md-5">
+                <%= date_field_tag 'search[due_date_to]', params.dig(:search, :due_date_to), class: 'form-control', placeholder: 'To' %>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">承認状態</label>
+            <div class="row g-2">
+              <% Invoice::APPROVAL_STATUSES.values.each do |status| %>
+                <div class="col-auto me-2">
+                  <div class="form-check">
+                    <%= check_box_tag 'search[approval_statuses][]',
+                        status,
+                        params.dig(:search, :approval_statuses)&.include?(status),
+                        id: "status_#{status}",
+                        class: 'form-check-input' %>
+                    <label class="form-check-label" for="<%= "status_#{status}" %>"><%= status %></label>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- 検索ボタン -->
+          <div class="col-12 mt-4 clear-left">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-search"></i> 検索
+            </button>
+            <%= link_to invoices_path, class: 'btn btn-outline-secondary ms-2' do %>
+              <i class="bi bi-x-circle"></i> クリア
+            <% end %>
+          </div>
+        <% end %>
+      </div>
     </div>
   </div>
 
@@ -21,7 +125,7 @@
         <th>請求日</th>
         <th>支払期限</th>
         <th>請求金額</th>
-        <th>請求書方法</th>
+        <th>送付方法</th>
         <th>承認状態</th>
         <th>操作</th>
       </tr>
@@ -31,8 +135,8 @@
       <% @invoices.each do |invoice| %>
         <tr>
           <td>
-            <input type="checkbox" 
-                   class="order-checkbox invoice-checkbox" 
+            <input type="checkbox"
+                   class="order-checkbox invoice-checkbox"
                    value="<%= invoice.id %>"
                    <%= 'disabled' unless ['未申請', '差し戻し'].include?(invoice.approval_status) %>>
           </td>
@@ -54,7 +158,7 @@
             <%= link_to 'PDF', pdf_invoice_path(invoice, format: :pdf), class: 'btn btn-sm btn-secondary', target: '_blank' %>
             <%= link_to '編集', edit_invoice_path(invoice), class: 'btn btn-sm btn-primary' %>
             <%= form_with(url: invoice_path(invoice), method: :delete, class: 'd-inline') do |f| %>
-              <%= f.submit '削除', class: 'btn btn-sm btn-danger', 
+              <%= f.submit '削除', class: 'btn btn-sm btn-danger',
                            onclick: "return confirm('本当に削除しますか？');" %>
             <% end %>
           </td>
@@ -115,20 +219,20 @@ document.addEventListener('DOMContentLoaded', function() {
       const form = document.createElement('form');
       form.method = 'POST';
       form.action = '/invoice_approvals/bulk_create';
-      
+
       // CSRF Token
       const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
       const csrfInput = document.createElement('input');
       csrfInput.type = 'hidden';
       csrfInput.name = 'authenticity_token';
       csrfInput.value = csrfToken;
-      
+
       // 請求書IDsのinput
       const idsInput = document.createElement('input');
       idsInput.type = 'hidden';
       idsInput.name = 'invoice_ids';
       idsInput.value = invoiceIds;
-      
+
       form.appendChild(csrfInput);
       form.appendChild(idsInput);
       document.body.appendChild(form);
@@ -136,4 +240,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
-</script> 
+</script>
+
+<%= javascript_include_tag "/assets/javascripts/search_form.js" %>
+
+<style>
+.clear-left {
+  clear: left;
+}
+</style>

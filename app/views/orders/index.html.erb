@@ -5,111 +5,131 @@
 
   <%# 検索フォームを追加 %>
   <div class="card mb-4">
-    <div class="card-body">
-      <%= form_with(url: orders_path, method: :get, local: true) do |f| %>
-        <div class="row g-3">
-          <div class="col-md-4">
-            <div class="form-group">
-              <%= f.label :customer_name, '取引先名' %>
-              <%= f.text_field :customer_name,
-                  value: @search_params&.dig(:customer_name),
-                  class: 'form-control' %>
+    <div class="card-header bg-light">
+      <button class="btn btn-link btn-sm text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="false" aria-controls="searchCollapse">
+        <i class="bi bi-search"></i> 検索条件
+      </button>
+    </div>
+    <div class="collapse" id="searchCollapse">
+      <div class="card-body">
+        <%= form_with(url: orders_path, method: :get, local: true, id: 'search-form', class: 'row g-3') do |f| %>
+          <!-- 1行目：取引先名、受注日、受注番号 -->
+          <div class="col-md-3 me-3">
+            <label class="form-label">取引先名</label>
+            <%= f.text_field :customer_name,
+                value: @search_params&.dig(:customer_name),
+                class: 'form-control' %>
+          </div>
+
+          <div class="col-md-4 me-3">
+            <label class="form-label">受注日</label>
+            <div class="row g-2">
+              <div class="col-md-5">
+                <%= f.date_field :order_date_from,
+                    value: @search_params&.dig(:order_date_from),
+                    class: 'form-control', placeholder: 'From' %>
+              </div>
+              <div class="col-md-2 text-center d-flex align-items-center justify-content-center p-0">〜</div>
+              <div class="col-md-5">
+                <%= f.date_field :order_date_to,
+                    value: @search_params&.dig(:order_date_to),
+                    class: 'form-control', placeholder: 'To' %>
+              </div>
             </div>
           </div>
 
-          <div class="col-md-4">
-            <div class="form-group">
-              <%= f.label :order_date_from, '受注日（開始）' %>
-              <%= f.date_field :order_date_from,
-                  value: @search_params&.dig(:order_date_from),
-                  class: 'form-control' %>
+          <div class="col-md-3 me-3">
+            <label class="form-label">受注番号</label>
+            <%= f.text_field :order_number,
+                value: @search_params&.dig(:order_number),
+                class: 'form-control' %>
+          </div>
+
+          <!-- 2行目：予定納品日、確定納品日、合計金額（範囲検索） -->
+          <div class="col-md-4 me-3 clear-left">
+            <label class="form-label">予定納品日</label>
+            <div class="row g-2">
+              <div class="col-md-5">
+                <%= f.date_field :expected_delivery_date_from,
+                    value: @search_params&.dig(:expected_delivery_date_from),
+                    class: 'form-control', placeholder: 'From' %>
+              </div>
+              <div class="col-md-2 text-center d-flex align-items-center justify-content-center p-0">〜</div>
+              <div class="col-md-5">
+                <%= f.date_field :expected_delivery_date_to,
+                    value: @search_params&.dig(:expected_delivery_date_to),
+                    class: 'form-control', placeholder: 'To' %>
+              </div>
             </div>
           </div>
 
-          <div class="col-md-4">
-            <div class="form-group">
-              <%= f.label :order_date_to, '受注日（終了）' %>
-              <%= f.date_field :order_date_to,
-                  value: @search_params&.dig(:order_date_to),
-                  class: 'form-control' %>
+          <div class="col-md-4 me-3">
+            <label class="form-label">確定納品日</label>
+            <div class="row g-2">
+              <div class="col-md-5">
+                <%= f.date_field :actual_delivery_date_from,
+                    value: @search_params&.dig(:actual_delivery_date_from),
+                    class: 'form-control', placeholder: 'From' %>
+              </div>
+              <div class="col-md-2 text-center d-flex align-items-center justify-content-center p-0">〜</div>
+              <div class="col-md-5">
+                <%= f.date_field :actual_delivery_date_to,
+                    value: @search_params&.dig(:actual_delivery_date_to),
+                    class: 'form-control', placeholder: 'To' %>
+              </div>
             </div>
           </div>
 
-          <div class="col-md-4">
-            <div class="form-group">
-              <%= f.label :expected_delivery_date_from, '予定納品日（開始）' %>
-              <%= f.date_field :expected_delivery_date_from,
-                  value: @search_params&.dig(:expected_delivery_date_from),
-                  class: 'form-control' %>
+          <div class="col-md-3 me-3">
+            <label class="form-label">合計金額（税抜）</label>
+            <div class="row g-2">
+              <div class="col-md-5">
+                <%= f.number_field :total_without_tax_from,
+                    value: @search_params&.dig(:total_without_tax_from),
+                    class: 'form-control', placeholder: '最低金額' %>
+              </div>
+              <div class="col-md-2 text-center d-flex align-items-center justify-content-center p-0">〜</div>
+              <div class="col-md-5">
+                <%= f.number_field :total_without_tax_to,
+                    value: @search_params&.dig(:total_without_tax_to),
+                    class: 'form-control', placeholder: '最高金額' %>
+              </div>
             </div>
           </div>
 
-          <div class="col-md-4">
-            <div class="form-group">
-              <%= f.label :expected_delivery_date_to, '予定納品日（終了）' %>
-              <%= f.date_field :expected_delivery_date_to,
-                  value: @search_params&.dig(:expected_delivery_date_to),
-                  class: 'form-control' %>
+          <!-- 3行目：支払方法（チェックボックス複数選択）と請求書ステータス -->
+          <div class="col-md-4 me-2 clear-left">
+            <label class="form-label">支払い方法</label>
+            <div class="d-flex flex-wrap">
+              <% @payment_methods.each do |method| %>
+                <div class="form-check me-3">
+                  <%= f.check_box :payment_method_ids,
+                      { multiple: true, class: 'form-check-input', checked: (@search_params&.dig(:payment_method_ids) || []).include?(method.id.to_s) },
+                      method.id, nil %>
+                  <label class="form-check-label"><%= method.name %></label>
+                </div>
+              <% end %>
             </div>
           </div>
 
-          <div class="col-md-4">
-            <div class="form-group">
-              <%= f.label :actual_delivery_date_from, '確定納品日（開始）' %>
-              <%= f.date_field :actual_delivery_date_from,
-                  value: @search_params&.dig(:actual_delivery_date_from),
-                  class: 'form-control' %>
-            </div>
+          <div class="col-md-3 me-3">
+            <label class="form-label">請求書</label>
+            <%= f.select :invoice_status,
+                { '未発行': 'not_invoiced', '発行済み': 'invoiced' },
+                { include_blank: '選択してください' },
+                { class: 'form-select',
+                  value: @search_params&.dig(:invoice_status) } %>
           </div>
 
-          <div class="col-md-4">
-            <div class="form-group">
-              <%= f.label :actual_delivery_date_to, '確定納品日（終了）' %>
-              <%= f.date_field :actual_delivery_date_to,
-                  value: @search_params&.dig(:actual_delivery_date_to),
-                  class: 'form-control' %>
-            </div>
+          <!-- 検索ボタン -->
+          <div class="col-12 mt-4 clear-left">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-search"></i> 検索
+            </button>
+            <%= link_to '検索条件クリア', orders_path, class: 'btn btn-outline-secondary ms-2' %>
           </div>
-
-          <div class="col-md-4">
-            <div class="form-group">
-              <%= f.label :total_without_tax, '合計金額（税抜）' %>
-              <%= f.number_field :total_without_tax,
-                  value: @search_params&.dig(:total_without_tax),
-                  class: 'form-control' %>
-            </div>
-          </div>
-
-          <div class="col-md-4">
-            <div class="form-group">
-              <%= f.label :payment_method_id, '支払い方法' %>
-              <%= f.collection_select :payment_method_id,
-                  @payment_methods,
-                  :id,
-                  :name,
-                  { include_blank: '選択してください' },
-                  { class: 'form-control',
-                    selected: @search_params&.dig(:payment_method_id) } %>
-            </div>
-          </div>
-
-          <div class="col-md-4">
-            <div class="form-group">
-              <%= f.label :invoice_status, '請求書' %>
-              <%= f.select :invoice_status,
-                  { '未発行': 'not_invoiced', '発行済み': 'invoiced' },
-                  { include_blank: '選択してください' },
-                  { class: 'form-control',
-                    value: @search_params&.dig(:invoice_status) } %>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-3">
-          <%= f.submit '検索', class: 'btn btn-primary me-2' %>
-          <%= link_to 'クリア', orders_path, class: 'btn btn-secondary' %>
-        </div>
-      <% end %>
+        <% end %>
+      </div>
     </div>
   </div>
 
@@ -286,3 +306,11 @@
     });
   });
 </script>
+
+<%= javascript_include_tag "/assets/javascripts/search_form.js" %>
+
+<style>
+.clear-left {
+  clear: left;
+}
+</style>
