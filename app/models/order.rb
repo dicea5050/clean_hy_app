@@ -56,6 +56,20 @@ class Order < ApplicationRecord
                .where("customers.company_name LIKE ?", "%#{params[:customer_name]}%")
     end
 
+    # 受注番号での検索
+    if params[:order_number].present?
+      rel = rel.where("id IN (
+                SELECT id FROM orders
+                WHERE CONCAT('ORD-',
+                             TO_CHAR(order_date, 'YYMM'),
+                             '-',
+                             LPAD(ROW_NUMBER() OVER (PARTITION BY EXTRACT(YEAR FROM order_date),
+                                                     EXTRACT(MONTH FROM order_date)
+                                           ORDER BY created_at), 4, '0')
+                            ) LIKE ?)",
+                "%#{params[:order_number]}%")
+    end
+
     # 受注日での検索
     if params[:order_date_from].present?
       rel = rel.where("order_date >= ?", params[:order_date_from])
@@ -80,17 +94,28 @@ class Order < ApplicationRecord
       rel = rel.where("actual_delivery_date <= ?", params[:actual_delivery_date_to])
     end
 
-    # 合計金額（税抜）での検索
-    if params[:total_without_tax].present?
-      rel = rel.joins(:order_items)
-               .group("orders.id")
-               .having("SUM(order_items.unit_price * order_items.quantity) = ?",
-                      params[:total_without_tax].to_i)
+    # 合計金額（税抜）での範囲検索
+    if params[:total_without_tax_from].present? || params[:total_without_tax_to].present?
+      # サブクエリで合計金額を計算し、その結果でフィルタリング
+      subquery = OrderItem.select('order_id, SUM(unit_price * quantity) as total')
+                        .group(:order_id)
+
+      order_ids = subquery
+
+      if params[:total_without_tax_from].present?
+        order_ids = order_ids.having('SUM(unit_price * quantity) >= ?', params[:total_without_tax_from].to_i)
+      end
+
+      if params[:total_without_tax_to].present?
+        order_ids = order_ids.having('SUM(unit_price * quantity) <= ?', params[:total_without_tax_to].to_i)
+      end
+
+      rel = rel.where(id: order_ids.pluck(:order_id))
     end
 
-    # 支払い方法での検索
-    if params[:payment_method_id].present?
-      rel = rel.where(payment_method_id: params[:payment_method_id])
+    # 支払い方法での検索（複数選択可）
+    if params[:payment_method_ids].present? && params[:payment_method_ids].any?(&:present?)
+      rel = rel.where(payment_method_id: params[:payment_method_ids])
     end
 
     # 請求状況での検索

@@ -387,14 +387,15 @@ class OrdersController < ApplicationController
     end
 
     def search_params
-      params.fetch(:search, {}).permit(
+      params.permit(
         :customer_name,
+        :order_number,
         :order_date_from, :order_date_to,
         :expected_delivery_date_from, :expected_delivery_date_to,
         :actual_delivery_date_from, :actual_delivery_date_to,
-        :total_without_tax,
-        :payment_method_id,
-        :invoice_status
+        :total_without_tax_from, :total_without_tax_to,
+        :invoice_status,
+        payment_method_ids: []
       )
     end
 end
