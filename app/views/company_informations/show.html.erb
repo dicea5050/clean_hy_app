@@ -1,10 +1,4 @@
 <div class="container mt-4">
-  <% if notice.present? %>
-    <div class="alert alert-success">
-      <%= notice %>
-    </div>
-  <% end %>
-
   <div class="card shadow mb-4">
     <div class="card-header bg-primary text-white">
       <h2 class="mb-0">自社情報詳細</h2>
@@ -14,32 +8,37 @@
         <div class="col-md-3 fw-bold">社名</div>
         <div class="col-md-9"><%= @company_information.name %></div>
       </div>
-      
+
       <div class="row mb-3">
         <div class="col-md-3 fw-bold">郵便番号</div>
         <div class="col-md-9"><%= @company_information.postal_code %></div>
       </div>
-      
+
       <div class="row mb-3">
         <div class="col-md-3 fw-bold">住所</div>
         <div class="col-md-9"><%= @company_information.address %></div>
       </div>
-      
+
       <div class="row mb-3">
         <div class="col-md-3 fw-bold">電話番号</div>
         <div class="col-md-9"><%= @company_information.phone_number %></div>
       </div>
-      
+
       <div class="row mb-3">
         <div class="col-md-3 fw-bold">FAX番号</div>
         <div class="col-md-9"><%= @company_information.fax_number.present? ? @company_information.fax_number : '未設定' %></div>
       </div>
-      
+
       <div class="row mb-3">
         <div class="col-md-3 fw-bold">適格請求書番号</div>
         <div class="col-md-9"><%= @company_information.invoice_registration_number %></div>
       </div>
-      
+
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">代表者名</div>
+        <div class="col-md-9"><%= @company_information.representative_name.present? ? @company_information.representative_name : '未設定' %></div>
+      </div>
+
       <div class="row mb-3">
         <div class="col-md-3 fw-bold">社印</div>
         <div class="col-md-9">
@@ -59,4 +58,4 @@
       <%= link_to '一覧に戻る', company_informations_path, class: 'btn btn-secondary' %>
     </div>
   </div>
-</div> 
+</div>

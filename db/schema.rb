@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_07_052212) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_11_040928) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -70,6 +70,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_07_052212) do
     t.string "invoice_registration_number", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "representative_name"
     t.index ["name"], name: "index_company_informations_on_name"
   end
 
@@ -98,6 +99,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_07_052212) do
     t.string "contact_person"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "is_main_office", default: false
+    t.index ["customer_id", "is_main_office"], name: "index_delivery_locations_on_customer_id_and_main_office", unique: true, where: "(is_main_office = true)"
     t.index ["customer_id"], name: "index_delivery_locations_on_customer_id"
   end
 
@@ -162,7 +165,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_07_052212) do
     t.datetime "updated_at", null: false
     t.string "payment_method"
     t.integer "payment_method_id"
+    t.bigint "delivery_location_id"
     t.index ["customer_id"], name: "index_orders_on_customer_id"
+    t.index ["delivery_location_id"], name: "index_orders_on_delivery_location_id"
     t.index ["payment_method_id"], name: "index_orders_on_payment_method_id"
   end
 
@@ -220,5 +225,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_07_052212) do
   add_foreign_key "order_items", "products"
   add_foreign_key "order_items", "units"
   add_foreign_key "orders", "customers"
+  add_foreign_key "orders", "delivery_locations"
   add_foreign_key "products", "tax_rates"
 end

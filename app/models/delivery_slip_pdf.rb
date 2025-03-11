@@ -21,22 +21,23 @@ class DeliverySlipPdf < Prawn::Document
   end
 
   def header
-    # タイトル
-    text "納品書", size: 24, align: :center, style: :bold
-    move_down 10
-
     # 発行日と納品日
     issue_date = Date.today
     delivery_date = @order.actual_delivery_date
 
+    text "発行日: #{issue_date.strftime('%Y年%m月%d日')}", size: 10, align: :right
     if delivery_date.present?
-      text "納品日: #{delivery_date.strftime('%Y年%m月%d日')}", align: :right
+      text "納品日: #{delivery_date.strftime('%Y年%m月%d日')}", size: 10, align: :right
     else
       text "納品日: 未定", align: :right
     end
-    text "発行日: #{issue_date.strftime('%Y年%m月%d日')}", align: :right
-    text "受注番号: #{@order.order_number}", align: :right
+    text "受注番号: #{@order.order_number}", size: 10, align: :right
+    move_down 10
+
+    # タイトル
+    text "納品書", size: 24, align: :center, style: :bold
     move_down 20
+
   end
 
   def customer_info
@@ -57,19 +58,16 @@ class DeliverySlipPdf < Prawn::Document
       text @order.customer.address, size: 10
     end
     move_down 20
-
-    # 自社情報
-    stroke_horizontal_rule
-    move_down 10
-    text "#{@company_info.name}", size: 12, style: :bold
-    text "〒#{@company_info.postal_code}", size: 10
-    text @company_info.address, size: 10
-    text "TEL: #{@company_info.phone_number}", size: 10
-    text "インボイス登録番号: #{@company_info.invoice_registration_number}", size: 10 if @company_info.invoice_registration_number.present?
-    move_down 20
   end
 
   def order_details
+    # フッターメッセージ（商品明細の上に移動）
+    stroke_horizontal_rule
+    move_down 10
+    text "下記の通り、納品いたしました。", align: :center, size: 10
+    text "何かご不明な点がございましたら、お気軽にお問い合わせください。", align: :center, size: 10
+    move_down 20
+
     # 注文明細
     text "【商品明細】", size: 14, style: :bold
     move_down 10
@@ -111,11 +109,16 @@ class DeliverySlipPdf < Prawn::Document
   end
 
   def footer
-    # フッター
+    # 自社情報
     stroke_horizontal_rule
     move_down 10
-    text "本納品書は、商品の納品を証明するものです。", align: :center, size: 10
-    text "何かご不明な点がございましたら、お気軽にお問い合わせください。", align: :center, size: 10
+    text "〒#{@company_info.postal_code}", size: 10, align: :right
+    text @company_info.address, size: 10, align: :right
+    text "#{@company_info.name}", size: 12, style: :bold, align: :right
+    text "代表取締役 #{@company_info.representative_name}", size: 10, align: :right if @company_info.representative_name.present?
+    text "TEL: #{@company_info.phone_number}", size: 10, align: :right
+    text "インボイス登録番号: #{@company_info.invoice_registration_number}", size: 10, align: :right if @company_info.invoice_registration_number.present?
+    move_down 20
   end
 
   def number_with_delimiter(number)

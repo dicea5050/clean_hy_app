@@ -11,7 +11,7 @@
           <div class="col-md-4">
             <div class="form-group">
               <%= f.label :customer_name, '取引先名' %>
-              <%= f.text_field :customer_name, 
+              <%= f.text_field :customer_name,
                   value: @search_params&.dig(:customer_name),
                   class: 'form-control' %>
             </div>
@@ -143,7 +143,7 @@
         <% @orders.each do |order| %>
           <tr>
             <td>
-              <input type="checkbox" class="order-checkbox" 
+              <input type="checkbox" class="order-checkbox"
                     data-customer-id="<%= order.customer_id %>"
                     data-customer-name="<%= order.customer.company_name %>"
                     data-order-id="<%= order.id %>"
@@ -169,9 +169,12 @@
             <td>
               <%= link_to '詳細', order, class: 'btn btn-sm btn-info' %>
               <%= link_to '編集', edit_order_path(order), class: 'btn btn-sm btn-primary' %>
-              <%= link_to '納品書', delivery_slip_order_path(order, format: :pdf), class: 'btn btn-sm btn-success', target: '_blank' %>
+              <%= link_to '納品書', delivery_slip_order_path(order, format: :pdf),
+                         class: 'btn btn-sm btn-success delivery-slip-btn',
+                         target: '_blank',
+                         data: { has_delivery_date: order.actual_delivery_date.present? } %>
               <%= form_with(url: order_path(order), method: :delete, class: 'd-inline') do |f| %>
-                <%= f.submit '削除', class: 'btn btn-sm btn-danger', data: { confirm: '本当に削除しますか？' }, 
+                <%= f.submit '削除', class: 'btn btn-sm btn-danger', data: { confirm: '本当に削除しますか？' },
                             onclick: "return confirm('本当に削除しますか？');" %>
               <% end %>
             </td>
@@ -193,7 +196,21 @@
     const createInvoiceBtn = document.getElementById('create-invoice-btn');
     const selectedOrderIdsInput = document.getElementById('selected-order-ids');
     const form = document.getElementById('selected-orders-form');
-    
+
+    // 納品書ボタンのクリックイベント
+    const deliverySlipBtns = document.querySelectorAll('.delivery-slip-btn');
+    deliverySlipBtns.forEach(btn => {
+      btn.addEventListener('click', function(event) {
+        const hasDeliveryDate = this.dataset.hasDeliveryDate === 'true';
+
+        if (!hasDeliveryDate) {
+          event.preventDefault();
+          alert('確定納品日を入力してください');
+          return false;
+        }
+      });
+    });
+
     // 請求書発行ボタンのクリックイベント
     createInvoiceBtn.addEventListener('click', function(e) {
       const selectedOrders = Array.from(checkboxes)
@@ -215,26 +232,26 @@
 
       // 支払い方法の一意性をチェック
       const uniquePaymentMethods = new Set(selectedOrders.map(order => order.paymentMethod));
-      
+
       if (uniquePaymentMethods.size > 1) {
         e.preventDefault();
         alert('複数の支払い方法の取引が選択されているため、発行できません');
         return false;
       }
-      
+
       if (selectedOrders.length > 0) {
         selectedOrderIdsInput.value = selectedOrders.map(order => order.id).join(',');
         form.submit();
       }
     });
-    
+
     checkboxes.forEach(checkbox => {
       checkbox.addEventListener('change', function() {
         const customerId = this.dataset.customerId;
         let anyChecked = false;
         let selectedCustomerId = null;
         const selectedOrderIds = [];
-        
+
         // どのチェックボックスがチェックされているか確認
         checkboxes.forEach(cb => {
           if (cb.checked) {
@@ -243,7 +260,7 @@
             selectedOrderIds.push(cb.dataset.orderId);
           }
         });
-        
+
         // チェックボックスがチェックされている場合、異なる取引先のチェックボックスを無効化
         if (anyChecked) {
           checkboxes.forEach(cb => {
@@ -262,10 +279,10 @@
 
         // 選択されている受注があるか確認し、請求書発行ボタンの有効/無効を設定
         createInvoiceBtn.disabled = !anyChecked;
-        
+
         // 選択された受注IDを隠しフィールドに設定
         selectedOrderIdsInput.value = selectedOrderIds.join(',');
       });
     });
   });
-</script> 
+</script>

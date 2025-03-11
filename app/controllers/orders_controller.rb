@@ -70,6 +70,12 @@ class OrdersController < ApplicationController
 
   def delivery_slip
     @order = Order.includes(:order_items, :customer, :payment_method).find(params[:id])
+
+    # 確定納品日が未入力の場合、警告を表示して注文詳細ページにリダイレクト
+    unless @order.actual_delivery_date.present?
+      redirect_to @order, alert: '確定納品日を入力してから納品書を発行してください' and return
+    end
+
     @company_info = CompanyInformation.first
 
     respond_to do |format|

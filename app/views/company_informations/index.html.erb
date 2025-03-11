@@ -21,6 +21,7 @@
               <th>住所</th>
               <th>電話番号</th>
               <th>適格請求書番号</th>
+              <th>代表者名</th>
               <th colspan="3"></th>
             </tr>
           </thead>
@@ -33,6 +34,7 @@
                 <td><%= company_information.address %></td>
                 <td><%= company_information.phone_number %></td>
                 <td><%= company_information.invoice_registration_number %></td>
+                <td><%= company_information.representative_name %></td>
                 <td>
                   <%= link_to '詳細', company_information, class: 'btn btn-sm btn-info text-white' %>
                   <%= link_to '編集', edit_company_information_path(company_information), class: 'btn btn-sm btn-warning text-white' %>
@@ -45,4 +47,4 @@
       </div>
     </div>
   </div>
-</div> 
+</div>

@@ -42,9 +42,14 @@
   </div>
 
   <div class="mb-3">
+    <%= form.label :representative_name, '代表者名', class: 'form-label' %>
+    <%= form.text_field :representative_name, class: 'form-control' %>
+  </div>
+
+  <div class="mb-3">
     <%= form.label :company_seal, '社印画像', class: 'form-label' %>
     <%= form.file_field :company_seal, class: 'form-control' %>
-    
+
     <% if company_information.company_seal.attached? %>
       <div class="mt-2">
         <p>現在の社印：</p>
@@ -61,4 +66,4 @@
     <%= form.submit '保存', class: 'btn btn-primary me-2' %>
     <%= link_to 'キャンセル', company_informations_path, class: 'btn btn-secondary' %>
   </div>
-<% end %> 
+<% end %>
