@@ -1,6 +1,7 @@
 // 外部JavaScriptファイルを明示的に読み込み
 //= require delivery_locations_form
 //= require order_calculations
+//= require payment_records
 
 // 商品選択時にAjaxで情報を取得
 $(document).ready(function() {

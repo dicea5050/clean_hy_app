@@ -8,13 +8,11 @@ Rails.application.config.assets.paths << Rails.root.join("app/assets/javascripts
 Rails.application.config.assets.paths << Rails.root.join("node_modules")
 
 # Precompile additional assets.
-Rails.application.config.assets.precompile += %w[ application.js orders.js order_calculations.js search_form.js ]
+Rails.application.config.assets.precompile += %w[ application.js orders.js order_calculations.js search_form.js payment_records.js ]
 
-# Propshaftのためのアセット設定 (このファイルがない場合は作成)
-Rails.application.config.assets.paths << Rails.root.join("node_modules")
-
-# Rails 8でPropshaftを使用する場合の設定
+# Propshaftの設定
 Rails.application.config.assets.paths << Rails.root.join("app/assets/javascripts")
+Rails.application.config.assets.paths << Rails.root.join("node_modules")
 
 # Propshaftの標準ルールに従い、JSファイルはapp/assets/javascriptsディレクトリに保存する
 # このルールを守ることでアセットの管理が一貫して行えます

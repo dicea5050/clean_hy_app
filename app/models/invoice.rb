@@ -2,6 +2,12 @@ class Invoice < ApplicationRecord
   belongs_to :customer
   has_many :invoice_orders, dependent: :destroy
   has_many :orders, through: :invoice_orders
+  has_many :payment_records, dependent: :destroy
+
+  # payment_recordsのネストした属性を受け入れる
+  accepts_nested_attributes_for :payment_records,
+                               allow_destroy: true,
+                               reject_if: proc { |attributes| attributes['payment_date'].blank? || attributes['amount'].blank? }
 
   # 承認状態の定義を先に行う
   APPROVAL_STATUSES = {
@@ -65,6 +71,16 @@ class Invoice < ApplicationRecord
     orders.sum do |order|
       order.order_items.sum(&:subtotal)
     end
+  end
+
+  # 入金済み金額の合計
+  def total_paid_amount
+    payment_records.sum(:amount)
+  end
+
+  # 未入金金額
+  def unpaid_amount
+    total_amount - total_paid_amount
   end
 
   # 承認状態に応じたバッジのクラスを返すヘルパーメソッド

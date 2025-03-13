@@ -100,6 +100,9 @@ class InvoicesController < ApplicationController
     @customers = Customer.all.order(:company_name)
     @orders = @invoice.orders
     @order_ids = @orders.pluck(:id)
+    @payment_records = @invoice.payment_records.order(:payment_date)
+    # 既存の入金記録がない場合は、空の入金記録を1つ追加
+    @payment_records.build if @payment_records.empty?
   end
 
   def create
@@ -144,6 +147,7 @@ class InvoicesController < ApplicationController
       @customers = Customer.all.order(:company_name)
       @order_ids = params[:order_ids].split(",") if params[:order_ids].present?
       @orders = Order.eager_load(:customer, :order_items).where(id: @order_ids)
+      @payment_records = @invoice.payment_records.order(:payment_date)
       render :edit
     end
   end
@@ -194,10 +198,13 @@ class InvoicesController < ApplicationController
 
   private
     def set_invoice
-      @invoice = Invoice.includes(:orders).find(params[:id])
+      @invoice = Invoice.includes(:orders, :payment_records).find(params[:id])
     end
 
     def invoice_params
-      params.require(:invoice).permit(:customer_id, :invoice_date, :due_date, :notes)
+      params.require(:invoice).permit(
+        :customer_id, :invoice_date, :due_date, :notes,
+        payment_records_attributes: [:id, :payment_date, :payment_type, :amount, :memo, :_destroy]
+      )
     end
 end
