@@ -14,6 +14,15 @@
         <dt class="col-sm-3">単価（税抜）:</dt>
         <dd class="col-sm-9"><%= number_to_currency(@product.price, unit: '¥', format: '%u%n') if @product.price.present? %></dd>
 
+        <dt class="col-sm-3">値引き:</dt>
+        <dd class="col-sm-9">
+          <% if @product.is_discount_target %>
+            対象
+          <% else %>
+            なし
+          <% end %>
+        </dd>
+
         <dt class="col-sm-3">適用税率:</dt>
         <dd class="col-sm-9"><%= @product.tax_rate.name %></dd>
 
@@ -38,4 +47,4 @@
       <%= link_to '戻る', products_path, class: 'btn btn-secondary' %>
     </div>
   </div>
-</div> 
+</div>
