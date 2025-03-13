@@ -4,8 +4,9 @@ class PaymentRecord < ApplicationRecord
   # 支払いタイプの定義
   PAYMENT_TYPES = {
     payment: "入金",
+    fee: "支払手数料",
     offset: "相殺",
-    fee: "支払手数料"
+    discount: "値引き",
   }.freeze
 
   validates :payment_date, presence: true

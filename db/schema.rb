@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_13_073936) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_13_082745) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -207,6 +207,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_13_073936) do
     t.decimal "price"
     t.boolean "is_public", default: true
     t.integer "stock"
+    t.boolean "is_discount_target", default: false, null: false
     t.index ["tax_rate_id"], name: "index_products_on_tax_rate_id"
   end
 

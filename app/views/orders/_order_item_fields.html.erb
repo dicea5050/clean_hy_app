@@ -10,6 +10,7 @@
         <option value="<%= p.id %>"
                 data-price="<%= p.fixed_price? ? p.price.to_i : '' %>"
                 data-tax-rate="<%= p.tax_rate.rate.to_i %>"
+                data-is-discount-target="<%= p.is_discount_target ? 'true' : 'false' %>"
                 <%= 'selected' if f.object.product_id == p.id %>><%= p.name %></option>
       <% end %>
     </select>

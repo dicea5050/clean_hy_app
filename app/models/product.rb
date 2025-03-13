@@ -24,4 +24,9 @@ class Product < ApplicationRecord
   def fixed_price?
     price.present?
   end
+
+  # 値引き対象商品かどうかを判断するメソッド
+  def discount_target?
+    is_discount_target
+  end
 end

@@ -43,12 +43,12 @@
   </div>
 
   <div class="form-group">
-    <%= form.label :is_discount, '値引き商品' %>
-    <%= form.check_box :is_discount, class: 'form-check-input ml-2' %>
-    <small class="form-text text-muted">値引き商品として登録する場合はチェックしてください</small>
+    <%= form.label :is_discount_target, '値引き対象商品' %>
+    <%= form.check_box :is_discount_target, class: 'form-check-input ml-2' %>
+    <small class="form-text text-muted">値引き対象商品として登録する場合はチェックしてください</small>
   </div>
 
   <div class="form-group mt-4">
     <%= form.submit product.new_record? ? '登録' : '更新', class: 'btn btn-primary' %>
   </div>
-<% end %> 
+<% end %>

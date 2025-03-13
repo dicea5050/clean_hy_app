@@ -11,11 +11,17 @@ class OrderItem < ApplicationRecord
 
   def subtotal
     return 0 if unit_price.nil? || quantity.nil? || tax_rate.nil?
-    (unit_price * quantity * (1 + tax_rate / 100.0)).round
+    # 値引き対象商品の場合はマイナスにする
+    base_amount = unit_price * quantity
+    base_amount = -base_amount if product&.is_discount_target?
+    (base_amount * (1 + tax_rate / 100.0)).round
   end
 
   def subtotal_without_tax
     return 0 if unit_price.nil? || quantity.nil?
-    (unit_price * quantity).round
+    # 値引き対象商品の場合はマイナスにする
+    base_amount = unit_price * quantity
+    base_amount = -base_amount if product&.is_discount_target?
+    base_amount.round
   end
 end

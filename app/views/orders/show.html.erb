@@ -122,8 +122,8 @@
               <td><%= item.tax_rate %></td>
               <td><%= item.quantity %></td>
               <td><%= item.unit&.name %></td>
-              <td><%= number_to_currency(item.subtotal_without_tax) %></td>
-              <td><%= number_to_currency(item.subtotal) %></td>
+              <td><%= item.product.is_discount_target? ? '-' : '' %><%= number_to_currency(item.subtotal_without_tax.abs) %></td>
+              <td><%= item.product.is_discount_target? ? '-' : '' %><%= number_to_currency(item.subtotal.abs) %></td>
               <td><%= item.notes %></td>
             </tr>
           <% end %>
