@@ -350,6 +350,94 @@ class OrdersController < ApplicationController
     render partial: "order_item_fields", locals: { f: ActionView::Helpers::FormBuilder.new("order[order_items_attributes][TIME_PLACEHOLDER]", @order_item, view_context, {}) }, layout: false
   end
 
+  # 顧客コードから顧客情報を取得するAPI
+  def find_customer_by_code
+    customer = Customer.find_by(customer_code: params[:code])
+    if customer
+      render json: {
+        success: true,
+        customer: {
+          id: customer.id,
+          company_name: customer.company_name,
+          delivery_locations: customer.delivery_locations.order(is_main_office: :desc, name: :asc).map do |location|
+            { id: location.id, name: location.name }
+          end
+        }
+      }
+    else
+      render json: { success: false, message: '顧客が見つかりません' }
+    end
+  end
+
+  # 商品コードから商品情報を取得するAPI
+  def find_product_by_code
+    product = Product.find_by(product_code: params[:code])
+    if product
+      render json: {
+        success: true,
+        product: {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          tax_rate: product.tax_rate&.rate || 10.0
+        }
+      }
+    else
+      render json: { success: false, message: '商品が見つかりません' }
+    end
+  end
+
+  # 顧客検索API（インクリメンタルサーチ用）
+  def search_customers
+    query = params[:query].to_s.strip
+    if query.present?
+      customers = Customer.where("company_name LIKE ? OR customer_code LIKE ?", "%#{query}%", "%#{query}%")
+                         .limit(10)
+                         .order(:company_name)
+      
+      render json: {
+        success: true,
+        customers: customers.map do |customer|
+          {
+            id: customer.id,
+            company_name: customer.company_name,
+            customer_code: customer.customer_code,
+            delivery_locations: customer.delivery_locations.order(is_main_office: :desc, name: :asc).map do |location|
+              { id: location.id, name: location.name }
+            end
+          }
+        end
+      }
+    else
+      render json: { success: true, customers: [] }
+    end
+  end
+
+  # 商品検索API（インクリメンタルサーチ用）
+  def search_products
+    query = params[:query].to_s.strip
+    if query.present?
+      products = Product.where("name LIKE ? OR product_code LIKE ?", "%#{query}%", "%#{query}%")
+                       .limit(10)
+                       .order(:name)
+      
+      render json: {
+        success: true,
+        products: products.map do |product|
+          {
+            id: product.id,
+            name: product.name,
+            product_code: product.product_code,
+            price: product.price,
+            tax_rate: product.tax_rate&.rate || 10.0
+          }
+        end
+      }
+    else
+      render json: { success: true, products: [] }
+    end
+  end
+
   private
     def set_order
       @order = Order.includes(:order_items, :customer, :payment_method, :delivery_location).find(params[:id])
@@ -359,7 +447,7 @@ class OrdersController < ApplicationController
       params.require(:order).permit(
         :customer_id, :order_date, :expected_delivery_date,
         :actual_delivery_date, :payment_method_id, :delivery_location_id,
-        order_items_attributes: [ :id, :product_id, :quantity, :unit_price, :tax_rate, :notes, :unit_id, :_destroy ]
+        order_items_attributes: [ :id, :product_id, :quantity, :unit_price, :tax_rate, :notes, :unit_id, :product_name_override, :_destroy ]
       )
     end
 

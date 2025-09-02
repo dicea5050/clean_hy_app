@@ -76,7 +76,7 @@ class DeliverySlipPdf < Prawn::Document
 
     @order.order_items.each do |item|
       order_items_data << [
-        item.product.name,
+        item.display_product_name,
         "¥#{number_with_delimiter(item.unit_price)}",
         item.quantity.to_s,
         "#{item.tax_rate}%",

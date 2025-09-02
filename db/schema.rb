@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_21_132653) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_02_071746) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -151,6 +151,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_21_132653) do
     t.datetime "updated_at", null: false
     t.text "notes"
     t.bigint "unit_id"
+    t.string "product_name_override"
     t.index ["order_id"], name: "index_order_items_on_order_id"
     t.index ["product_id"], name: "index_order_items_on_product_id"
     t.index ["unit_id"], name: "index_order_items_on_unit_id"
@@ -166,9 +167,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_21_132653) do
     t.string "payment_method"
     t.integer "payment_method_id"
     t.bigint "delivery_location_id"
+    t.string "customer_code"
+    t.string "product_code"
+    t.index ["customer_code"], name: "index_orders_on_customer_code"
     t.index ["customer_id"], name: "index_orders_on_customer_id"
     t.index ["delivery_location_id"], name: "index_orders_on_delivery_location_id"
     t.index ["payment_method_id"], name: "index_orders_on_payment_method_id"
+    t.index ["product_code"], name: "index_orders_on_product_code"
   end
 
   create_table "payment_methods", force: :cascade do |t|

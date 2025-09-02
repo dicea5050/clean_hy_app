@@ -117,7 +117,7 @@
         <tbody>
           <% @order.order_items.each do |item| %>
             <tr>
-              <td><%= item.product.name %></td>
+              <td><%= item.display_product_name %></td>
               <td><%= number_to_currency(item.unit_price) %></td>
               <td><%= item.tax_rate %></td>
               <td><%= item.quantity %></td>

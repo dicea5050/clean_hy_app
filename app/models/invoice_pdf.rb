@@ -156,7 +156,7 @@ class InvoicePdf < Prawn::Document
         row = [
           order.order_number,
           order.actual_delivery_date&.strftime("%Y年%m月%d日") || "未定",
-          item.product.name,
+          item.display_product_name,
           "¥#{number_with_delimiter(item.unit_price)}",
           item.quantity.to_s,
           "¥#{number_with_delimiter(item.subtotal_without_tax)}",

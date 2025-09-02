@@ -1,19 +1,25 @@
 <tr class="nested-fields">
   <td>
-    <select name="order[order_items_attributes][<%= f.index %>][product_id]"
-            id="order_order_items_attributes_<%= f.index %>_product_id"
-            class="form-control product-select"
-            style="width: 100%;"
-            required>
-      <option value="">商品を選択してください</option>
-      <% Product.all.each do |p| %>
-        <option value="<%= p.id %>"
-                data-price="<%= p.fixed_price? ? p.price.to_i : '' %>"
-                data-tax-rate="<%= p.tax_rate.rate.to_i %>"
-                data-is-discount-target="<%= p.is_discount_target ? 'true' : 'false' %>"
-                <%= 'selected' if f.object.product_id == p.id %>><%= p.name %></option>
-      <% end %>
-    </select>
+    <input type="text"
+           name="order[order_items_attributes][<%= f.index %>][product_code]"
+           id="order_order_items_attributes_<%= f.index %>_product_code"
+           class="form-control product-code-input"
+           style="width: 100%;"
+           placeholder="商品コード"
+           value="<%= f.object.product&.product_code %>">
+  </td>
+  <td>
+    <div class="autocomplete-container" style="position: relative;">
+      <%= f.hidden_field :product_id %>
+      <%= f.hidden_field :product_name_override %>
+      <input type="text"
+             class="form-control product-search"
+             placeholder="商品名または商品コードを入力"
+             value="<%= f.object.display_product_name %>"
+             autocomplete="off"
+             style="width: 100%;">
+      <div class="autocomplete-results product-results" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ccc; border-top: none; max-height: 200px; overflow-y: auto; z-index: 1000;"></div>
+    </div>
   </td>
   <td style="width: 120px;">
     <%= f.hidden_field :unit_price, class: "unit-price-input" %>

@@ -45,6 +45,10 @@ Rails.application.routes.draw do
       get :import_csv
       post :process_csv
       get :new_order_item
+      get :find_customer_by_code
+      get :find_product_by_code
+      get :search_customers
+      get :search_products
     end
 
     member do
