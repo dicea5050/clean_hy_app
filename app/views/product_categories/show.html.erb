@@ -1,0 +1,20 @@
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header">
+      <h2>カテゴリー詳細</h2>
+    </div>
+    <div class="card-body">
+      <dl class="row">
+        <dt class="col-sm-3">カテゴリーコード:</dt>
+        <dd class="col-sm-9"><%= @product_category.code %></dd>
+
+        <dt class="col-sm-3">カテゴリー名:</dt>
+        <dd class="col-sm-9"><%= @product_category.name %></dd>
+      </dl>
+    </div>
+    <div class="card-footer">
+      <%= link_to '編集', edit_product_category_path(@product_category), class: 'btn btn-success' %>
+      <%= link_to '戻る', product_categories_path, class: 'btn btn-secondary' %>
+    </div>
+  </div>
+</div>

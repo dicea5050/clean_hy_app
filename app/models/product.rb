@@ -1,5 +1,6 @@
 class Product < ApplicationRecord
   belongs_to :tax_rate
+  belongs_to :product_category
 
   validates :product_code, presence: true, uniqueness: true
   validates :name, presence: true

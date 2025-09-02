@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_13_082745) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_21_132653) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -190,6 +190,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_13_082745) do
     t.index ["invoice_id"], name: "index_payment_records_on_invoice_id"
   end
 
+  create_table "product_categories", force: :cascade do |t|
+    t.string "code"
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "product_specifications", force: :cascade do |t|
     t.string "name", null: false
     t.boolean "is_active", default: true, null: false
@@ -208,6 +215,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_13_082745) do
     t.boolean "is_public", default: true
     t.integer "stock"
     t.boolean "is_discount_target", default: false, null: false
+    t.bigint "product_category_id", null: false
+    t.index ["product_category_id"], name: "index_products_on_product_category_id"
     t.index ["tax_rate_id"], name: "index_products_on_tax_rate_id"
   end
 
@@ -239,5 +248,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_13_082745) do
   add_foreign_key "orders", "customers"
   add_foreign_key "orders", "delivery_locations"
   add_foreign_key "payment_records", "invoices"
+  add_foreign_key "products", "product_categories"
   add_foreign_key "products", "tax_rates"
 end

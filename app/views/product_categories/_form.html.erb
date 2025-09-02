@@ -1,0 +1,26 @@
+<%= form_with(model: product_category, local: true) do |form| %>
+  <% if product_category.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(product_category.errors.count, 'error') %> 件のエラーがあります:</h4>
+      <ul>
+        <% product_category.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= form.label :code, 'カテゴリーコード' %>
+    <%= form.text_field :code, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :name, 'カテゴリー名' %>
+    <%= form.text_field :name, class: 'form-control' %>
+  </div>
+
+  <div class="form-group mt-4">
+    <%= form.submit product_category.new_record? ? '登録' : '更新', class: 'btn btn-primary' %>
+  </div>
+<% end %>

@@ -2,9 +2,10 @@ class ProductsController < ApplicationController
   before_action :require_login
   before_action :require_editor, only: [ :new, :create, :edit, :update, :destroy ]
   before_action :set_product, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_categories, only: [:new, :edit, :create, :update]
 
   def index
-    @products = Product.all.includes(:tax_rate)
+    @products = Product.all.includes(:tax_rate, :product_category)
   end
 
   def show
@@ -75,10 +76,15 @@ class ProductsController < ApplicationController
     @product = Product.find(params[:id])
   end
 
+  def set_categories
+    @product_categories = ProductCategory.all
+  end
+
   def product_params
     params.require(:product).permit(
       :product_code,
       :name,
+      :product_category_id,
       :tax_rate_id,
       :price,
       :stock,

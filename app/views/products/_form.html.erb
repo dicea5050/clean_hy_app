@@ -21,6 +21,11 @@
   </div>
 
   <div class="form-group">
+    <%= form.label :product_category_id, '商品カテゴリー' %>
+    <%= form.collection_select :product_category_id, @product_categories, :id, :name, {}, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
     <%= form.label :tax_rate_id, '適用税率' %>
     <%= form.collection_select :tax_rate_id, TaxRate.all.order(start_date: :desc), :id, :name, {}, class: 'form-control' %>
   </div>

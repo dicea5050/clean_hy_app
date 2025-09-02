@@ -37,6 +37,7 @@ Rails.application.routes.draw do
   resources :units
   resources :product_specifications
   resources :delivery_locations
+  resources :product_categories
 
   # 受注情報（Orders）CRUD機能
   resources :orders do
