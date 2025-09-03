@@ -1,7 +1,7 @@
 <div class="container">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
-      <h1>請求書一覧</h1>
+      <h1>請求情報一覧</h1>
       <%= button_tag '選択した請求書の承認申請',
           class: 'btn btn-success me-2',
           id: 'bulk-approve-button',
@@ -19,7 +19,12 @@
     <div class="collapse" id="searchCollapse">
       <div class="card-body">
         <%= form_with url: invoices_path, method: :get, local: true, id: 'search-form', class: 'row g-3' do %>
-          <!-- 1行目：取引先名、請求書番号、請求書送付方法 -->
+          <!-- 1行目：顧客コード、取引先名、請求書番号、請求書送付方法 -->
+          <div class="col-md-2 me-3">
+            <label class="form-label">顧客コード</label>
+            <%= text_field_tag 'search[customer_code]', params.dig(:search, :customer_code), class: 'form-control' %>
+          </div>
+
           <div class="col-md-3 me-3">
             <label class="form-label">取引先名</label>
             <%= text_field_tag 'search[company_name]', params.dig(:search, :company_name), class: 'form-control' %>

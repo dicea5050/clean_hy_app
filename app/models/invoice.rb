@@ -96,4 +96,9 @@ class Invoice < ApplicationRecord
       "badge bg-danger"
     end
   end
+
+  # 顧客コードによる検索スコープ
+  scope :by_customer_code, ->(customer_code) {
+    joins(:customer).where("customers.customer_code LIKE ?", "%#{customer_code}%") if customer_code.present?
+  }
 end

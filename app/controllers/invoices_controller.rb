@@ -8,6 +8,9 @@ class InvoicesController < ApplicationController
     if params[:search].present?
       search_params = params[:search]
 
+      # 顧客コードでの検索
+      @q = @q.by_customer_code(search_params[:customer_code]) if search_params[:customer_code].present?
+
       # 取引先名での検索
       @q = @q.joins(:customer).where("customers.company_name LIKE ?", "%#{search_params[:company_name]}%") if search_params[:company_name].present?
 

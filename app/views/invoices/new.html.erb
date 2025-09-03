@@ -77,7 +77,7 @@
                     <%= order.order_number %>
                   <% end %>
                 </td>
-                <td><%= item.product.name %></td>
+                <td><%= item.display_product_name %></td>
                 <td><%= item.quantity %></td>
                 <td class="text-right"><%= number_to_currency(item.subtotal_without_tax) %></td>
                 <td class="text-right"><%= number_to_currency(item.subtotal) %></td>
