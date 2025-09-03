@@ -65,6 +65,7 @@ Rails.application.routes.draw do
     end
     member do
       get :pdf
+      get :receipt
     end
   end
 

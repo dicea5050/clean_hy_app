@@ -199,6 +199,22 @@ class InvoicesController < ApplicationController
     end
   end
 
+  def receipt
+    @invoice = Invoice.includes(:customer).find(params[:id])
+    company_info = CompanyInformation.first
+    issue_date = params[:issue_date].present? ? Date.parse(params[:issue_date]) : Date.current
+
+    respond_to do |format|
+      format.pdf do
+        pdf = ReceiptPdf.new(@invoice, company_info, issue_date)
+        send_data pdf.render,
+          filename: "領収書_#{@invoice.customer.company_name}_#{@invoice.invoice_number}.pdf",
+          type: "application/pdf",
+          disposition: "inline"
+      end
+    end
+  end
+
   private
     def set_invoice
       @invoice = Invoice.includes(:orders, :payment_records).find(params[:id])
