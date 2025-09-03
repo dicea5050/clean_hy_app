@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_02_071746) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_03_070625) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -87,6 +87,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_02_071746) do
     t.string "password_digest"
     t.integer "invoice_delivery_method"
     t.string "department"
+    t.string "billing_closing_day"
     t.index ["customer_code"], name: "index_customers_on_customer_code", unique: true
   end
 

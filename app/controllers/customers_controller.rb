@@ -75,7 +75,7 @@ class CustomersController < ApplicationController
     params.require(:customer).permit(
       :customer_code, :company_name, :postal_code, :address,
       :department, :contact_name, :phone_number, :email, :fax_number,
-      :password, :password_confirmation, :invoice_delivery_method
+      :password, :password_confirmation, :invoice_delivery_method, :billing_closing_day
     )
   end
 end

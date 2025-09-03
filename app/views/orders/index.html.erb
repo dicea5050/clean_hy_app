@@ -13,7 +13,15 @@
     <div class="collapse" id="searchCollapse">
       <div class="card-body">
         <%= form_with(url: orders_path, method: :get, local: true, id: 'search-form', class: 'row g-3') do |f| %>
-          <!-- 1行目：取引先名、受注日、受注番号 -->
+          <!-- 1行目：顧客コード、取引先名、受注日、受注番号 -->
+          <div class="col-md-2 me-3">
+            <label class="form-label">顧客コード</label>
+            <%= f.text_field :customer_code,
+                value: @search_params&.dig(:customer_code),
+                class: 'form-control',
+                placeholder: '半角英数' %>
+          </div>
+
           <div class="col-md-3 me-3">
             <label class="form-label">取引先名</label>
             <%= f.text_field :customer_name,
@@ -38,7 +46,7 @@
             </div>
           </div>
 
-          <div class="col-md-3 me-3">
+          <div class="col-md-2 me-3">
             <label class="form-label">受注番号</label>
             <%= f.text_field :order_number,
                 value: @search_params&.dig(:order_number),
@@ -103,10 +111,10 @@
             <div class="d-flex flex-wrap">
               <% @payment_methods.each do |method| %>
                 <div class="form-check me-3">
-                  <%= f.check_box :payment_method_ids,
-                      { multiple: true, class: 'form-check-input', checked: (@search_params&.dig(:payment_method_ids) || []).include?(method.id.to_s) },
-                      method.id, nil %>
-                  <label class="form-check-label"><%= method.name %></label>
+                  <%= check_box_tag "payment_method_ids[]", method.id,
+                      (@search_params&.dig(:payment_method_ids) || []).include?(method.id.to_s),
+                      { class: 'form-check-input', id: "payment_method_#{method.id}" } %>
+                  <label class="form-check-label" for="payment_method_<%= method.id %>"><%= method.name %></label>
                 </div>
               <% end %>
             </div>
@@ -119,6 +127,14 @@
                 { include_blank: '選択してください' },
                 { class: 'form-select',
                   value: @search_params&.dig(:invoice_status) } %>
+          </div>
+
+          <div class="col-md-3 me-3">
+            <label class="form-label">請求締日</label>
+            <%= f.select :billing_closing_day,
+                options_for_select(Customer::BILLING_CLOSING_DAYS, @search_params&.dig(:billing_closing_day)),
+                { include_blank: '選択してください' },
+                { class: 'form-select' } %>
           </div>
 
           <!-- 検索ボタン -->

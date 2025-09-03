@@ -6,6 +6,16 @@ class Customer < ApplicationRecord
   # 請求書送付方法の列挙型を定義
   enum :invoice_delivery_method, { electronic: 0, postal: 1 }
 
+  # 請求締日の選択肢を定義
+  BILLING_CLOSING_DAYS = [
+    ['5日', '5'],
+    ['10日', '10'],
+    ['15日', '15'],
+    ['20日', '20'],
+    ['25日', '25'],
+    ['月末', 'month_end']
+  ].freeze
+
   # コールバック：顧客作成時と更新時に本社納品先も同期する
   after_create :create_main_office_delivery_location
   after_update :update_main_office_delivery_location, if: :address_changed?
@@ -24,6 +34,7 @@ class Customer < ApplicationRecord
   validates :address, presence: true
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
   validates :invoice_delivery_method, presence: true
+  validates :billing_closing_day, inclusion: { in: BILLING_CLOSING_DAYS.map(&:last) }, allow_blank: true
   # パスワードは任意項目
 
   def name
@@ -33,6 +44,18 @@ class Customer < ApplicationRecord
   # i18n用のヘルパーメソッド
   def invoice_delivery_method_i18n
     I18n.t("enums.customer.invoice_delivery_method.#{invoice_delivery_method}")
+  end
+
+  # 請求締日の表示用メソッド
+  def billing_closing_day_display
+    return '' if billing_closing_day.blank?
+    
+    case billing_closing_day
+    when 'month_end'
+      '月末'
+    else
+      "#{billing_closing_day}日"
+    end
   end
 
   private

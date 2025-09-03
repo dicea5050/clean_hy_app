@@ -54,6 +54,14 @@
   </div>
 
   <div class="form-group">
+    <%= form.label :billing_closing_day, '請求締日' %>
+    <%= form.select :billing_closing_day, 
+                 Customer::BILLING_CLOSING_DAYS, 
+                 { include_blank: '選択してください' }, 
+                 { class: 'form-control' } %>
+  </div>
+
+  <div class="form-group">
     <%= form.label :email, 'メールアドレス' %>
     <%= form.email_field :email, class: 'form-control' %>
   </div>

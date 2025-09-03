@@ -50,6 +50,12 @@ class Order < ApplicationRecord
 
     rel = all
 
+    # 顧客コードでの検索
+    if params[:customer_code].present?
+      rel = rel.joins(:customer)
+               .where("customers.customer_code LIKE ?", "%#{params[:customer_code]}%")
+    end
+
     # 取引先名での検索
     if params[:customer_name].present?
       rel = rel.joins(:customer)
@@ -126,6 +132,12 @@ class Order < ApplicationRecord
       when "not_invoiced"
         rel = rel.where.not(id: InvoiceOrder.select(:order_id))
       end
+    end
+
+    # 請求締日での検索
+    if params[:billing_closing_day].present?
+      rel = rel.joins(:customer)
+               .where("customers.billing_closing_day = ?", params[:billing_closing_day])
     end
 
     rel

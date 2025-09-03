@@ -9,7 +9,8 @@ class OrdersController < ApplicationController
                    .page(params[:page]).per(25)
     # 検索条件をビューで再表示するために保持
     @search_params = search_params
-    @payment_methods = PaymentMethod.all
+    # 重複を除去してユニークなPaymentMethodのみを取得
+    @payment_methods = PaymentMethod.select('DISTINCT ON (name) id, name').order(:name, :id)
   end
 
   def show
@@ -476,6 +477,7 @@ class OrdersController < ApplicationController
 
     def search_params
       params.permit(
+        :customer_code,
         :customer_name,
         :order_number,
         :order_date_from, :order_date_to,
@@ -483,6 +485,7 @@ class OrdersController < ApplicationController
         :actual_delivery_date_from, :actual_delivery_date_to,
         :total_without_tax_from, :total_without_tax_to,
         :invoice_status,
+        :billing_closing_day,
         payment_method_ids: []
       )
     end
