@@ -97,17 +97,17 @@ class Order < ApplicationRecord
     # 合計金額（税抜）での範囲検索
     if params[:total_without_tax_from].present? || params[:total_without_tax_to].present?
       # サブクエリで合計金額を計算し、その結果でフィルタリング
-      subquery = OrderItem.select('order_id, SUM(unit_price * quantity) as total')
+      subquery = OrderItem.select("order_id, SUM(unit_price * quantity) as total")
                         .group(:order_id)
 
       order_ids = subquery
 
       if params[:total_without_tax_from].present?
-        order_ids = order_ids.having('SUM(unit_price * quantity) >= ?', params[:total_without_tax_from].to_i)
+        order_ids = order_ids.having("SUM(unit_price * quantity) >= ?", params[:total_without_tax_from].to_i)
       end
 
       if params[:total_without_tax_to].present?
-        order_ids = order_ids.having('SUM(unit_price * quantity) <= ?', params[:total_without_tax_to].to_i)
+        order_ids = order_ids.having("SUM(unit_price * quantity) <= ?", params[:total_without_tax_to].to_i)
       end
 
       rel = rel.where(id: order_ids.pluck(:order_id))

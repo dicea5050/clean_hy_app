@@ -56,7 +56,7 @@ class InvoicesController < ApplicationController
 
       # 請求書送付方法による検索
       if search_params[:delivery_method].present?
-        electronic = search_params[:delivery_method] == 'electronic'
+        electronic = search_params[:delivery_method] == "electronic"
         @q = @q.joins(:customer).where(customers: { electronic: electronic })
       end
 
@@ -204,7 +204,7 @@ class InvoicesController < ApplicationController
     def invoice_params
       params.require(:invoice).permit(
         :customer_id, :invoice_date, :due_date, :notes,
-        payment_records_attributes: [:id, :payment_date, :payment_type, :amount, :memo, :_destroy]
+        payment_records_attributes: [ :id, :payment_date, :payment_type, :amount, :memo, :_destroy ]
       )
     end
 end

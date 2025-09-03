@@ -2,7 +2,7 @@ class ProductsController < ApplicationController
   before_action :require_login
   before_action :require_editor, only: [ :new, :create, :edit, :update, :destroy ]
   before_action :set_product, only: [ :show, :edit, :update, :destroy ]
-  before_action :set_categories, only: [:new, :edit, :create, :update]
+  before_action :set_categories, only: [ :new, :edit, :create, :update ]
 
   def index
     @products = Product.all.includes(:tax_rate, :product_category)

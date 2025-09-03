@@ -37,7 +37,6 @@ class DeliverySlipPdf < Prawn::Document
     # タイトル
     text "納品書", size: 24, align: :center, style: :bold
     move_down 20
-
   end
 
   def customer_info

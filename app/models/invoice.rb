@@ -7,7 +7,7 @@ class Invoice < ApplicationRecord
   # payment_recordsのネストした属性を受け入れる
   accepts_nested_attributes_for :payment_records,
                                allow_destroy: true,
-                               reject_if: proc { |attributes| attributes['payment_date'].blank? || attributes['amount'].blank? }
+                               reject_if: proc { |attributes| attributes["payment_date"].blank? || attributes["amount"].blank? }
 
   # 承認状態の定義を先に行う
   APPROVAL_STATUSES = {

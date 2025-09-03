@@ -1,5 +1,5 @@
 class ProductCategoriesController < ApplicationController
-  before_action :set_product_category, only: [:show, :edit, :update, :destroy]
+  before_action :set_product_category, only: [ :show, :edit, :update, :destroy ]
   before_action :require_login
 
   def index
@@ -20,7 +20,7 @@ class ProductCategoriesController < ApplicationController
     @product_category = ProductCategory.new(product_category_params)
 
     if @product_category.save
-      redirect_to product_categories_path, notice: 'カテゴリーが正常に作成されました。'
+      redirect_to product_categories_path, notice: "カテゴリーが正常に作成されました。"
     else
       render :new
     end
@@ -28,7 +28,7 @@ class ProductCategoriesController < ApplicationController
 
   def update
     if @product_category.update(product_category_params)
-      redirect_to product_categories_path, notice: 'カテゴリーが正常に更新されました。'
+      redirect_to product_categories_path, notice: "カテゴリーが正常に更新されました。"
     else
       render :edit
     end
@@ -36,7 +36,7 @@ class ProductCategoriesController < ApplicationController
 
   def destroy
     @product_category.destroy
-    redirect_to product_categories_path, notice: 'カテゴリーが正常に削除されました。'
+    redirect_to product_categories_path, notice: "カテゴリーが正常に削除されました。"
   end
 
   private

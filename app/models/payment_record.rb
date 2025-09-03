@@ -6,7 +6,7 @@ class PaymentRecord < ApplicationRecord
     payment: "入金",
     fee: "支払手数料",
     offset: "相殺",
-    discount: "値引き",
+    discount: "値引き"
   }.freeze
 
   validates :payment_date, presence: true

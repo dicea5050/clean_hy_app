@@ -43,7 +43,7 @@ class InvoicePdf < Prawn::Document
     # 顧客情報と自社情報を並べて表示するため、bounding_boxを使用
 
     # 顧客情報（左側配置）
-    bounding_box([0, cursor], width: bounds.width / 2 - 10, height: 80) do
+    bounding_box([ 0, cursor ], width: bounds.width / 2 - 10, height: 80) do
       text "#{@invoice.customer.company_name} 御中", size: 14, style: :bold
       move_down 5
       text "〒#{@invoice.customer.postal_code}", size: 10
@@ -51,7 +51,7 @@ class InvoicePdf < Prawn::Document
     end
 
     # 自社情報（右側配置）
-    bounding_box([bounds.width / 2 + 10, cursor + 80], width: bounds.width / 2 - 10, height: 80) do
+    bounding_box([ bounds.width / 2 + 10, cursor + 80 ], width: bounds.width / 2 - 10, height: 80) do
       # 社印の表示（company_sealが実装されている場合）
       begin
         if @company_info.respond_to?(:company_seal) &&
@@ -59,9 +59,9 @@ class InvoicePdf < Prawn::Document
            @company_info.company_seal.attached?
 
           # Active Storageから画像ファイルを一時ファイルとして保存
-          seal_path = Rails.root.join('tmp', "company_seal_#{@company_info.id}.png")
+          seal_path = Rails.root.join("tmp", "company_seal_#{@company_info.id}.png")
 
-          File.open(seal_path, 'wb') do |file|
+          File.open(seal_path, "wb") do |file|
             file.write(@company_info.company_seal.download)
           end
 
@@ -71,7 +71,7 @@ class InvoicePdf < Prawn::Document
           x_position = bounds.width - image_width - 5  # 右寄せ（マージン5pt）
 
           transparent(0.8) do  # 透明度を設定（0.2 = 20%の不透明度）
-            image seal_path, at: [x_position, cursor - 5], width: image_width, height: image_height
+            image seal_path, at: [ x_position, cursor - 5 ], width: image_width, height: image_height
           end
 
           # 一時ファイルを削除
@@ -109,7 +109,7 @@ class InvoicePdf < Prawn::Document
     accounts = BankAccount.all
 
     if accounts.present?
-      accounts_data = [["金融機関名", "支店名", "種別", "口座番号", "口座名義"]]
+      accounts_data = [ [ "金融機関名", "支店名", "種別", "口座番号", "口座名義" ] ]
 
       accounts.each do |account|
         accounts_data << [
@@ -121,7 +121,7 @@ class InvoicePdf < Prawn::Document
         ]
       end
 
-      table accounts_data, width: bounds.width, cell_style: { size: 9, padding: [4, 4] } do
+      table accounts_data, width: bounds.width, cell_style: { size: 9, padding: [ 4, 4 ] } do
         row(0).font_style = :bold
         row(0).background_color = "EEEEEE"
       end
@@ -141,7 +141,7 @@ class InvoicePdf < Prawn::Document
     move_down 10
 
     # 全ての受注と商品項目を1つの表にまとめる
-    items_data = [["受注番号", "納品日", "商品名", "単価", "数量", "小計（税抜）", "税率", "小計（税込）"]]
+    items_data = [ [ "受注番号", "納品日", "商品名", "単価", "数量", "小計（税抜）", "税率", "小計（税込）" ] ]
 
     last_order_id = nil
     row_count = 0
@@ -168,19 +168,19 @@ class InvoicePdf < Prawn::Document
         # 最初の商品以外は受注番号と納品日を空にして後でセル結合する
         if index > 0
           # 受注番号と納品日のカラムの位置を記録
-          span_rows[items_data.size - 1] = { columns: [0, 1] }
+          span_rows[items_data.size - 1] = { columns: [ 0, 1 ] }
         end
       end
 
       # 受注ごとに区切り線を入れる（最後の受注以外）
       unless order == @invoice.orders.last
-        items_data << ["", "", "", "", "", "", "", ""]
+        items_data << [ "", "", "", "", "", "", "", "" ]
         span_rows[items_data.size - 1] = { columns: (0..7).to_a, background: "EEEEEE" }
       end
     end
 
     # テーブルを描画
-    table items_data, width: bounds.width, cell_style: { size: 8, padding: [3, 3] } do
+    table items_data, width: bounds.width, cell_style: { size: 8, padding: [ 3, 3 ] } do
       row(0).font_style = :bold
       row(0).background_color = "DDDDDD"
       columns(3..7).align = :right
@@ -236,12 +236,12 @@ class InvoicePdf < Prawn::Document
     move_down 10
 
     tax_summary_data = [
-      ["区分", "税抜額", "消費税額", "請求金額（税込）"],
-      ["標準税率対象（10.0%）", "¥#{number_with_delimiter(standard_tax_subtotal)}", "¥#{number_with_delimiter(standard_tax_amount)}", "¥#{number_with_delimiter(standard_tax_total)}"],
-      ["非課税対象（0.0%）", "¥#{number_with_delimiter(tax_free_subtotal)}", "¥#{number_with_delimiter(tax_free_tax_amount)}", "¥#{number_with_delimiter(tax_free_total)}"]
+      [ "区分", "税抜額", "消費税額", "請求金額（税込）" ],
+      [ "標準税率対象（10.0%）", "¥#{number_with_delimiter(standard_tax_subtotal)}", "¥#{number_with_delimiter(standard_tax_amount)}", "¥#{number_with_delimiter(standard_tax_total)}" ],
+      [ "非課税対象（0.0%）", "¥#{number_with_delimiter(tax_free_subtotal)}", "¥#{number_with_delimiter(tax_free_tax_amount)}", "¥#{number_with_delimiter(tax_free_total)}" ]
     ]
 
-    table tax_summary_data, width: bounds.width, cell_style: { size: 9, padding: [4, 4] } do
+    table tax_summary_data, width: bounds.width, cell_style: { size: 9, padding: [ 4, 4 ] } do
       row(0).font_style = :bold
       row(0).background_color = "DDDDDD"
       columns(1..3).align = :right

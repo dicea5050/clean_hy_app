@@ -73,7 +73,7 @@ class OrdersController < ApplicationController
 
     # 確定納品日が未入力の場合、警告を表示して注文詳細ページにリダイレクト
     unless @order.actual_delivery_date.present?
-      redirect_to @order, alert: '確定納品日を入力してから納品書を発行してください' and return
+      redirect_to @order, alert: "確定納品日を入力してから納品書を発行してください" and return
     end
 
     @company_info = CompanyInformation.first
@@ -365,7 +365,7 @@ class OrdersController < ApplicationController
         }
       }
     else
-      render json: { success: false, message: '顧客が見つかりません' }
+      render json: { success: false, message: "顧客が見つかりません" }
     end
   end
 
@@ -383,7 +383,7 @@ class OrdersController < ApplicationController
         }
       }
     else
-      render json: { success: false, message: '商品が見つかりません' }
+      render json: { success: false, message: "商品が見つかりません" }
     end
   end
 
@@ -394,7 +394,7 @@ class OrdersController < ApplicationController
       customers = Customer.where("company_name LIKE ? OR customer_code LIKE ?", "%#{query}%", "%#{query}%")
                          .limit(10)
                          .order(:company_name)
-      
+
       render json: {
         success: true,
         customers: customers.map do |customer|
@@ -420,7 +420,7 @@ class OrdersController < ApplicationController
       products = Product.where("name LIKE ? OR product_code LIKE ?", "%#{query}%", "%#{query}%")
                        .limit(10)
                        .order(:name)
-      
+
       render json: {
         success: true,
         products: products.map do |product|
