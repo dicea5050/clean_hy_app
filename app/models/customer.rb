@@ -48,11 +48,11 @@ class Customer < ApplicationRecord
 
   # 請求締日の表示用メソッド
   def billing_closing_day_display
-    return '' if billing_closing_day.blank?
-    
+    return "" if billing_closing_day.blank?
+
     case billing_closing_day
-    when 'month_end'
-      '月末'
+    when "month_end"
+      "月末"
     else
       "#{billing_closing_day}日"
     end
