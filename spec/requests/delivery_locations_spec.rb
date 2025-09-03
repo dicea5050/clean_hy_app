@@ -2,9 +2,9 @@ require 'rails_helper'
 
 RSpec.describe "DeliveryLocations", type: :request do
   let(:customer) { Customer.create!(
-    customer_code: "TEST001", 
-    company_name: "Test Customer", 
-    postal_code: "123-4567", 
+    customer_code: "TEST001",
+    company_name: "Test Customer",
+    postal_code: "123-4567",
     address: "Test Address",
     invoice_delivery_method: :electronic
   ) }
