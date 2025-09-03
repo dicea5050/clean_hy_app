@@ -13,6 +13,7 @@
       <h2 class="card-title">
         <%= @invoice.invoice_number %>
         <span class="<%= @invoice.approval_status_badge_class %> ms-2"><%= @invoice.approval_status %></span>
+        <span class="<%= @invoice.payment_status_badge_class %> ms-2"><%= @invoice.payment_status %></span>
       </h2>
     </div>
     <div class="card-body">

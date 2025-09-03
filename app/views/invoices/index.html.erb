@@ -131,6 +131,7 @@
         <th>請求金額</th>
         <th>送付方法</th>
         <th>承認状態</th>
+        <th>入金状況</th>
         <th>操作</th>
       </tr>
     </thead>
@@ -157,6 +158,7 @@
             <% end %>
           </td>
           <td><span class="<%= invoice.approval_status_badge_class %>"><%= invoice.approval_status %></span></td>
+          <td><span class="<%= invoice.payment_status_badge_class %>"><%= invoice.payment_status %></span></td>
           <td>
             <%= link_to '詳細', invoice, class: 'btn btn-sm btn-info' %>
             <%= link_to 'PDF', pdf_invoice_path(invoice, format: :pdf), class: 'btn btn-sm btn-secondary', target: '_blank' %>
