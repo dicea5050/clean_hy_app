@@ -10,7 +10,7 @@ class OrdersController < ApplicationController
     # 検索条件をビューで再表示するために保持
     @search_params = search_params
     # 重複を除去してユニークなPaymentMethodのみを取得
-    @payment_methods = PaymentMethod.select('DISTINCT ON (name) id, name').order(:name, :id)
+    @payment_methods = PaymentMethod.select("DISTINCT ON (name) id, name").order(:name, :id)
   end
 
   def show
