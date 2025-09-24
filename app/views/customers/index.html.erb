@@ -46,9 +46,10 @@
                 <td><%= customer.billing_closing_day_display %></td>
                 <td><%= customer.email %></td>
                 <td>
-                  <%= link_to '詳細', customer_path(customer), class: 'btn btn-sm btn-info' %>
-                  <%= link_to '編集', edit_customer_path(customer), class: 'btn btn-sm btn-success' %>
-                  <%= link_to '削除', customer_path(customer), method: :delete, data: { confirm: '本当に削除しますか？' }, class: 'btn btn-sm btn-danger' %>
+                  <%= render 'shared/index_action_buttons',
+                              show_path: customer_path(customer),
+                              edit_path: edit_customer_path(customer),
+                              delete_path: customer_path(customer) %>
                 </td>
               </tr>
             <% end %>
@@ -61,4 +62,6 @@
   <div class="d-flex justify-content-center">
     <%= paginate @customers %>
   </div>
-</div> 
+
+  <%= render 'shared/masters_back_button' %>
+</div>

@@ -1,4 +1,5 @@
 class InvoicesController < ApplicationController
+  before_action :require_editor_limited_access
   before_action :set_invoice, only: [ :show, :edit, :update, :destroy ]
 
   def index

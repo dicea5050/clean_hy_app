@@ -1,7 +1,7 @@
 class Administrator < ApplicationRecord
   has_secure_password
 
-  enum :role, { viewer: 0, editor: 1, admin: 2 }
+  enum :role, { viewer: 0, editor: 1, admin: 2, editor_limited: 3 }
 
   validates :email, presence: true, uniqueness: true,
             format: { with: URI::MailTo::EMAIL_REGEXP }
@@ -15,6 +15,8 @@ class Administrator < ApplicationRecord
       "編集者"
     when "viewer"
       "閲覧者"
+    when "editor_limited"
+      "制限付き編集者"
     else
       "不明"
     end

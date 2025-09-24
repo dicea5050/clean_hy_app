@@ -1,6 +1,7 @@
 class CustomersController < ApplicationController
   before_action :require_login
-  before_action :require_editor, only: [ :new, :create, :edit, :update, :destroy ]
+  before_action :require_editor_limited_access
+  before_action :require_editor, only: [ :new, :create, :update, :destroy ]
   before_action :set_customer, only: [ :show, :edit, :update, :destroy ]
 
   def index

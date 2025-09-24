@@ -1,4 +1,5 @@
 class OrdersController < ApplicationController
+  before_action :require_editor_limited_access
   before_action :set_order, only: [ :show, :edit, :update, :destroy ]
   before_action :set_payment_methods, only: [ :new, :edit, :create, :update ]
 

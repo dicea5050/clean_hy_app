@@ -35,9 +35,10 @@
                   <% end %>
                 </td>
                 <td>
-                  <%= link_to '詳細', payment_method_path(payment_method), class: 'btn btn-sm btn-info' %>
-                  <%= link_to '編集', edit_payment_method_path(payment_method), class: 'btn btn-sm btn-warning' %>
-                  <%= link_to '削除', payment_method_path(payment_method), method: :delete, data: { confirm: '本当に削除しますか？' }, class: 'btn btn-sm btn-danger' %>
+                  <%= render 'shared/index_action_buttons',
+                              show_path: payment_method_path(payment_method),
+                              edit_path: edit_payment_method_path(payment_method),
+                              delete_path: payment_method_path(payment_method) %>
                 </td>
               </tr>
             <% end %>
@@ -47,7 +48,5 @@
     </div>
   </div>
 
-  <div class="mt-3">
-    <%= link_to 'マスター一覧に戻る', masters_path, class: 'btn btn-secondary' %>
-  </div>
-</div> 
+  <%= render 'shared/masters_back_button' %>
+</div>

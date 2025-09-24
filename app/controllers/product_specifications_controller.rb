@@ -1,6 +1,7 @@
 class ProductSpecificationsController < ApplicationController
   before_action :require_login
-  before_action :require_editor
+  before_action :require_editor_limited_access
+  before_action :require_editor, only: [ :new, :create, :update, :destroy ]
   before_action :set_product_specification, only: [ :show, :edit, :update, :destroy ]
 
   def index

@@ -34,9 +34,10 @@
                 <td><%= bank_account.account_number %></td>
                 <td><%= bank_account.account_holder %></td>
                 <td>
-                  <%= link_to '詳細', bank_account, class: 'btn btn-sm btn-info text-white' %>
-                  <%= link_to '編集', edit_bank_account_path(bank_account), class: 'btn btn-sm btn-warning text-white' %>
-                  <%= link_to '削除', bank_account, method: :delete, data: { confirm: '本当に削除しますか？' }, class: 'btn btn-sm btn-danger' %>
+                  <%= render 'shared/index_action_buttons',
+                              show_path: bank_account_path(bank_account),
+                              edit_path: edit_bank_account_path(bank_account),
+                              delete_path: bank_account_path(bank_account) %>
                 </td>
               </tr>
             <% end %>
@@ -45,4 +46,6 @@
       </div>
     </div>
   </div>
-</div> 
+
+  <%= render 'shared/masters_back_button' %>
+</div>

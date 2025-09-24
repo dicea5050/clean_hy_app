@@ -1,4 +1,5 @@
 class CompanyInformationsController < ApplicationController
+  before_action :require_editor_limited_access
   before_action :set_company_information, only: [ :show, :edit, :update, :destroy ]
 
   def index

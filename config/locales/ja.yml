@@ -4,6 +4,8 @@ ja:
       messages:
         record_invalid: 'バリデーションに失敗しました: %{errors}'
         restrict_dependent_destroy:
+          has_one: "%{record}が存在していて削除できません"
+          has_many: "%{record}が存在していて削除できません"
           has_one: "%{record}が存在しているので削除できません"
           has_many: "%{record}が存在しているので削除できません"
     models:
@@ -164,6 +166,13 @@ ja:
       create: 登録する
       submit: 保存する
       update: 更新する
+  buttons:
+    show: 詳細
+    edit: 編集
+    destroy: 削除
+    back_to_masters: マスター一覧に戻る
+  confirms:
+    destroy: 本当に削除しますか？
   number:
     currency:
       format:
