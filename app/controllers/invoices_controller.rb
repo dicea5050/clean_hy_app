@@ -189,9 +189,20 @@ class InvoicesController < ApplicationController
     @invoice = Invoice.includes(orders: [ :customer, :order_items ]).find(params[:id])
     company_info = CompanyInformation.first
 
+    # 初回発行と再発行を判定
+    reissue = @invoice.first_issued_at.present? || @invoice.issued_count.to_i > 0
+
+    # 発行履歴を更新（バリデーション影響を避けるため update_columns を使用）
+    now = Time.current
+    if reissue
+      @invoice.update_columns(last_issued_at: now, issued_count: @invoice.issued_count.to_i + 1, updated_at: now)
+    else
+      @invoice.update_columns(first_issued_at: now, last_issued_at: now, issued_count: 1, updated_at: now)
+    end
+
     respond_to do |format|
       format.pdf do
-        pdf = InvoicePdf.new(@invoice, company_info)
+        pdf = InvoicePdf.new(@invoice, company_info, reissue: reissue)
         send_data pdf.render,
           filename: "請求書_#{@invoice.invoice_number}.pdf",
           type: "application/pdf",

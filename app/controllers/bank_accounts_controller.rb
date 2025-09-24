@@ -35,8 +35,13 @@ class BankAccountsController < ApplicationController
   end
 
   def destroy
-    @bank_account.destroy
-    redirect_to bank_accounts_url, notice: "銀行口座情報が正常に削除されました。"
+    if @bank_account.destroy
+      redirect_to bank_accounts_url, notice: "銀行口座情報が正常に削除されました。"
+    else
+      message = @bank_account.errors.full_messages.to_sentence.presence ||
+                "請求書が存在するため銀行口座を削除できません。請求書がない状態で削除してください。"
+      redirect_to bank_accounts_url, alert: message
+    end
   end
 
   private
@@ -45,6 +50,6 @@ class BankAccountsController < ApplicationController
     end
 
     def bank_account_params
-      params.require(:bank_account).permit(:bank_name, :branch_name, :account_type, :account_number, :account_holder)
+      params.require(:bank_account).permit(:bank_name, :branch_name, :account_type, :account_number, :account_holder, :disabled)
     end
 end

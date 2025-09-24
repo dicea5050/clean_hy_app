@@ -2,10 +2,11 @@ require "prawn"
 require "prawn/table"
 
 class InvoicePdf < Prawn::Document
-  def initialize(invoice, company_info)
+  def initialize(invoice, company_info, reissue: false)
     super(page_size: "A4", margin: 30)
     @invoice = invoice
     @company_info = company_info
+    @reissue = reissue
 
     font_families.update("IPAGothic" => {
       normal: "#{Rails.root}/app/assets/fonts/ipaexg.ttf",
@@ -106,7 +107,12 @@ class InvoicePdf < Prawn::Document
     move_down 10
 
     # 銀行口座情報をテーブルで表示
-    accounts = BankAccount.all
+    # 初回発行時は有効口座のみ、再発行時は全口座を表示
+    accounts = if @reissue
+                 BankAccount.all
+               else
+                 BankAccount.where(disabled: false)
+               end
 
     if accounts.present?
       accounts_data = [ [ "金融機関名", "支店名", "種別", "口座番号", "口座名義" ] ]

@@ -43,8 +43,15 @@ class CustomersController < ApplicationController
   end
 
   def destroy
-    @customer.destroy
-    redirect_to customers_path, notice: "顧客が正常に削除されました。"
+    begin
+      if @customer.destroy
+        redirect_to customers_path, notice: "顧客が正常に削除されました。"
+      else
+        redirect_to customers_path, alert: (@customer.errors.full_messages.to_sentence.presence || "顧客を削除できませんでした。")
+      end
+    rescue ActiveRecord::InvalidForeignKey
+      redirect_to customers_path, alert: "この顧客には関連データが存在するため削除できません。先に関連データを削除してください。"
+    end
   end
 
   def search

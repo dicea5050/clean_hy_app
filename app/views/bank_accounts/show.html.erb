@@ -28,6 +28,17 @@
         <div class="col-md-3 fw-bold">口座名義</div>
         <div class="col-md-9"><%= @bank_account.account_holder %></div>
       </div>
+
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">無効フラグ</div>
+        <div class="col-md-9">
+          <% if @bank_account.disabled? %>
+            <span class="badge bg-secondary">無効（新規発行には表示しない）</span>
+          <% else %>
+            <span class="badge bg-success">有効</span>
+          <% end %>
+        </div>
+      </div>
     </div>
     <div class="card-footer">
       <%= render 'shared/show_action_buttons', edit_path: edit_bank_account_path(@bank_account), delete_path: bank_account_path(@bank_account), back_path: bank_accounts_path %>

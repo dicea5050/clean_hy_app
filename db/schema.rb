@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_03_070625) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_24_152000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -59,6 +59,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_03_070625) do
     t.string "account_holder", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "disabled", default: false, null: false
   end
 
   create_table "company_informations", force: :cascade do |t|
@@ -138,6 +139,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_03_070625) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "approval_status", default: "未申請", null: false
+    t.datetime "first_issued_at"
+    t.datetime "last_issued_at"
+    t.integer "issued_count", default: 0, null: false
     t.index ["customer_id"], name: "index_invoices_on_customer_id"
     t.index ["invoice_number"], name: "index_invoices_on_invoice_number", unique: true
   end

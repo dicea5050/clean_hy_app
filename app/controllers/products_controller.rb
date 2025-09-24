@@ -68,8 +68,17 @@ class ProductsController < ApplicationController
   end
 
   def destroy
-    @product.destroy
-    redirect_to products_path, notice: "商品が正常に削除されました。"
+    begin
+      if @product.destroy
+        redirect_to products_path, notice: "商品が正常に削除されました。"
+      else
+        # バリデーション等で削除できない場合
+        redirect_to products_path, alert: (@product.errors.full_messages.to_sentence.presence || "商品を削除できませんでした。")
+      end
+    rescue ActiveRecord::InvalidForeignKey
+      # 外部キー制約違反（例：受注明細に紐づいている）
+      redirect_to products_path, alert: "この商品は受注明細に使用されているため削除できません。先に関連データを削除してください。"
+    end
   end
 
   private

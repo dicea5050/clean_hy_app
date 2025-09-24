@@ -36,8 +36,13 @@ class ProductCategoriesController < ApplicationController
   end
 
   def destroy
-    @product_category.destroy
-    redirect_to product_categories_path, notice: "カテゴリーが正常に削除されました。"
+    if @product_category.destroy
+      redirect_to product_categories_path, notice: "カテゴリーが正常に削除されました。"
+    else
+      # dependent: :restrict_with_error により関連があると削除は失敗
+      # ActiveRecordの英語メッセージ（"products"など）を出さず、日本語固定文言を表示する
+      redirect_to product_categories_path, alert: "このカテゴリーに属する商品が存在するため削除できません。先に関連商品を変更または削除してください。"
+    end
   end
 
   private

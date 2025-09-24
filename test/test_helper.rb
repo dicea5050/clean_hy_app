@@ -5,11 +5,17 @@ require "rails/test_help"
 module ActiveSupport
   class TestCase
     # Run tests in parallel with specified workers
-    parallelize(workers: :number_of_processors)
+    parallelize(workers: 1)
 
-    # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
-    fixtures :all
+    # NOTE: System tests create data explicitly in each test.
+    # Auto-loading all fixtures can cause FK violations if some fixtures are incomplete.
+    # Therefore, do NOT auto-load fixtures here.
 
     # Add more helper methods to be used by all tests here...
   end
+end
+
+# System test tuning
+if defined?(Capybara)
+  Capybara.default_max_wait_time = 5
 end

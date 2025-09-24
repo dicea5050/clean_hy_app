@@ -21,7 +21,8 @@
               <th>口座種別</th>
               <th>口座番号</th>
               <th>口座名義</th>
-              <th colspan="3"></th>
+              <th>状態</th>
+              <th>操作</th>
             </tr>
           </thead>
 
@@ -33,6 +34,13 @@
                 <td><%= bank_account.account_type %></td>
                 <td><%= bank_account.account_number %></td>
                 <td><%= bank_account.account_holder %></td>
+                <td>
+                  <% if bank_account.disabled? %>
+                    <span class="badge bg-secondary">無効</span>
+                  <% else %>
+                    <span class="badge bg-success">有効</span>
+                  <% end %>
+                </td>
                 <td>
                   <%= render 'shared/index_action_buttons',
                               show_path: bank_account_path(bank_account),

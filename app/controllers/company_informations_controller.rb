@@ -35,8 +35,14 @@ class CompanyInformationsController < ApplicationController
   end
 
   def destroy
-    @company_information.destroy
-    redirect_to company_informations_url, notice: "自社情報が正常に削除されました。"
+    if @company_information.destroy
+      redirect_to company_informations_url, notice: "自社情報が正常に削除されました。"
+    else
+      # モデル側の before_destroy で削除禁止の場合にエラーが乗る
+      message = @company_information.errors.full_messages.to_sentence.presence ||
+                "受注情報が存在するため自社情報を削除できません。受注がない状態で削除してください。"
+      redirect_to company_informations_url, alert: message
+    end
   end
 
   private
