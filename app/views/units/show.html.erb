@@ -9,12 +9,7 @@
       </div>
 
       <div class="mt-4">
-        <%= link_to '編集', edit_unit_path(@unit), class: 'btn btn-primary me-2' %>
-        <%= link_to '削除', unit_path(@unit), 
-            method: :delete, 
-            data: { confirm: '本当に削除しますか？' }, 
-            class: 'btn btn-danger me-2' %>
-        <%= link_to '一覧に戻る', units_path, class: 'btn btn-secondary' %>
+        <%= render 'shared/show_action_buttons', edit_path: edit_unit_path(@unit), delete_path: unit_path(@unit), back_path: units_path %>
       </div>
     </div>
   </div>

@@ -15,8 +15,5 @@
     <%= f.text_field :name, class: 'form-control' %>
   </div>
 
-  <div class="actions">
-    <%= f.submit '保存', class: 'btn btn-primary' %>
-    <%= link_to 'キャンセル', units_path, class: 'btn btn-secondary ms-2' %>
-  </div>
-<% end %> 
+  <%= render 'shared/form_actions', form: f, back_path: units_path %>
+<% end %>

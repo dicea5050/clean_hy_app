@@ -41,9 +41,7 @@
       </div>
     </div>
     <div class="card-footer">
-      <%= link_to '編集', edit_payment_method_path(@payment_method), class: 'btn btn-warning' %>
-      <%= link_to '削除', payment_method_path(@payment_method), method: :delete, data: { confirm: '本当に削除しますか？' }, class: 'btn btn-danger' %>
-      <%= link_to '一覧に戻る', payment_methods_path, class: 'btn btn-secondary' %>
+      <%= render 'shared/show_action_buttons', edit_path: edit_payment_method_path(@payment_method), delete_path: payment_method_path(@payment_method), back_path: payment_methods_path %>
     </div>
   </div>
 </div>

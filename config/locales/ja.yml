@@ -4,13 +4,19 @@ ja:
       messages:
         record_invalid: 'バリデーションに失敗しました: %{errors}'
         restrict_dependent_destroy:
-          has_one: "%{record}が存在していて削除できません"
-          has_many: "%{record}が存在していて削除できません"
           has_one: "%{record}が存在しているので削除できません"
           has_many: "%{record}が存在しているので削除できません"
     models:
       tax_rate: 税率
       customer: 顧客
+      product: 商品
+      bank_account: 銀行口座
+      company_information: 会社情報
+      delivery_location: 納品先
+      payment_method: 支払方法
+      product_category: 商品カテゴリー
+      product_specification: 商品仕様
+      unit: 単位
     attributes:
       tax_rate:
         name: 税率名
@@ -28,6 +34,47 @@ ja:
         invoice_delivery_method: 請求書送付方法
         password: パスワード
         password_confirmation: パスワード（確認）
+      product:
+        product_code: 商品コード
+        name: 商品名
+        product_category_id: 商品カテゴリー
+        tax_rate_id: 適用税率
+        price: 単価（税抜）
+        stock: 在庫数
+        is_public: ネットショップで公開する
+        is_discount_target: 値引き対象商品
+      bank_account:
+        bank_name: 銀行名
+        branch_name: 支店名
+        account_type: 口座種別
+        account_number: 口座番号
+        account_holder: 口座名義
+      company_information:
+        name: 会社名
+        postal_code: 郵便番号
+        address: 住所
+        phone_number: 電話番号
+        fax_number: FAX番号
+        invoice_registration_number: 適格請求書発行事業者登録番号
+        company_seal: 社印画像
+      delivery_location:
+        customer: 顧客
+        customer_id: 顧客
+        name: 納品先名
+        postal_code: 郵便番号
+        address: 住所
+        phone: 電話番号
+        contact_person: 担当者名
+      payment_method:
+        name: 名称
+      product_category:
+        code: カテゴリーコード
+        name: カテゴリー名
+      product_specification:
+        name: 仕様名
+        is_active: 有効
+      unit:
+        name: 単位名
   date:
     abbr_day_names:
     - 日

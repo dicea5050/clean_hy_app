@@ -31,6 +31,6 @@
   </div>
 
   <div class="form-group mt-4">
-    <%= form.submit tax_rate.new_record? ? '登録' : '更新', class: 'btn btn-primary' %>
+    <%= render 'shared/form_actions', form: form, back_path: tax_rates_path %>
   </div>
-<% end %> 
+<% end %>

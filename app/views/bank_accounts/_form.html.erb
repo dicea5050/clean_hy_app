@@ -35,8 +35,5 @@
     <%= form.text_field :account_holder, class: 'form-control' %>
   </div>
 
-  <div class="mb-3">
-    <%= form.submit '保存', class: 'btn btn-primary me-2' %>
-    <%= link_to 'キャンセル', bank_accounts_path, class: 'btn btn-secondary' %>
-  </div>
-<% end %> 
+  <%= render 'shared/form_actions', form: form, back_path: bank_accounts_path %>
+<% end %>
