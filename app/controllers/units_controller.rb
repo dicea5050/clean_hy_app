@@ -35,8 +35,12 @@ class UnitsController < ApplicationController
   end
 
   def destroy
-    @unit.destroy
-    redirect_to units_path, notice: "単位を削除しました。"
+    if @unit.can_be_destroyed?
+      @unit.destroy
+      redirect_to units_path, notice: "単位を削除しました。"
+    else
+      redirect_to units_path, alert: "この単位は受注情報で使用されているため削除できません。"
+    end
   end
 
   private

@@ -41,8 +41,11 @@ class DeliveryLocationsController < ApplicationController
   end
 
   def destroy
-    @delivery_location.destroy
-    redirect_to delivery_locations_url, notice: "納品先を削除しました。"
+    if @delivery_location.destroy
+      redirect_to delivery_locations_url, notice: "納品先を削除しました。"
+    else
+      redirect_to delivery_locations_url, alert: "この納品先は既に使用されているため削除できません。"
+    end
   end
 
   private
