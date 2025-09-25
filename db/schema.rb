@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_24_152000) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_25_030429) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -157,8 +157,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_24_152000) do
     t.text "notes"
     t.bigint "unit_id"
     t.string "product_name_override"
+    t.bigint "product_specification_id"
     t.index ["order_id"], name: "index_order_items_on_order_id"
     t.index ["product_id"], name: "index_order_items_on_product_id"
+    t.index ["product_specification_id"], name: "index_order_items_on_product_specification_id"
     t.index ["unit_id"], name: "index_order_items_on_unit_id"
   end
 
@@ -253,6 +255,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_24_152000) do
   add_foreign_key "invoice_orders", "orders"
   add_foreign_key "invoices", "customers"
   add_foreign_key "order_items", "orders"
+  add_foreign_key "order_items", "product_specifications"
   add_foreign_key "order_items", "products"
   add_foreign_key "order_items", "units"
   add_foreign_key "orders", "customers"

@@ -110,9 +110,9 @@ class InvoicePdf < Prawn::Document
     # 初回発行時は有効口座のみ、再発行時は全口座を表示
     accounts = if @reissue
                  BankAccount.all
-               else
+    else
                  BankAccount.where(disabled: false)
-               end
+    end
 
     if accounts.present?
       accounts_data = [ [ "金融機関名", "支店名", "種別", "口座番号", "口座名義" ] ]

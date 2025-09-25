@@ -449,7 +449,7 @@ class OrdersController < ApplicationController
       params.require(:order).permit(
         :customer_id, :order_date, :expected_delivery_date,
         :actual_delivery_date, :payment_method_id, :delivery_location_id,
-        order_items_attributes: [ :id, :product_id, :quantity, :unit_price, :tax_rate, :notes, :unit_id, :product_name_override, :_destroy ]
+        order_items_attributes: [ :id, :product_id, :product_specification_id, :quantity, :unit_price, :tax_rate, :notes, :unit_id, :product_name_override, :_destroy ]
       )
     end
 

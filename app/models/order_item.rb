@@ -1,6 +1,7 @@
 class OrderItem < ApplicationRecord
   belongs_to :order
   belongs_to :product, optional: true
+  belongs_to :product_specification, optional: true
   belongs_to :unit, optional: true
 
   validates :quantity, presence: true,
@@ -8,6 +9,7 @@ class OrderItem < ApplicationRecord
     unless: :marked_for_destruction?
 
   validates :product_id, presence: true, unless: :marked_for_destruction?
+  validates :product_specification, presence: true, unless: :marked_for_destruction?
 
   # 表示用の商品名を取得（手動変更があればそれを、なければ商品マスタから）
   def display_product_name

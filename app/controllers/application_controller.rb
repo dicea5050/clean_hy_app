@@ -25,7 +25,7 @@ class ApplicationController < ActionController::Base
       redirect_to masters_path, alert: "この操作を行う権限がありません。"
     end
   end
-  
+
   def require_editor_limited_access
     # admin と editor は制限なし
     return if administrator_signed_in? && (current_administrator.admin? || current_administrator.editor?)
