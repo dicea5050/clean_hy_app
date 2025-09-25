@@ -105,6 +105,7 @@
         <thead>
           <tr>
             <th>商品名</th>
+            <th>規格</th>
             <th>単価（税抜）</th>
             <th>税率（%）</th>
             <th>数量</th>
@@ -118,6 +119,7 @@
           <% @order.order_items.each do |item| %>
             <tr>
               <td><%= item.display_product_name %></td>
+              <td><%= item.display_product_specification_name %></td>
               <td><%= number_to_currency(item.unit_price) %></td>
               <td><%= item.tax_rate %></td>
               <td><%= item.quantity %></td>
@@ -128,14 +130,14 @@
             </tr>
           <% end %>
           <tr>
-            <td colspan="4" class="text-right"><strong>合計（税抜）:</strong></td>
-            <td></td>
+            <td colspan="6" class="text-right"><strong>合計（税抜）:</strong></td>
             <td><strong><%= number_to_currency(@order.order_items.sum { |item| item.subtotal_without_tax }) %></strong></td>
+            <td colspan="2"></td>
           </tr>
           <tr>
-            <td colspan="5" class="text-right"><strong>合計（税込）:</strong></td>
-            <td></td>
+            <td colspan="6" class="text-right"><strong>合計（税込）:</strong></td>
             <td><strong><%= number_to_currency(@order.order_items.sum { |item| item.subtotal }) %></strong></td>
+            <td colspan="2"></td>
           </tr>
         </tbody>
       </table>

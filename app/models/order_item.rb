@@ -16,6 +16,10 @@ class OrderItem < ApplicationRecord
     product_name_override.present? ? product_name_override : product&.name
   end
 
+  def display_product_specification_name
+    product_specification&.name
+  end
+
   def subtotal
     return 0 if unit_price.nil? || quantity.nil? || tax_rate.nil?
     # 値引き対象商品の場合はマイナスにする

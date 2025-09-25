@@ -100,7 +100,7 @@ $(document).ready(function() {
   // 注：以下のイベントハンドラはorder_calculations.jsに移動しました
 
   // 商品を追加ボタン
-  $('.add-item').on('click', function(e) {
+  $(document).on('click', '.add-item', function(e) {
     e.preventDefault();
     console.log("Add item button clicked");
 
