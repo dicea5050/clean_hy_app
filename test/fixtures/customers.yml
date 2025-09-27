@@ -1,0 +1,24 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  customer_code: CUST001
+  company_name: 株式会社テスト
+  postal_code: 1000001
+  address: 東京都千代田区1-1-1
+  contact_name: 田中太郎
+  phone_number: 0312345678
+  email: test@example.com
+  invoice_delivery_method: electronic
+  billing_closing_day: 25
+
+two:
+  customer_code: CUST002
+  company_name: 株式会社サンプル
+  postal_code: 1500001
+  address: 東京都渋谷区1-1-1
+  contact_name: 佐藤花子
+  phone_number: 0398765432
+  email: sample@example.com
+  invoice_delivery_method: postal
+  billing_closing_day: 20
+

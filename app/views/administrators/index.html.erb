@@ -28,9 +28,10 @@
                 <td><%= administrator.email %></td>
                 <td><%= administrator.role_name %></td>
                 <td>
-                  <%= link_to '詳細', administrator_path(administrator), class: 'btn btn-sm btn-info' %>
-                  <%= link_to '編集', edit_administrator_path(administrator), class: 'btn btn-sm btn-success' %>
-                  <%= link_to '削除', administrator_path(administrator), method: :delete, data: { confirm: '本当に削除しますか？' }, class: 'btn btn-sm btn-danger' %>
+                  <%= render 'shared/index_action_buttons',
+                              show_path: administrator_path(administrator),
+                              edit_path: edit_administrator_path(administrator),
+                              delete_path: administrator_path(administrator) %>
                 </td>
               </tr>
             <% end %>
@@ -40,7 +41,5 @@
     </div>
   </div>
   
-  <div class="mt-3">
-    <%= link_to 'マスター一覧へ戻る', masters_path, class: 'btn btn-secondary' %>
-  </div>
+  <%= render 'shared/masters_back_button' %>
 </div> 

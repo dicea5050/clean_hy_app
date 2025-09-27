@@ -1,0 +1,18 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  invoice_number: INV-2509-0001
+  customer: one
+  invoice_date: 2025-09-01
+  due_date: 2025-09-30
+  notes: Sample invoice
+  approval_status: 未申請
+
+two:
+  invoice_number: INV-2509-0002
+  customer: one
+  invoice_date: 2025-09-02
+  due_date: 2025-09-30
+  notes: Sample invoice 2
+  approval_status: 未申請
+

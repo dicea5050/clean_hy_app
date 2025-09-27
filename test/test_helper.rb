@@ -7,9 +7,7 @@ module ActiveSupport
     # Run tests in parallel with specified workers
     parallelize(workers: 1)
 
-    # NOTE: System tests create data explicitly in each test.
-    # Auto-loading all fixtures can cause FK violations if some fixtures are incomplete.
-    # Therefore, do NOT auto-load fixtures here.
+    fixtures :all
 
     # Add more helper methods to be used by all tests here...
   end
