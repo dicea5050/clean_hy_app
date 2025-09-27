@@ -1,129 +1,152 @@
 <div class="container mt-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>マスター一覧</h1>
-    <% if current_administrator&.admin? %>
-      <%= link_to 'ログアウト', logout_path, method: :delete, class: 'btn btn-outline-danger' %>
-    <% end %>
   </div>
 
-  <div class="row">
-    <div class="col-md-4 mb-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">顧客マスター</h5>
-          <p class="card-text">顧客情報の管理</p>
-          <%= link_to '顧客マスターへ', customers_path, class: 'btn btn-primary' %>
+  <ul class="list-group">
+    <li class="list-group-item">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-1">顧客マスター</h5>
+          <p class="mb-0 text-muted">顧客情報の管理</p>
+        </div>
+        <div class="btn-group">
+          <%= link_to '一覧', customers_path, class: 'btn btn-primary' %>
+          <%= link_to '新規', new_customer_path, class: 'btn btn-outline-primary' %>
         </div>
       </div>
-    </div>
+    </li>
 
-    <div class="col-md-4 mb-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">商品マスター</h5>
-          <p class="card-text">商品情報の管理</p>
-          <%= link_to '商品マスターへ', products_path, class: 'btn btn-primary' %>
+    <li class="list-group-item">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-1">商品マスター</h5>
+          <p class="mb-0 text-muted">商品情報の管理</p>
+        </div>
+        <div class="btn-group">
+          <%= link_to '一覧', products_path, class: 'btn btn-primary' %>
+          <%= link_to '新規', new_product_path, class: 'btn btn-outline-primary' %>
         </div>
       </div>
-    </div>
+    </li>
 
-    <!-- 商品カテゴリーマスターカードを追加 -->
-    <div class="col-md-4 mb-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">商品カテゴリーマスター</h5>
-          <p class="card-text">商品カテゴリー情報の管理</p>
-          <%= link_to '商品カテゴリーマスターへ', product_categories_path, class: 'btn btn-primary' %>
+    <li class="list-group-item">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-1">商品カテゴリーマスター</h5>
+          <p class="mb-0 text-muted">商品カテゴリー情報の管理</p>
+        </div>
+        <div class="btn-group">
+          <%= link_to '一覧', product_categories_path, class: 'btn btn-primary' %>
+          <%= link_to '新規', new_product_category_path, class: 'btn btn-outline-primary' %>
         </div>
       </div>
-    </div>
+    </li>
 
-    <div class="col-md-4 mb-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">税率マスター</h5>
-          <p class="card-text">税率情報の管理</p>
-          <%= link_to '税率マスターへ', tax_rates_path, class: 'btn btn-primary' %>
+    <li class="list-group-item">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-1">税率マスター</h5>
+          <p class="mb-0 text-muted">税率情報の管理</p>
+        </div>
+        <div class="btn-group">
+          <%= link_to '一覧', tax_rates_path, class: 'btn btn-primary' %>
+          <%= link_to '新規', new_tax_rate_path, class: 'btn btn-outline-primary' %>
         </div>
       </div>
-    </div>
+    </li>
 
     <% if current_administrator&.admin? %>
-      <div class="col-md-4 mb-4">
-        <div class="card h-100">
-          <div class="card-body">
-            <h5 class="card-title">管理者マスター</h5>
-            <p class="card-text">管理者アカウントの管理</p>
-            <%= link_to '管理者マスターへ', administrators_path, class: 'btn btn-primary' %>
+      <li class="list-group-item">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="mb-1">管理者マスター</h5>
+            <p class="mb-0 text-muted">管理者アカウントの管理</p>
+          </div>
+          <div class="btn-group">
+            <%= link_to '一覧', administrators_path, class: 'btn btn-primary' %>
+            <%= link_to '新規', new_administrator_path, class: 'btn btn-outline-primary' %>
           </div>
         </div>
-      </div>
+      </li>
     <% end %>
 
-    <!-- 支払方法マスターカードを追加 -->
-    <div class="col-md-4 mb-4">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">支払方法マスター</h5>
-          <p class="card-text">支払方法の管理を行います。</p>
-          <%= link_to '支払方法マスターへ', payment_methods_path, class: 'btn btn-primary' %>
+    <li class="list-group-item">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-1">支払方法マスター</h5>
+          <p class="mb-0 text-muted">支払方法の管理を行います。</p>
+        </div>
+        <div class="btn-group">
+          <%= link_to '一覧', payment_methods_path, class: 'btn btn-primary' %>
+          <%= link_to '新規', new_payment_method_path, class: 'btn btn-outline-primary' %>
         </div>
       </div>
-    </div>
+    </li>
 
-    <!-- 自社情報マスターカードを追加 -->
-    <div class="col-md-4 mb-4">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">自社情報マスター</h5>
-          <p class="card-text">自社の基本情報を管理します。</p>
-          <%= link_to '自社情報マスターへ', company_informations_path, class: 'btn btn-primary' %>
+    <li class="list-group-item">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-1">自社情報マスター</h5>
+          <p class="mb-0 text-muted">自社の基本情報を管理します。</p>
+        </div>
+        <div class="btn-group">
+          <%= link_to '一覧', company_informations_path, class: 'btn btn-primary' %>
+          <%= link_to '新規', new_company_information_path, class: 'btn btn-outline-primary' %>
         </div>
       </div>
-    </div>
+    </li>
 
-    <!-- 銀行口座マスターカードを追加 -->
-    <div class="col-md-4 mb-4">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">銀行口座マスター</h5>
-          <p class="card-text">銀行口座情報を管理します。</p>
-          <%= link_to '銀行口座マスターへ', bank_accounts_path, class: 'btn btn-primary' %>
+    <li class="list-group-item">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-1">銀行口座マスター</h5>
+          <p class="mb-0 text-muted">銀行口座情報を管理します。</p>
+        </div>
+        <div class="btn-group">
+          <%= link_to '一覧', bank_accounts_path, class: 'btn btn-primary' %>
+          <%= link_to '新規', new_bank_account_path, class: 'btn btn-outline-primary' %>
         </div>
       </div>
-    </div>
+    </li>
 
-    <!-- 商品規格マスターカードを追加 -->
-    <div class="col-md-4 mb-4">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">商品規格マスター</h5>
-          <p class="card-text">商品の規格情報を管理します。</p>
-          <%= link_to '商品規格マスターへ', product_specifications_path, class: 'btn btn-primary' %>
+    <li class="list-group-item">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-1">商品規格マスター</h5>
+          <p class="mb-0 text-muted">商品の規格情報を管理します。</p>
+        </div>
+        <div class="btn-group">
+          <%= link_to '一覧', product_specifications_path, class: 'btn btn-primary' %>
+          <%= link_to '新規', new_product_specification_path, class: 'btn btn-outline-primary' %>
         </div>
       </div>
-    </div>
+    </li>
 
-    <!-- 単位マスターカードを追加 -->
-    <div class="col-md-4 mb-4">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">単位マスター</h5>
-          <p class="card-text">商品の単位情報を管理します。</p>
-          <%= link_to '単位マスターへ', units_path, class: 'btn btn-primary' %>
+    <li class="list-group-item">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-1">単位マスター</h5>
+          <p class="mb-0 text-muted">商品の単位情報を管理します。</p>
+        </div>
+        <div class="btn-group">
+          <%= link_to '一覧', units_path, class: 'btn btn-primary' %>
+          <%= link_to '新規', new_unit_path, class: 'btn btn-outline-primary' %>
         </div>
       </div>
-    </div>
+    </li>
 
-    <!-- 納品先マスターカードを追加 -->
-    <div class="col-md-4 mb-4">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">納品先マスター</h5>
-          <p class="card-text">取引先ごとの納品先情報を管理します。</p>
-          <%= link_to '納品先マスターへ', delivery_locations_path, class: 'btn btn-primary' %>
+    <li class="list-group-item">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-1">納品先マスター</h5>
+          <p class="mb-0 text-muted">取引先ごとの納品先情報を管理します。</p>
+        </div>
+        <div class="btn-group">
+          <%= link_to '一覧', delivery_locations_path, class: 'btn btn-primary' %>
+          <%= link_to '新規', new_delivery_location_path, class: 'btn btn-outline-primary' %>
         </div>
       </div>
-    </div>
-  </div>
+    </li>
+  </ul>
 </div>
