@@ -88,6 +88,8 @@ builder:
 # Use a different ssh user than root
 ssh:
   user: ubuntu
+  keys:
+    - "~/.ssh/id_ed25519"
 
 # Use accessory services (secrets come from .kamal/secrets).
 accessories:
