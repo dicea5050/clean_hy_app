@@ -103,6 +103,7 @@ accessories:
         POSTGRES_USER: clean_hy_app
       secret:
         - CLEAN_HY_APP_DATABASE_PASSWORD
+        - POSTGRES_PASSWORD
     directories:
       - data:/var/lib/postgresql/data
 #   redis:
