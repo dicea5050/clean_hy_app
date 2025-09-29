@@ -86,13 +86,20 @@ test:
 production:
   primary: &primary_production
     <<: *default
-    url: <%= ENV["PRIMARY_DATABASE_URL"] %>
+    database: clean_hy_app_production
+    username: clean_hy_app
+    password: <%= ENV["CLEAN_HY_APP_DATABASE_PASSWORD"] %>
+    host: clean_hy_app-db
+    port: 5432
   cache:
     <<: *primary_production
-    url: <%= ENV["CACHE_DATABASE_URL"] %>
+    database: clean_hy_app_production_cache
+    migrations_paths: db/cache_migrate
   queue:
     <<: *primary_production
-    url: <%= ENV["QUEUE_DATABASE_URL"] %>
+    database: clean_hy_app_production_queue
+    migrations_paths: db/queue_migrate
   cable:
     <<: *primary_production
-    url: <%= ENV["CABLE_DATABASE_URL"] %>
+    database: clean_hy_app_production_cable
+    migrations_paths: db/cable_migrate
