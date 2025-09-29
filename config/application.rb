@@ -35,5 +35,8 @@ module CleanHyApp
 
     # Bootstrapのアセット設定
     config.assets.paths << Rails.root.join("node_modules")
+
+    # 一時的にcredentialsを無効化
+    config.require_master_key = false
   end
 end
