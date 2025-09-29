@@ -89,22 +89,19 @@ ssh:
   user: ubuntu
 
 # Use accessory services (secrets come from .kamal/secrets).
-# accessories:
-#   db:
-#     image: mysql:8.0
-#     host: 192.168.0.2
-#     # Change to 3306 to expose port to the world instead of just local network.
-#     port: "127.0.0.1:3306:3306"
-#     env:
-#       clear:
-#         MYSQL_ROOT_HOST: '%'
-#       secret:
-#         - MYSQL_ROOT_PASSWORD
-#     files:
-#       - config/mysql/production.cnf:/etc/mysql/my.cnf
-#       - db/production.sql:/docker-entrypoint-initdb.d/setup.sql
-#     directories:
-#       - data:/var/lib/mysql
+accessories:
+  db:
+    image: postgres:15
+    host: 133.167.120.189
+    port: "127.0.0.1:5432:5432"
+    env:
+      clear:
+        POSTGRES_DB: clean_hy_app_production
+        POSTGRES_USER: clean_hy_app
+      secret:
+        - CLEAN_HY_APP_DATABASE_PASSWORD
+    directories:
+      - data:/var/lib/postgresql/data
 #   redis:
 #     image: redis:7.0
 #     host: 192.168.0.2

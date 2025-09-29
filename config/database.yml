@@ -89,6 +89,8 @@ production:
     database: clean_hy_app_production
     username: clean_hy_app
     password: <%= ENV["CLEAN_HY_APP_DATABASE_PASSWORD"] %>
+    host: db
+    port: 5432
   cache:
     <<: *primary_production
     database: clean_hy_app_production_cache
