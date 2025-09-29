@@ -13,6 +13,11 @@ set :deploy_to, "/var/www/clean_hy_app"
 # Ruby version for rbenv
 set :rbenv_ruby, '3.3.0'
 
+# Use HTTPS for git operations
+set :scm, :git
+set :git_strategy, Capistrano::Git::DefaultStrategy
+set :git_keep_meta, false
+
 # Linked files - files that will be symlinked from shared folder
 append :linked_files, "config/master.key", ".env"
 
