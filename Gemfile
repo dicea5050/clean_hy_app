@@ -7,7 +7,7 @@ gem "propshaft", "~> 1.2"
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.4.6"
 # Use the Puma web server [https://github.com/puma/puma]
-gem "puma", ">= 5.0"
+gem "puma", "~> 6.0"
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
 gem "importmap-rails", "~> 2.2"
 # Hotwire's SPA-like page accelerator [https://turbo.hotwired.dev]
@@ -81,7 +81,7 @@ group :development, :test do
   gem "capistrano-rails", "~> 1.6", require: false
   gem "capistrano-bundler", "~> 2.1", require: false
   gem "capistrano-rbenv", "~> 2.2", require: false
-  gem "capistrano3-puma", "~> 5.2", require: false
+  gem "capistrano-puma", "~> 0.2", require: false
 end
 
 group :development do
