@@ -1,5 +1,6 @@
 class TaxRatesController < ApplicationController
   before_action :require_login
+  before_action :require_editor_limited_access
   before_action :require_editor, only: [ :new, :create, :edit, :update, :destroy ]
   before_action :set_tax_rate, only: [ :show, :edit, :update, :destroy ]
 
@@ -36,8 +37,15 @@ class TaxRatesController < ApplicationController
   end
 
   def destroy
-    @tax_rate.destroy
-    redirect_to tax_rates_path, notice: "税率が正常に削除されました。"
+    begin
+      if @tax_rate.destroy
+        redirect_to tax_rates_path, notice: "税率が正常に削除されました。"
+      else
+        redirect_to tax_rates_path, alert: "この税率を参照している商品が存在するため削除できません。先に関連商品を変更または削除してください。"
+      end
+    rescue ActiveRecord::InvalidForeignKey
+      redirect_to tax_rates_path, alert: "この税率を参照している商品が存在するため削除できません。先に関連商品を変更または削除してください。"
+    end
   end
 
   private

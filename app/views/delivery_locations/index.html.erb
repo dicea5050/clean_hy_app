@@ -36,9 +36,10 @@
                 <td><%= delivery_location.phone %></td>
                 <td><%= delivery_location.contact_person %></td>
                 <td>
-                  <%= link_to '詳細', delivery_location, class: 'btn btn-sm btn-info text-white' %>
-                  <%= link_to '編集', edit_delivery_location_path(delivery_location), class: 'btn btn-sm btn-warning text-white' %>
-                  <%= link_to '削除', delivery_location, method: :delete, data: { confirm: '本当に削除しますか？' }, class: 'btn btn-sm btn-danger' %>
+                  <%= render 'shared/index_action_buttons',
+                              show_path: delivery_location_path(delivery_location),
+                              edit_path: edit_delivery_location_path(delivery_location),
+                              delete_path: delivery_location_path(delivery_location) %>
                 </td>
               </tr>
             <% end %>
@@ -47,4 +48,6 @@
       </div>
     </div>
   </div>
+
+  <%= render 'shared/masters_back_button' %>
 </div>

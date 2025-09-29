@@ -87,10 +87,24 @@
       <div class="card-body">
         <h5 class="card-title">注文明細</h5>
         <table class="table" id="order-items" style="table-layout: fixed;">
+          <colgroup>
+            <col style="width: 90px;">
+            <col style="width: 140px;">
+            <col style="width: 50px;">
+            <col style="width: 100px;">
+            <col style="width: 80px;">
+            <col style="width: 70px;">
+            <col style="width: 70px;">
+            <col style="width: 100px;">
+            <col style="width: 100px;">
+            <col style="width: 150px;">
+            <col style="width: 70px;">
+          </colgroup>
           <thead>
             <tr>
-              <th style="width: 180px;">商品コード</th>
-              <th style="width: 180px;">商品</th>
+              <th style="width: 90px;">商品コード</th>
+              <th style="width: 140px;">商品</th>
+              <th style="width: 50px;">規格</th>
               <th style="width: 100px;">単価</th>
               <th style="width: 80px;">税率</th>
               <th style="width: 70px;">数量</th>
@@ -114,14 +128,14 @@
           </tbody>
           <tfoot>
             <tr>
-              <td colspan="5" class="text-right"><strong>合計（税抜）：</strong></td>
+              <td colspan="7" class="text-right"><strong>合計（税抜）：</strong></td>
               <td>
                 <strong><span id="order-total-without-tax" style="display: inline-block; min-width: 80px; text-align: right;">0</span>円</strong>
               </td>
               <td colspan="2"></td>
             </tr>
             <tr>
-              <td colspan="5" class="text-right"><strong>合計（税込）：</strong></td>
+              <td colspan="7" class="text-right"><strong>合計（税込）：</strong></td>
               <td></td>
               <td>
                 <strong><span id="order-total-with-tax" style="display: inline-block; min-width: 80px; text-align: right;">0</span>円</strong>
@@ -208,102 +222,94 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   */
 
-  // 商品コード入力時の自動補完（各明細行）
-  function setupProductCodeAutoComplete() {
-    document.querySelectorAll('.product-code-input').forEach(function(productCodeField) {
-      productCodeField.addEventListener('blur', function() {
-        const code = this.value.trim();
-        const row = this.closest('tr');
-        console.log('Product code entered:', code); // デバッグ用
-        
-        if (code) {
-          fetch(`/orders/find_product_by_code?code=${encodeURIComponent(code)}`)
-            .then(response => {
-              console.log('Product code response status:', response.status); // デバッグ用
-              return response.json();
-            })
-            .then(data => {
-              console.log('Product code data:', data); // デバッグ用
-              if (data.success && data.product) {
-                // 商品名を設定
-                const productSearchField = row.querySelector('.product-search');
-                const productIdField = row.querySelector('input[name*="[product_id]"]');
-                const productNameOverrideField = row.querySelector('input[name*="[product_name_override]"]');
-                
-                if (productSearchField) {
-                  productSearchField.value = data.product.name;
-                }
-                if (productIdField) {
-                  productIdField.value = data.product.id;
-                }
-                // 商品コードから取得した場合はproduct_name_overrideをクリア
-                if (productNameOverrideField) {
-                  productNameOverrideField.value = '';
-                }
-                
-                // 単価と税率を設定
-                const unitPriceDisplay = row.querySelector('.unit-price-display');
-                const unitPriceInput = row.querySelector('.unit-price-input');
-                const taxRateDisplay = row.querySelector('.tax-rate-display');
-                const taxRateInput = row.querySelector('input[name*="[tax_rate]"]');
-                
-                if (unitPriceDisplay && data.product.price) {
-                  unitPriceDisplay.value = data.product.price;
-                }
-                if (unitPriceInput && data.product.price) {
-                  unitPriceInput.value = data.product.price;
-                }
-                if (taxRateDisplay && data.product.tax_rate) {
-                  taxRateDisplay.textContent = data.product.tax_rate;
-                }
-                if (taxRateInput && data.product.tax_rate) {
-                  taxRateInput.value = data.product.tax_rate;
-                }
-                
-                // 金額計算をトリガー
-                const quantitySelect = row.querySelector('.quantity-select');
-                if (quantitySelect) {
-                  quantitySelect.dispatchEvent(new Event('change'));
-                }
-                
-                showMessage('商品情報を取得しました', 'success');
-              } else {
-                showMessage('商品コードが見つかりません', 'error');
-              }
-            })
-            .catch(error => {
-              console.error('Product code error:', error);
-              showMessage('商品情報の取得に失敗しました', 'error');
-            });
+  // 商品コード入力時の自動補完（委譲）
+  document.addEventListener('focusout', function(event) {
+    const productCodeField = event.target;
+    if (!productCodeField.classList || !productCodeField.classList.contains('product-code-input')) {
+      return;
+    }
+
+    const code = productCodeField.value.trim();
+    const row = productCodeField.closest('tr');
+    console.log('Product code entered:', code); // デバッグ用
+
+    if (!code || !row) {
+      return;
+    }
+
+    fetch(`/orders/find_product_by_code?code=${encodeURIComponent(code)}`)
+      .then(response => {
+        console.log('Product code response status:', response.status); // デバッグ用
+        return response.json();
+      })
+      .then(data => {
+        console.log('Product code data:', data); // デバッグ用
+        if (data.success && data.product) {
+          const productSearchField = row.querySelector('.product-search');
+          const productIdField = row.querySelector('input[name*="[product_id]"]');
+          const productNameOverrideField = row.querySelector('input[name*="[product_name_override]"]');
+
+          if (productSearchField) {
+            productSearchField.value = data.product.name;
+          }
+          if (productIdField) {
+            productIdField.value = data.product.id;
+          }
+          if (productNameOverrideField) {
+            productNameOverrideField.value = '';
+          }
+
+          const unitPriceDisplay = row.querySelector('.unit-price-display');
+          const unitPriceInput = row.querySelector('.unit-price-input');
+          const taxRateDisplay = row.querySelector('.tax-rate-display');
+          const taxRateInput = row.querySelector('input[name*="[tax_rate]"]');
+
+          if (unitPriceDisplay && data.product.price) {
+            unitPriceDisplay.value = data.product.price;
+          }
+          if (unitPriceInput && data.product.price) {
+            unitPriceInput.value = data.product.price;
+          }
+          if (taxRateDisplay && data.product.tax_rate) {
+            taxRateDisplay.textContent = data.product.tax_rate;
+          }
+          if (taxRateInput && data.product.tax_rate) {
+            taxRateInput.value = data.product.tax_rate;
+          }
+
+          const quantitySelect = row.querySelector('.quantity-select');
+          if (quantitySelect) {
+            quantitySelect.dispatchEvent(new Event('change'));
+          }
+
+          showMessage('商品情報を取得しました', 'success');
+        } else {
+          showMessage('商品コードが見つかりません', 'error');
         }
+      })
+      .catch(error => {
+        console.error('Product code error:', error);
+        showMessage('商品情報の取得に失敗しました', 'error');
       });
-    });
-  }
+  });
 
-  // 商品名フィールドの変更を監視して手動変更を保存
-  function setupProductNameChangeHandler() {
-    document.querySelectorAll('.product-search').forEach(function(productSearchField) {
-      productSearchField.addEventListener('input', function() {
-        const row = this.closest('tr');
-        const productNameOverrideField = row.querySelector('input[name*="[product_name_override]"]');
-        
-        if (productNameOverrideField) {
-          // 手動で変更された商品名をproduct_name_overrideに保存
-          productNameOverrideField.value = this.value;
-          console.log('Product name manually changed to:', this.value); // デバッグ用
-        }
-      });
-    });
-  }
+  // 商品名フィールドの変更を監視して手動変更を保存（委譲）
+  document.addEventListener('input', function(event) {
+    const productSearchField = event.target;
+    if (!productSearchField.classList || !productSearchField.classList.contains('product-search')) {
+      return;
+    }
 
-  // 初期化時に実行
-  setupProductCodeAutoComplete();
-  setupProductNameChangeHandler();
+    const row = productSearchField.closest('tr');
+    if (!row) {
+      return;
+    }
 
-  // 新しい行が追加された時にも実行
-  document.addEventListener('cocoon:after-insert', function() {
-    setupProductCodeAutoComplete();
-    setupProductNameChangeHandler();
+    const productNameOverrideField = row.querySelector('input[name*="[product_name_override]"]');
+    if (productNameOverrideField) {
+      productNameOverrideField.value = productSearchField.value;
+      console.log('Product name manually changed to:', productSearchField.value); // デバッグ用
+    }
   });
 
   // メッセージ表示関数

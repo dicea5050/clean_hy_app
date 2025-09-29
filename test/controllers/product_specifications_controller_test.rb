@@ -1,38 +1,50 @@
 require "test_helper"
 
 class ProductSpecificationsControllerTest < ActionDispatch::IntegrationTest
-  test "should get index" do
-    get product_specifications_index_url
-    assert_response :success
+  setup do
+    @product_specification = product_specifications(:one)
+    @administrator = administrators(:one)
+    post authenticate_path, params: { email: @administrator.email, password: "secret" }
   end
 
-  test "should get show" do
-    get product_specifications_show_url
+  test "should get index" do
+    get product_specifications_url
     assert_response :success
   end
 
   test "should get new" do
-    get product_specifications_new_url
+    get new_product_specification_url
+    assert_response :success
+  end
+
+  test "should create product specification" do
+    assert_difference("ProductSpecification.count") do
+      post product_specifications_url, params: { product_specification: { name: "New Spec", is_active: true } }
+    end
+
+    assert_redirected_to product_specifications_url
+  end
+
+  test "should show product specification" do
+    get product_specification_url(@product_specification)
     assert_response :success
   end
 
   test "should get edit" do
-    get product_specifications_edit_url
+    get edit_product_specification_url(@product_specification)
     assert_response :success
   end
 
-  test "should get create" do
-    get product_specifications_create_url
-    assert_response :success
+  test "should update product specification" do
+    patch product_specification_url(@product_specification), params: { product_specification: { name: "Updated", is_active: @product_specification.is_active } }
+    assert_redirected_to product_specifications_url
   end
 
-  test "should get update" do
-    get product_specifications_update_url
-    assert_response :success
-  end
+  test "should destroy product specification" do
+    assert_difference("ProductSpecification.count", -1) do
+      delete product_specification_url(@product_specification)
+    end
 
-  test "should get destroy" do
-    get product_specifications_destroy_url
-    assert_response :success
+    assert_redirected_to product_specifications_url
   end
 end

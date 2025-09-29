@@ -1,5 +1,5 @@
 <tr class="nested-fields">
-  <td>
+  <td style="width: 90px;">
     <input type="text"
            name="order[order_items_attributes][<%= f.index %>][product_code]"
            id="order_order_items_attributes_<%= f.index %>_product_code"
@@ -8,7 +8,7 @@
            placeholder="商品コード"
            value="<%= f.object.product&.product_code %>">
   </td>
-  <td>
+  <td style="width: 140px;">
     <div class="autocomplete-container" style="position: relative;">
       <%= f.hidden_field :product_id %>
       <%= f.hidden_field :product_name_override %>
@@ -20,6 +20,14 @@
              style="width: 100%;">
       <div class="autocomplete-results product-results" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ccc; border-top: none; max-height: 200px; overflow-y: auto; z-index: 1000;"></div>
     </div>
+  </td>
+  <td style="width: 50px;">
+    <%= f.collection_select :product_specification_id,
+        ProductSpecification.active.order(:name),
+        :id,
+        :name,
+        { include_blank: "規格を選択" },
+        { class: "form-control product-specification-select", style: "width: 100%;" } %>
   </td>
   <td style="width: 120px;">
     <%= f.hidden_field :unit_price, class: "unit-price-input" %>

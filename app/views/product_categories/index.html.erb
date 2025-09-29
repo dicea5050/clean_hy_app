@@ -22,9 +22,10 @@
                 <td><%= product_category.code %></td>
                 <td><%= product_category.name %></td>
                 <td>
-                  <%= link_to '詳細', product_category_path(product_category), class: 'btn btn-sm btn-info' %>
-                  <%= link_to '編集', edit_product_category_path(product_category), class: 'btn btn-sm btn-success' %>
-                  <%= link_to '削除', product_category_path(product_category), method: :delete, data: { confirm: '本当に削除しますか？' }, class: 'btn btn-sm btn-danger' %>
+                <%= render 'shared/index_action_buttons',
+                            show_path: product_category_path(product_category),
+                            edit_path: edit_product_category_path(product_category),
+                            delete_path: product_category_path(product_category) %>
                 </td>
               </tr>
             <% end %>

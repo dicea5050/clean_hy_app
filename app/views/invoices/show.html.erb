@@ -1,8 +1,11 @@
 <div class="container">
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>請求書詳細</h1>
+    <h1>請求情報詳細</h1>
     <div>
       <%= link_to '請求書PDF', pdf_invoice_path(@invoice, format: :pdf), class: 'btn btn-success', target: '_blank' %>
+      <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#receiptModal">
+        領収書発行
+      </button>
       <%= link_to '編集', edit_invoice_path(@invoice), class: 'btn btn-primary' %>
       <%= link_to '一覧に戻る', invoices_path, class: 'btn btn-secondary' %>
     </div>
@@ -13,6 +16,7 @@
       <h2 class="card-title">
         <%= @invoice.invoice_number %>
         <span class="<%= @invoice.approval_status_badge_class %> ms-2"><%= @invoice.approval_status %></span>
+        <span class="<%= @invoice.payment_status_badge_class %> ms-2"><%= @invoice.payment_status %></span>
       </h2>
     </div>
     <div class="card-body">
@@ -144,6 +148,40 @@
 
   <div class="text-center mt-4">
     <%= link_to '請求書PDF', pdf_invoice_path(@invoice, format: :pdf), class: 'btn btn-success me-2', target: '_blank' %>
+    <button type="button" class="btn btn-warning me-2" data-bs-toggle="modal" data-bs-target="#receiptModal">
+      領収書発行
+    </button>
     <button class="btn btn-secondary" onclick="window.print();">印刷する</button>
+  </div>
+</div>
+
+<!-- 領収書発行モーダル -->
+<div class="modal fade" id="receiptModal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="receiptModalLabel">領収書発行</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <%= form_with url: receipt_invoice_path(@invoice, format: :pdf), method: :get, local: true, target: '_blank' do |form| %>
+          <div class="mb-3">
+            <label for="issue_date" class="form-label">発行日</label>
+            <%= form.date_field :issue_date, value: Date.current, class: 'form-control', required: true %>
+          </div>
+          <div class="mb-3">
+            <p><strong>顧客名:</strong> <%= @invoice.customer.company_name %></p>
+            <% if @invoice.customer.customer_code.present? %>
+              <p><strong>顧客コード:</strong> <%= @invoice.customer.customer_code %></p>
+            <% end %>
+            <p><strong>領収金額:</strong> <%= number_to_currency(@invoice.total_amount) %></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+            <%= form.submit '領収書PDF発行', class: 'btn btn-warning' %>
+          </div>
+        <% end %>
+      </div>
+    </div>
   </div>
 </div>

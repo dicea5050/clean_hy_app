@@ -1,4 +1,5 @@
 class PaymentMethodsController < ApplicationController
+  before_action :require_editor_limited_access
   before_action :set_payment_method, only: [ :show, :edit, :update, :destroy ]
 
   def index
@@ -34,8 +35,17 @@ class PaymentMethodsController < ApplicationController
   end
 
   def destroy
-    @payment_method.destroy
-    redirect_to payment_methods_path, notice: "支払方法が正常に削除されました。"
+    begin
+      if @payment_method.destroy
+        redirect_to payment_methods_path, notice: "支払方法が正常に削除されました。"
+      else
+        # 使用中（restrict_with_error でエラー付与）など削除失敗時
+        redirect_to payment_methods_path, alert: "この支払方法は受注で使用されているため削除できません。先に関連受注の支払方法を変更してください。"
+      end
+    rescue ActiveRecord::InvalidForeignKey
+      # DB制約で弾かれた場合も同様の文言で救済
+      redirect_to payment_methods_path, alert: "この支払方法は受注で使用されているため削除できません。先に関連受注の支払方法を変更してください。"
+    end
   end
 
   private

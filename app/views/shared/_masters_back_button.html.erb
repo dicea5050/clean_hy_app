@@ -1,0 +1,5 @@
+<div class="mt-3">
+  <%= link_to (local_assigns[:label] || t('buttons.back_to_masters', default: 'マスター一覧に戻る')),
+              (local_assigns[:path] || masters_path),
+              class: 'btn btn-secondary' %>
+</div>

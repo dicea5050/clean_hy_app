@@ -131,6 +131,7 @@
         <th>請求金額</th>
         <th>送付方法</th>
         <th>承認状態</th>
+        <th>入金状況</th>
         <th>操作</th>
       </tr>
     </thead>
@@ -157,9 +158,13 @@
             <% end %>
           </td>
           <td><span class="<%= invoice.approval_status_badge_class %>"><%= invoice.approval_status %></span></td>
+          <td><span class="<%= invoice.payment_status_badge_class %>"><%= invoice.payment_status %></span></td>
           <td>
             <%= link_to '詳細', invoice, class: 'btn btn-sm btn-info' %>
             <%= link_to 'PDF', pdf_invoice_path(invoice, format: :pdf), class: 'btn btn-sm btn-secondary', target: '_blank' %>
+            <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#receiptModal<%= invoice.id %>">
+              領収書
+            </button>
             <%= link_to '編集', edit_invoice_path(invoice), class: 'btn btn-sm btn-primary' %>
             <%= form_with(url: invoice_path(invoice), method: :delete, class: 'd-inline') do |f| %>
               <%= f.submit '削除', class: 'btn btn-sm btn-danger',
@@ -175,6 +180,40 @@
     <%= paginate @invoices %>
   </div>
 </div>
+
+<!-- 領収書発行モーダル（各請求書用） -->
+<% @invoices.each do |invoice| %>
+  <div class="modal fade" id="receiptModal<%= invoice.id %>" tabindex="-1" aria-labelledby="receiptModalLabel<%= invoice.id %>" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="receiptModalLabel<%= invoice.id %>">領収書発行</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <%= form_with url: receipt_invoice_path(invoice, format: :pdf), method: :get, local: true, target: '_blank' do |form| %>
+            <div class="mb-3">
+              <label for="issue_date_<%= invoice.id %>" class="form-label">発行日</label>
+              <%= form.date_field :issue_date, value: Date.current, class: 'form-control', required: true, id: "issue_date_#{invoice.id}" %>
+            </div>
+            <div class="mb-3">
+              <p><strong>請求書番号:</strong> <%= invoice.invoice_number %></p>
+              <p><strong>顧客名:</strong> <%= invoice.customer.company_name %></p>
+              <% if invoice.customer.customer_code.present? %>
+                <p><strong>顧客コード:</strong> <%= invoice.customer.customer_code %></p>
+              <% end %>
+              <p><strong>領収金額:</strong> <%= number_to_currency(invoice.total_amount) %></p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+              <%= form.submit '領収書PDF発行', class: 'btn btn-warning' %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
 
 <%# JavaScriptを更新 %>
 <script>

@@ -82,6 +82,6 @@
   </div>
 
   <div class="form-group mt-4">
-    <%= form.submit customer.new_record? ? '登録' : '更新', class: 'btn btn-primary' %>
+    <%= render 'shared/form_actions', form: form, back_path: customers_path %>
   </div>
-<% end %> 
+<% end %>

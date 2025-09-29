@@ -13,8 +13,7 @@
       </dl>
     </div>
     <div class="card-footer">
-      <%= link_to '編集', edit_product_category_path(@product_category), class: 'btn btn-success' %>
-      <%= link_to '戻る', product_categories_path, class: 'btn btn-secondary' %>
+      <%= render 'shared/show_action_buttons', edit_path: edit_product_category_path(@product_category), delete_path: product_category_path(@product_category), back_path: product_categories_path %>
     </div>
   </div>
 </div>

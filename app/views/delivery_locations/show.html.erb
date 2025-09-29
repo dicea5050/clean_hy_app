@@ -35,8 +35,7 @@
       </div>
     </div>
     <div class="card-footer">
-      <%= link_to '編集', edit_delivery_location_path(@delivery_location), class: 'btn btn-warning text-white me-2' %>
-      <%= link_to '一覧に戻る', delivery_locations_path, class: 'btn btn-secondary' %>
+      <%= render 'shared/show_action_buttons', edit_path: edit_delivery_location_path(@delivery_location), delete_path: delivery_location_path(@delivery_location), back_path: delivery_locations_path %>
     </div>
   </div>
 </div>

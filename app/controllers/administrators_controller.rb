@@ -1,5 +1,5 @@
 class AdministratorsController < ApplicationController
-  before_action :require_admin, except: [ :login, :authenticate ]
+  before_action :require_admin, except: [ :login, :authenticate, :logout ]
   before_action :set_administrator, only: [ :show, :edit, :update, :destroy ]
 
   def index

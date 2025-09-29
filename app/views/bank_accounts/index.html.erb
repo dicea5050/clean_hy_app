@@ -21,7 +21,8 @@
               <th>口座種別</th>
               <th>口座番号</th>
               <th>口座名義</th>
-              <th colspan="3"></th>
+              <th>状態</th>
+              <th>操作</th>
             </tr>
           </thead>
 
@@ -34,9 +35,17 @@
                 <td><%= bank_account.account_number %></td>
                 <td><%= bank_account.account_holder %></td>
                 <td>
-                  <%= link_to '詳細', bank_account, class: 'btn btn-sm btn-info text-white' %>
-                  <%= link_to '編集', edit_bank_account_path(bank_account), class: 'btn btn-sm btn-warning text-white' %>
-                  <%= link_to '削除', bank_account, method: :delete, data: { confirm: '本当に削除しますか？' }, class: 'btn btn-sm btn-danger' %>
+                  <% if bank_account.disabled? %>
+                    <span class="badge bg-secondary">無効</span>
+                  <% else %>
+                    <span class="badge bg-success">有効</span>
+                  <% end %>
+                </td>
+                <td>
+                  <%= render 'shared/index_action_buttons',
+                              show_path: bank_account_path(bank_account),
+                              edit_path: edit_bank_account_path(bank_account),
+                              delete_path: bank_account_path(bank_account) %>
                 </td>
               </tr>
             <% end %>
@@ -45,4 +54,6 @@
       </div>
     </div>
   </div>
-</div> 
+
+  <%= render 'shared/masters_back_button' %>
+</div>

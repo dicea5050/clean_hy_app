@@ -4,12 +4,6 @@
     <%= link_to '新規作成', new_company_information_path, class: 'btn btn-primary' %>
   </div>
 
-  <% if notice.present? %>
-    <div class="alert alert-success">
-      <%= notice %>
-    </div>
-  <% end %>
-
   <div class="card shadow">
     <div class="card-body">
       <div class="table-responsive">
@@ -36,9 +30,10 @@
                 <td><%= company_information.invoice_registration_number %></td>
                 <td><%= company_information.representative_name %></td>
                 <td>
-                  <%= link_to '詳細', company_information, class: 'btn btn-sm btn-info text-white' %>
-                  <%= link_to '編集', edit_company_information_path(company_information), class: 'btn btn-sm btn-warning text-white' %>
-                  <%= link_to '削除', company_information, method: :delete, data: { confirm: '本当に削除しますか？' }, class: 'btn btn-sm btn-danger' %>
+                  <%= render 'shared/index_action_buttons',
+                              show_path: company_information_path(company_information),
+                              edit_path: edit_company_information_path(company_information),
+                              delete_path: company_information_path(company_information) %>
                 </td>
               </tr>
             <% end %>
@@ -47,4 +42,6 @@
       </div>
     </div>
   </div>
+
+  <%= render 'shared/masters_back_button' %>
 </div>

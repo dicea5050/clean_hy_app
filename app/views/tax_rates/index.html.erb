@@ -32,9 +32,10 @@
                 <td><%= tax_rate.start_date.strftime('%Y/%m/%d') %></td>
                 <td><%= tax_rate.end_date&.strftime('%Y/%m/%d') %></td>
                 <td>
-                  <%= link_to '詳細', tax_rate_path(tax_rate), class: 'btn btn-sm btn-info' %>
-                  <%= link_to '編集', edit_tax_rate_path(tax_rate), class: 'btn btn-sm btn-success' %>
-                  <%= link_to '削除', tax_rate_path(tax_rate), method: :delete, data: { confirm: '本当に削除しますか？' }, class: 'btn btn-sm btn-danger' %>
+                  <%= render 'shared/index_action_buttons',
+                              show_path: tax_rate_path(tax_rate),
+                              edit_path: edit_tax_rate_path(tax_rate),
+                              delete_path: tax_rate_path(tax_rate) %>
                 </td>
               </tr>
             <% end %>
@@ -43,4 +44,6 @@
       </div>
     </div>
   </div>
-</div> 
+
+  <%= render 'shared/masters_back_button' %>
+</div>

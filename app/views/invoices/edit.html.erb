@@ -1,5 +1,5 @@
 <div class="container">
-  <h1>請求書編集</h1>
+  <h1>請求情報編集</h1>
 
   <%= form_with(model: @invoice, local: true) do |form| %>
     <% if @invoice.errors.any? %>
@@ -22,6 +22,7 @@
           <div class="d-flex align-items-center">
             <span class="form-control-plaintext"><%= @invoice.invoice_number %></span>
             <span class="<%= @invoice.approval_status_badge_class %> ms-2"><%= @invoice.approval_status %></span>
+            <span class="<%= @invoice.payment_status_badge_class %> ms-2"><%= @invoice.payment_status %></span>
           </div>
         </div>
       </div>

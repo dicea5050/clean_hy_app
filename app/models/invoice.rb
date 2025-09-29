@@ -17,6 +17,13 @@ class Invoice < ApplicationRecord
     rejected: "差し戻し"
   }.freeze
 
+  # 入金状況の定義
+  PAYMENT_STATUSES = {
+    unpaid: "未入金",
+    paid: "入金済",
+    partial: "一部未入金"
+  }.freeze
+
   validates :invoice_date, presence: true
   validates :customer_id, presence: true
   validates :invoice_number, presence: true, uniqueness: { conditions: -> { where.not(id: nil) } }
@@ -94,6 +101,29 @@ class Invoice < ApplicationRecord
       "badge bg-success"
     when "差し戻し"
       "badge bg-danger"
+    end
+  end
+
+  # 入金状況ステータス
+  def payment_status
+    if total_paid_amount == 0
+      PAYMENT_STATUSES[:unpaid]
+    elsif unpaid_amount == 0
+      PAYMENT_STATUSES[:paid]
+    else
+      PAYMENT_STATUSES[:partial]
+    end
+  end
+
+  # 入金状況に応じたバッジのクラスを返すヘルパーメソッド
+  def payment_status_badge_class
+    case payment_status
+    when "未入金"
+      "badge bg-danger"
+    when "入金済"
+      "badge bg-success"
+    when "一部未入金"
+      "badge bg-warning"
     end
   end
 

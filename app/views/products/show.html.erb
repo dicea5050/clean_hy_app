@@ -46,8 +46,7 @@
       </dl>
     </div>
     <div class="card-footer">
-      <%= link_to '編集', edit_product_path(@product), class: 'btn btn-success' %>
-      <%= link_to '戻る', products_path, class: 'btn btn-secondary' %>
+      <%= render 'shared/show_action_buttons', edit_path: edit_product_path(@product), delete_path: product_path(@product), back_path: products_path %>
     </div>
   </div>
 </div>

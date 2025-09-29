@@ -35,8 +35,11 @@
     <%= form.text_field :account_holder, class: 'form-control' %>
   </div>
 
-  <div class="mb-3">
-    <%= form.submit '保存', class: 'btn btn-primary me-2' %>
-    <%= link_to 'キャンセル', bank_accounts_path, class: 'btn btn-secondary' %>
+  <div class="form-check mb-3">
+    <%= form.check_box :disabled, class: 'form-check-input', id: 'bank_account_disabled' %>
+    <%= form.label :disabled, 'この口座を請求書の新規発行には表示しない（無効）', class: 'form-check-label', for: 'bank_account_disabled' %>
+    <div class="form-text">無効にしても、過去に一度でも発行済みの請求書を再発行する際は表示されます。</div>
   </div>
-<% end %> 
+
+  <%= render 'shared/form_actions', form: form, back_path: bank_accounts_path %>
+<% end %>
