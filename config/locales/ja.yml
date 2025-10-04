@@ -17,6 +17,8 @@ ja:
       product_category: 商品カテゴリー
       product_specification: 商品仕様
       unit: 単位
+      order: 受注
+      order_item: 受注明細
     attributes:
       tax_rate:
         name: 税率名
@@ -75,6 +77,22 @@ ja:
         is_active: 有効
       unit:
         name: 単位名
+      order:
+        customer_id: 取引先
+        order_date: 受注日
+        expected_delivery_date: 予定納品日
+        actual_delivery_date: 確定納品日
+        payment_method_id: 支払方法
+        delivery_location_id: 納品先
+      order_item:
+        product_id: 商品
+        product_specification_id: 規格
+        quantity: 数量
+        unit_price: 単価
+        tax_rate: 税率
+        unit_id: 単位
+        notes: 備考
+        product_name_override: 商品名（手動変更）
   date:
     abbr_day_names:
     - 日

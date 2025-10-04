@@ -26,7 +26,11 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-3">
+          <strong>取引先コード:</strong>
+          <%= @order.customer.customer_code %>
+        </div>
+        <div class="col-md-3">
           <strong>取引先:</strong>
           <%= @order.customer.company_name %>
         </div>
@@ -38,7 +42,7 @@
       <div class="row mt-2">
         <div class="col-md-6">
           <strong>支払い方法:</strong>
-          <%= @order.payment_method&.name %>
+          <%= @order.payment_method&.name || '未設定' %>
         </div>
       </div>
       <div class="row mt-3">
@@ -120,24 +124,24 @@
             <tr>
               <td><%= item.display_product_name %></td>
               <td><%= item.display_product_specification_name %></td>
-              <td><%= number_to_currency(item.unit_price) %></td>
+              <td><%= number_with_precision(item.unit_price, precision: 2, strip_insignificant_zeros: true) %></td>
               <td><%= item.tax_rate %></td>
-              <td><%= item.quantity %></td>
+              <td><%= number_with_precision(item.quantity, precision: 2, strip_insignificant_zeros: true) %></td>
               <td><%= item.unit&.name %></td>
-              <td><%= item.product.is_discount_target? ? '-' : '' %><%= number_to_currency(item.subtotal_without_tax.abs) %></td>
-              <td><%= item.product.is_discount_target? ? '-' : '' %><%= number_to_currency(item.subtotal.abs) %></td>
+              <td><%= item.product.is_discount_target? ? '-' : '' %><%= number_to_currency(item.subtotal_without_tax.abs, precision: 0) %></td>
+              <td><%= item.product.is_discount_target? ? '-' : '' %><%= number_to_currency(item.subtotal.abs, precision: 0) %></td>
               <td><%= item.notes %></td>
             </tr>
           <% end %>
           <tr>
             <td colspan="6" class="text-right"><strong>合計（税抜）:</strong></td>
-            <td><strong><%= number_to_currency(@order.order_items.sum { |item| item.subtotal_without_tax }) %></strong></td>
+            <td><strong><%= number_to_currency(@order.order_items.sum { |item| item.subtotal_without_tax }, precision: 0) %></strong></td>
             <td colspan="2"></td>
           </tr>
           <tr>
-            <td colspan="6" class="text-right"><strong>合計（税込）:</strong></td>
-            <td><strong><%= number_to_currency(@order.order_items.sum { |item| item.subtotal }) %></strong></td>
-            <td colspan="2"></td>
+            <td colspan="7" class="text-right"><strong>合計（税込）:</strong></td>
+            <td><strong><%= number_to_currency(@order.order_items.sum { |item| item.subtotal }, precision: 0) %></strong></td>
+            <td colspan="1"></td>
           </tr>
         </tbody>
       </table>

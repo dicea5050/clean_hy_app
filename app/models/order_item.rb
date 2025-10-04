@@ -4,12 +4,18 @@ class OrderItem < ApplicationRecord
   belongs_to :product_specification, optional: true
   belongs_to :unit, optional: true
 
-  validates :quantity, presence: true,
-    numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: 10 },
-    unless: :marked_for_destruction?
+  # バリデーションはOrderモデルで一元管理
+  # validates :quantity, presence: { message: "数量を入力してください" },
+  #   numericality: { 
+  #     only_integer: true, 
+  #     greater_than: 0, 
+  #     less_than_or_equal_to: 10,
+  #     message: "数量は1〜10の整数で入力してください"
+  #   },
+  #   unless: :marked_for_destruction?
 
-  validates :product_id, presence: true, unless: :marked_for_destruction?
-  validates :product_specification, presence: true, unless: :marked_for_destruction?
+  # validates :product_id, presence: { message: "商品を選択してください" }, unless: :marked_for_destruction?
+  # validates :product_specification_id, presence: { message: "規格を選択してください" }, unless: :marked_for_destruction?
 
   # 表示用の商品名を取得（手動変更があればそれを、なければ商品マスタから）
   def display_product_name

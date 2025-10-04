@@ -15,10 +15,12 @@ class OrdersController < ApplicationController
   end
 
   def show
+    Rails.logger.info "Order payment_method_id: #{@order.payment_method_id}"
+    Rails.logger.info "Order payment_method: #{@order.payment_method&.name}"
   end
 
   def new
-    @order = Order.new
+    @order = Order.new(order_date: Date.current)
     @customers = Customer.all.order(:company_name)
     @payment_methods = PaymentMethod.all
 
@@ -36,10 +38,13 @@ class OrdersController < ApplicationController
     @order.order_items.build if @order.order_items.empty?
     @customers = Customer.all.order(:company_name)
     @delivery_locations = @order.customer.delivery_locations.order(is_main_office: :desc, name: :asc)
+    # 取引先コードを取得するためのヘルパー変数
+    @customer_code = @order.customer&.customer_code
   end
 
   def create
     @order = Order.new(order_params)
+    Rails.logger.info "Creating order with payment_method_id: #{@order.payment_method_id}"
 
     # 単価と税率を商品から設定
     set_price_and_tax_rate(@order.order_items)
@@ -48,11 +53,28 @@ class OrdersController < ApplicationController
       redirect_to @order, notice: "受注情報が正常に作成されました。"
     else
       @customers = Customer.all.order(:company_name)
+      
+      # エラー時に顧客情報と納品先情報を復元
+      if @order.customer_id.present?
+        @customer = Customer.find(@order.customer_id)
+        @delivery_locations = @customer.delivery_locations.order(is_main_office: :desc, name: :asc)
+        @customer_code = @customer.customer_code
+      else
+        @delivery_locations = []
+        @customer_code = nil
+      end
+      
+      # エラー時にorder_itemsが空の場合、最低1つの空のorder_itemを追加
+      if @order.order_items.empty?
+        @order.order_items.build
+      end
+      
       render :new
     end
   end
 
   def update
+    Rails.logger.info "Updating order with payment_method_id: #{params[:order][:payment_method_id]}"
     if @order.update(order_params)
       # 単価と税率を商品から設定
       set_price_and_tax_rate(@order.order_items)
@@ -61,6 +83,16 @@ class OrdersController < ApplicationController
       redirect_to @order, notice: "受注情報が正常に更新されました。"
     else
       @customers = Customer.all.order(:company_name)
+      
+      # エラー時に納品先情報を復元
+      @delivery_locations = @order.customer.delivery_locations.order(is_main_office: :desc, name: :asc)
+      @customer_code = @order.customer&.customer_code
+      
+      # エラー時にorder_itemsが空の場合、最低1つの空のorder_itemを追加
+      if @order.order_items.empty?
+        @order.order_items.build
+      end
+      
       render :edit
     end
   end

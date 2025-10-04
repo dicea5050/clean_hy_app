@@ -6,7 +6,7 @@
            class="form-control product-code-input"
            style="width: 100%;"
            placeholder="商品コード"
-           value="<%= f.object.product&.product_code %>">
+           value="<%= f.object.product&.product_code || '' %>">
   </td>
   <td style="width: 140px;">
     <div class="autocomplete-container" style="position: relative;">
@@ -26,7 +26,7 @@
         ProductSpecification.active.order(:name),
         :id,
         :name,
-        { include_blank: "規格を選択" },
+        { include_blank: "規格を選択", selected: f.object.product_specification_id },
         { class: "form-control product-specification-select", style: "width: 100%;" } %>
   </td>
   <td style="width: 120px;">
@@ -35,7 +35,7 @@
       <input type="text"
              class="form-control unit-price-display text-right"
              style="min-width: 60px;"
-             value="<%= f.object.unit_price.present? && f.object.product_id.present? ? f.object.unit_price : '' %>"
+             value="<%= f.object.unit_price.present? && f.object.product_id.present? ? number_with_precision(f.object.unit_price, precision: 2, strip_insignificant_zeros: true) : '' %>"
              <%= 'readonly' if f.object.product&.fixed_price? %>>
       <div class="input-group-append">
         <span class="input-group-text">円</span>
@@ -49,28 +49,28 @@
     </span>%
   </td>
   <td style="width: 80px;">
-    <%= f.select :quantity,
-        (1..10).map {|n| [n, n]},
-        { include_blank: true, selected: f.object.new_record? ? "" : f.object.quantity },
-        { class: "form-control quantity-select", style: "width: 100%;", required: true } %>
+    <%= f.text_field :quantity,
+        { class: "form-control quantity-input", style: "width: 100%;", required: true, 
+          placeholder: "数量", type: "number", step: "0.01", min: "0",
+          value: f.object.quantity.present? ? number_with_precision(f.object.quantity, precision: 2, strip_insignificant_zeros: true) : '' } %>
   </td>
   <td style="width: 80px;">
     <%= f.select :unit_id, Unit.all.map { |u| [u.name, u.id] },
-        { include_blank: "単位" },
+        { include_blank: "単位", selected: f.object.unit_id },
         { class: "form-control", style: "width: 100%;" } %>
   </td>
   <td style="width: 120px;">
     <span class="subtotal-without-tax" style="display: inline-block; min-width: 80px; text-align: right;">
-      <%= f.object.subtotal_without_tax.present? ? f.object.subtotal_without_tax : 0 %>
-    </span>円
+      <%= f.object.subtotal_without_tax.present? ? number_to_currency(f.object.subtotal_without_tax, precision: 0) : number_to_currency(0, precision: 0) %>
+    </span>
   </td>
   <td style="width: 120px;">
     <span class="subtotal-with-tax" style="display: inline-block; min-width: 80px; text-align: right;">
-      <%= f.object.subtotal.present? ? f.object.subtotal : 0 %>
-    </span>円
+      <%= f.object.subtotal.present? ? number_to_currency(f.object.subtotal, precision: 0) : number_to_currency(0, precision: 0) %>
+    </span>
   </td>
   <td style="width: 200px;">
-    <%= f.text_field :notes, class: "form-control", placeholder: "備考" %>
+    <%= f.text_field :notes, class: "form-control", placeholder: "備考", value: f.object.notes %>
   </td>
   <td class="text-center" style="width: 80px;">
     <%= f.hidden_field :_destroy %>

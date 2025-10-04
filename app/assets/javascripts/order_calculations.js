@@ -13,7 +13,7 @@
       unitPrice = parseFloat(row.find('.unit-price-input').val()) || 0;
     }
 
-    var quantity = parseInt(row.find('.quantity-select').val()) || 0;
+    var quantity = parseFloat(row.find('.quantity-input').val()) || 0;
 
     // 税率は明示的に0も処理
     var taxRateText = row.find('.tax-rate-display').text().trim();
@@ -166,7 +166,7 @@
     });
 
     // 数量変更時に計算実行
-    $(document).on('change', '.quantity-select', function() {
+    $(document).on('input change', '.quantity-input', function() {
       calculateLineTotal($(this).closest('tr'));
     });
 
@@ -187,7 +187,7 @@
     });
 
     // 数量または単価変更時に小計を計算（統合イベントハンドラ）
-    $(document).on('input change', '.unit-price-display, .quantity-select', function() {
+    $(document).on('input change', '.unit-price-display, .quantity-input', function() {
       var row = $(this).closest('tr');
       calculateLineTotal(row);
     });

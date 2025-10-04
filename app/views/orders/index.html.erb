@@ -6,11 +6,11 @@
   <%# 検索フォームを追加 %>
   <div class="card mb-4">
     <div class="card-header bg-light">
-      <button class="btn btn-link btn-sm text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="false" aria-controls="searchCollapse">
+      <button class="btn btn-link btn-sm text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="true" aria-controls="searchCollapse">
         <i class="bi bi-search"></i> 検索条件
       </button>
     </div>
-    <div class="collapse" id="searchCollapse">
+    <div class="collapse show" id="searchCollapse">
       <div class="card-body">
         <%= form_with(url: orders_path, method: :get, local: true, id: 'search-form', class: 'row g-3') do |f| %>
           <!-- 1行目：顧客コード、取引先名、受注日、受注番号 -->

@@ -8,11 +8,49 @@ class Order < ApplicationRecord
 
   accepts_nested_attributes_for :order_items,
     allow_destroy: true,
-    reject_if: :all_blank
+    reject_if: proc { |attributes| attributes['product_id'].blank? && attributes['quantity'].blank? }
 
-  validates :order_date, presence: true
-  validates :customer_id, presence: true
-  validates :delivery_location_id, presence: true
+  validates :order_date, presence: { message: "受注日を入力してください" }
+  validates :customer_id, presence: { message: "取引先を選択してください" }
+  validates :delivery_location_id, presence: { message: "納品先を選択してください" }
+  validate :at_least_one_delivery_date_present
+  validate :validate_order_items
+
+  # 予定納品日または確定納品日のいずれか一方が必須
+  def at_least_one_delivery_date_present
+    if expected_delivery_date.blank? && actual_delivery_date.blank?
+      errors.add(:base, "予定納品日または確定納品日のいずれかを入力してください")
+    end
+  end
+
+  # 受注明細のバリデーション
+  def validate_order_items
+    # 受注明細が存在しない場合はエラー
+    if order_items.empty? || order_items.all?(&:marked_for_destruction?)
+      errors.add(:base, "最低1つの商品を登録してください")
+      return
+    end
+
+    # 各受注明細のバリデーションを実行
+    order_items.each_with_index do |item, index|
+      next if item.marked_for_destruction?
+      
+      # 個別にバリデーションをチェック
+      if item.product_id.blank?
+        errors.add(:base, "商品#{index + 1}: 商品を選択してください")
+      end
+      
+      if item.product_specification_id.blank?
+        errors.add(:base, "商品#{index + 1}: 規格を選択してください")
+      end
+      
+      if item.quantity.blank?
+        errors.add(:base, "商品#{index + 1}: 数量を入力してください")
+      elsif !item.quantity.is_a?(Numeric) || item.quantity <= 0
+        errors.add(:base, "商品#{index + 1}: 数量は0より大きい数値で入力してください")
+      end
+    end
+  end
 
   # 受注番号を生成するメソッド（年月ごとにリセットされる連番）
   def order_number
