@@ -80,7 +80,7 @@ ja:
       order:
         customer_id: 取引先
         order_date: 受注日
-        expected_delivery_date: 予定納品日
+        expected_delivery_date: 希望納品日
         actual_delivery_date: 確定納品日
         payment_method_id: 支払方法
         delivery_location_id: 納品先

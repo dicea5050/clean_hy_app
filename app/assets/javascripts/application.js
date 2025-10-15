@@ -2,6 +2,7 @@
 //= require delivery_locations_form
 //= require order_calculations
 //= require payment_records
+//= require customers
 
 // 商品選択時にAjaxで情報を取得
 $(document).ready(function() {

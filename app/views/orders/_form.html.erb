@@ -69,14 +69,14 @@
             <% end %>
           </div>
           <div class="col-md-4 form-group">
-            <%= f.label :expected_delivery_date, "予定納品日" %>
+            <%= f.label :expected_delivery_date, "希望納品日" %>
             <%= f.date_field :expected_delivery_date, class: "form-control" %>
-            <small class="form-text text-muted">予定納品日または確定納品日のいずれかを入力してください</small>
+            <small class="form-text text-muted">希望納品日または確定納品日のいずれかを入力してください</small>
           </div>
           <div class="col-md-4 form-group">
             <%= f.label :actual_delivery_date, "確定納品日" %>
             <%= f.date_field :actual_delivery_date, class: "form-control" %>
-            <small class="form-text text-muted">予定納品日または確定納品日のいずれかを入力してください</small>
+            <small class="form-text text-muted">希望納品日または確定納品日のいずれかを入力してください</small>
           </div>
         </div>
       </div>
@@ -87,31 +87,31 @@
         <h5 class="card-title">注文明細</h5>
         <table class="table" id="order-items" style="table-layout: fixed;">
           <colgroup>
-            <col style="width: 90px;">
-            <col style="width: 140px;">
-            <col style="width: 50px;">
+            <col style="width: 80px;">
+            <col style="width: 160px;">
+            <col style="width: 60px;">
+            <col style="width: 100px;">
+            <col style="width: 70px;">
+            <col style="width: 60px;">
+            <col style="width: 70px;">
+            <col style="width: 100px;">
             <col style="width: 100px;">
             <col style="width: 80px;">
-            <col style="width: 70px;">
-            <col style="width: 70px;">
-            <col style="width: 100px;">
-            <col style="width: 100px;">
-            <col style="width: 150px;">
-            <col style="width: 70px;">
+            <col style="width: 50px;">
           </colgroup>
           <thead>
             <tr>
-              <th style="width: 90px;">商品コード</th>
-              <th style="width: 140px;">商品</th>
-              <th style="width: 50px;">規格</th>
+              <th style="width: 80px;">商品コード</th>
+              <th style="width: 160px;">商品</th>
+              <th style="width: 70px;">規格</th>
               <th style="width: 100px;">単価</th>
-              <th style="width: 80px;">税率</th>
-              <th style="width: 70px;">数量</th>
+              <th style="width: 70px;">税率</th>
+              <th style="width: 60px;">数量</th>
               <th style="width: 70px;">単位</th>
               <th style="width: 100px;">税抜金額</th>
               <th style="width: 100px;">税込金額</th>
-              <th style="width: 150px;">備考</th>
-              <th style="width: 70px;"></th>
+              <th style="width: 180px;">備考</th>
+              <th style="width: 50px;"></th>
             </tr>
           </thead>
           <tbody>
@@ -129,7 +129,7 @@
             <tr>
               <td colspan="7" class="text-right"><strong>合計（税抜）：</strong></td>
               <td>
-                <strong><span id="order-total-without-tax" style="display: inline-block; min-width: 80px; text-align: right;">0</span>円</strong>
+                <strong><span id="order-total-without-tax" style="display: inline-block; min-width: 65px; text-align: right;">0</span>円</strong>
               </td>
               <td colspan="2"></td>
             </tr>
@@ -137,7 +137,7 @@
               <td colspan="7" class="text-right"><strong>合計（税込）：</strong></td>
               <td></td>
               <td>
-                <strong><span id="order-total-with-tax" style="display: inline-block; min-width: 80px; text-align: right;">0</span>円</strong>
+                <strong><span id="order-total-with-tax" style="display: inline-block; min-width: 65px; text-align: right;">0</span>円</strong>
               </td>
               <td></td>
             </tr>
