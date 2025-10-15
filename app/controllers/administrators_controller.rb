@@ -54,7 +54,7 @@ class AdministratorsController < ApplicationController
 
     if administrator&.authenticate(params[:password])
       session[:administrator_id] = administrator.id
-      redirect_to masters_path, notice: "ログインしました。"
+      redirect_to orders_path, notice: "ログインしました。"
     else
       flash.now[:alert] = "メールアドレスまたはパスワードが正しくありません。"
       render :login

@@ -40,6 +40,7 @@ class ApplicationController < ActionController::Base
         customers
         delivery_locations
         masters
+        orders
         payment_methods
         product_categories
         product_specifications
