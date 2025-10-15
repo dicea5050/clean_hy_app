@@ -26,17 +26,17 @@ Rails.application.routes.draw do
   # 各種マスター
   resources :tax_rates
   resources :products
-  
+
   # 顧客関連のルート（個別ルートを先に定義）
   get "customers/search", to: "customers#search"
   get "customers/company_name_search", to: "customers#company_name_search"
-  
+
   resources :customers do
     member do
       get :delivery_locations
     end
   end
-  
+
   resources :payment_methods
   resources :company_informations
   resources :bank_accounts

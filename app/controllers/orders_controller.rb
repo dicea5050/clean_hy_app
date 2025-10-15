@@ -53,7 +53,7 @@ class OrdersController < ApplicationController
       redirect_to @order, notice: "受注情報が正常に作成されました。"
     else
       @customers = Customer.all.order(:company_name)
-      
+
       # エラー時に顧客情報と納品先情報を復元
       if @order.customer_id.present?
         @customer = Customer.find(@order.customer_id)
@@ -63,12 +63,12 @@ class OrdersController < ApplicationController
         @delivery_locations = []
         @customer_code = nil
       end
-      
+
       # エラー時にorder_itemsが空の場合、最低1つの空のorder_itemを追加
       if @order.order_items.empty?
         @order.order_items.build
       end
-      
+
       render :new
     end
   end
@@ -83,16 +83,16 @@ class OrdersController < ApplicationController
       redirect_to @order, notice: "受注情報が正常に更新されました。"
     else
       @customers = Customer.all.order(:company_name)
-      
+
       # エラー時に納品先情報を復元
       @delivery_locations = @order.customer.delivery_locations.order(is_main_office: :desc, name: :asc)
       @customer_code = @order.customer&.customer_code
-      
+
       # エラー時にorder_itemsが空の場合、最低1つの空のorder_itemを追加
       if @order.order_items.empty?
         @order.order_items.build
       end
-      
+
       render :edit
     end
   end

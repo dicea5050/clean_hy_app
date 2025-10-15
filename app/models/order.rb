@@ -8,7 +8,7 @@ class Order < ApplicationRecord
 
   accepts_nested_attributes_for :order_items,
     allow_destroy: true,
-    reject_if: proc { |attributes| attributes['product_id'].blank? && attributes['quantity'].blank? }
+    reject_if: proc { |attributes| attributes["product_id"].blank? && attributes["quantity"].blank? }
 
   validates :order_date, presence: { message: "受注日を入力してください" }
   validates :customer_id, presence: { message: "取引先を選択してください" }
@@ -34,16 +34,16 @@ class Order < ApplicationRecord
     # 各受注明細のバリデーションを実行
     order_items.each_with_index do |item, index|
       next if item.marked_for_destruction?
-      
+
       # 個別にバリデーションをチェック
       if item.product_id.blank?
         errors.add(:base, "商品#{index + 1}: 商品を選択してください")
       end
-      
+
       if item.product_specification_id.blank?
         errors.add(:base, "商品#{index + 1}: 規格を選択してください")
       end
-      
+
       if item.quantity.blank?
         errors.add(:base, "商品#{index + 1}: 数量を入力してください")
       elsif !item.quantity.is_a?(Numeric) || item.quantity <= 0

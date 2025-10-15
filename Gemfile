@@ -63,7 +63,7 @@ gem "image_processing", "~> 1.2"
 gem "mini_magick"
 
 gem "csv"  # CSVライブラリを追加
-gem "dotenv-rails", groups: [:development, :test, :production]
+gem "dotenv-rails", groups: [ :development, :test, :production ]
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
@@ -76,7 +76,7 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
 
   gem "rspec-rails"
-  
+
   # Deployment with Capistrano
   gem "capistrano", "~> 3.18", require: false
   gem "capistrano-rails", "~> 1.6", require: false

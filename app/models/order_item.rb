@@ -6,9 +6,9 @@ class OrderItem < ApplicationRecord
 
   # バリデーションはOrderモデルで一元管理
   # validates :quantity, presence: { message: "数量を入力してください" },
-  #   numericality: { 
-  #     only_integer: true, 
-  #     greater_than: 0, 
+  #   numericality: {
+  #     only_integer: true,
+  #     greater_than: 0,
   #     less_than_or_equal_to: 10,
   #     message: "数量は1〜10の整数で入力してください"
   #   },
