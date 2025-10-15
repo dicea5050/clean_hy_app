@@ -78,7 +78,8 @@ ja:
       unit:
         name: 単位名
       order:
-        customer_id: 取引先
+        customer_id: 取引コード
+        customer: 取引先
         order_date: 受注日
         expected_delivery_date: 希望納品日
         actual_delivery_date: 確定納品日

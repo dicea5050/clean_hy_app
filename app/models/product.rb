@@ -5,7 +5,7 @@ class Product < ApplicationRecord
   validates :product_code, presence: true, uniqueness: true
   validates :name, presence: true
   validates :tax_rate_id, presence: true
-  validates :price, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+  validates :price, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
 
   # 利用可能な商品を取得するスコープを修正
   scope :available, -> {

@@ -4,6 +4,10 @@ class OrderItem < ApplicationRecord
   belongs_to :product_specification, optional: true
   belongs_to :unit, optional: true
 
+  # バリデーションを追加
+  validates :quantity, numericality: { greater_than: 0 }, allow_nil: true
+  validates :unit_price, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
+
   # バリデーションはOrderモデルで一元管理
   # validates :quantity, presence: { message: "数量を入力してください" },
   #   numericality: {

@@ -32,10 +32,12 @@
   <td style="width: 100px;">
     <%= f.hidden_field :unit_price, class: "unit-price-input" %>
     <div class="input-group">
-      <input type="text"
+      <input type="number"
              class="form-control unit-price-display text-right"
              style="min-width: 60px;"
-             value="<%= f.object.unit_price.present? && f.object.product_id.present? ? number_with_precision(f.object.unit_price, precision: 2, strip_insignificant_zeros: true) : '' %>"
+             step="1"
+             min="0"
+             value="<%= f.object.unit_price.present? && f.object.product_id.present? ? f.object.unit_price.to_i : '' %>"
              <%= 'readonly' if f.object.product&.fixed_price? %>>
       <div class="input-group-append">
         <span class="input-group-text">円</span>
