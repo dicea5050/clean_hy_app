@@ -2,7 +2,6 @@ class ChangePriceColumnsToInteger < ActiveRecord::Migration[8.0]
   def up
     # productsテーブルのpriceカラムを整数に変更
     change_column :products, :price, :integer
-    
     # order_itemsテーブルのunit_priceカラムを整数に変更
     change_column :order_items, :unit_price, :integer
   end
