@@ -126,7 +126,7 @@
               <td><%= item.display_product_specification_name %></td>
               <td class="text-end"><%= number_to_currency(item.unit_price, precision: 2, strip_insignificant_zeros: true, unit: '') %>円</td>
               <td class="text-end"><%= item.tax_rate %>%</td>
-              <td class="text-end"><%= number_with_precision(item.quantity, precision: 2, strip_insignificant_zeros: true) %></td>
+              <td class="text-end"><%= number_with_precision(item.quantity, precision: 3, strip_insignificant_zeros: true) %></td>
               <td class="text-end"><%= item.unit&.name %></td>
               <td class="text-end"><%= item.product.is_discount_target? ? '-' : '' %><%= number_to_currency(item.subtotal_without_tax.abs, precision: 0) %></td>
               <td class="text-end"><%= item.product.is_discount_target? ? '-' : '' %><%= number_to_currency(item.subtotal.abs, precision: 0) %></td>

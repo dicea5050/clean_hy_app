@@ -5,7 +5,7 @@ class OrderItem < ApplicationRecord
   belongs_to :unit, optional: true
 
   # バリデーションを追加
-  validates :quantity, numericality: { greater_than: 0 }, allow_nil: true
+  validates :quantity, numericality: { greater_than: 0, less_than_or_equal_to: 999999.999 }, allow_nil: true
   validates :unit_price, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
 
   # バリデーションはOrderモデルで一元管理
@@ -35,7 +35,7 @@ class OrderItem < ApplicationRecord
     # 値引き対象商品の場合はマイナスにする
     base_amount = unit_price * quantity
     base_amount = -base_amount if product&.is_discount_target?
-    (base_amount * (1 + tax_rate / 100.0)).round
+    (base_amount * (1 + tax_rate / 100.0)).floor
   end
 
   def subtotal_without_tax
@@ -43,6 +43,6 @@ class OrderItem < ApplicationRecord
     # 値引き対象商品の場合はマイナスにする
     base_amount = unit_price * quantity
     base_amount = -base_amount if product&.is_discount_target?
-    base_amount.round
+    base_amount.floor
   end
 end

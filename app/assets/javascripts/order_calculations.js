@@ -46,6 +46,8 @@
 
     // 税抜金額（値引き対象の場合はマイナス）
     var totalWithoutTax = unitPrice * quantity;
+    // 税抜金額は小数部分を切り捨て
+    totalWithoutTax = Math.floor(totalWithoutTax);
     if (isDiscountTarget) {
       totalWithoutTax = -totalWithoutTax;
       console.log("値引き対象商品のため、税抜金額をマイナスに変更:", totalWithoutTax);
@@ -53,6 +55,8 @@
 
     // 税込金額（税率が0の場合も正しく計算）
     var totalWithTax = totalWithoutTax * (1 + (taxRate / 100));
+    // 税込金額は小数部分を切り捨て
+    totalWithTax = Math.floor(totalWithTax);
 
     console.log("計算結果:", {
       totalWithoutTax: totalWithoutTax,
