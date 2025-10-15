@@ -20,12 +20,38 @@
     <li class="list-group-item">
       <div class="d-flex justify-content-between align-items-center">
         <div>
+          <h5 class="mb-1">納品先マスター</h5>
+          <p class="mb-0 text-muted">取引先ごとの納品先情報を管理します。</p>
+        </div>
+        <div class="btn-group">
+          <%= link_to '一覧', delivery_locations_path, class: 'btn btn-primary' %>
+          <%= link_to '新規', new_delivery_location_path, class: 'btn btn-outline-primary' %>
+        </div>
+      </div>
+    </li>
+
+    <li class="list-group-item">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
           <h5 class="mb-1">商品マスター</h5>
           <p class="mb-0 text-muted">商品情報の管理</p>
         </div>
         <div class="btn-group">
           <%= link_to '一覧', products_path, class: 'btn btn-primary' %>
           <%= link_to '新規', new_product_path, class: 'btn btn-outline-primary' %>
+        </div>
+      </div>
+    </li>
+
+    <li class="list-group-item">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-1">商品規格マスター</h5>
+          <p class="mb-0 text-muted">商品の規格情報を管理します。</p>
+        </div>
+        <div class="btn-group">
+          <%= link_to '一覧', product_specifications_path, class: 'btn btn-primary' %>
+          <%= link_to '新規', new_product_specification_path, class: 'btn btn-outline-primary' %>
         </div>
       </div>
     </li>
@@ -46,6 +72,19 @@
     <li class="list-group-item">
       <div class="d-flex justify-content-between align-items-center">
         <div>
+          <h5 class="mb-1">単位マスター</h5>
+          <p class="mb-0 text-muted">商品の単位情報を管理します。</p>
+        </div>
+        <div class="btn-group">
+          <%= link_to '一覧', units_path, class: 'btn btn-primary' %>
+          <%= link_to '新規', new_unit_path, class: 'btn btn-outline-primary' %>
+        </div>
+      </div>
+    </li>
+
+    <li class="list-group-item">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
           <h5 class="mb-1">税率マスター</h5>
           <p class="mb-0 text-muted">税率情報の管理</p>
         </div>
@@ -55,21 +94,6 @@
         </div>
       </div>
     </li>
-
-    <% if current_administrator&.admin? %>
-      <li class="list-group-item">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h5 class="mb-1">管理者マスター</h5>
-            <p class="mb-0 text-muted">管理者アカウントの管理</p>
-          </div>
-          <div class="btn-group">
-            <%= link_to '一覧', administrators_path, class: 'btn btn-primary' %>
-            <%= link_to '新規', new_administrator_path, class: 'btn btn-outline-primary' %>
-          </div>
-        </div>
-      </li>
-    <% end %>
 
     <li class="list-group-item">
       <div class="d-flex justify-content-between align-items-center">
@@ -110,43 +134,20 @@
       </div>
     </li>
 
-    <li class="list-group-item">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <h5 class="mb-1">商品規格マスター</h5>
-          <p class="mb-0 text-muted">商品の規格情報を管理します。</p>
+    <% if current_administrator&.admin? %>
+      <li class="list-group-item">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="mb-1">管理者マスター</h5>
+            <p class="mb-0 text-muted">管理者アカウントの管理</p>
+          </div>
+          <div class="btn-group">
+            <%= link_to '一覧', administrators_path, class: 'btn btn-primary' %>
+            <%= link_to '新規', new_administrator_path, class: 'btn btn-outline-primary' %>
+          </div>
         </div>
-        <div class="btn-group">
-          <%= link_to '一覧', product_specifications_path, class: 'btn btn-primary' %>
-          <%= link_to '新規', new_product_specification_path, class: 'btn btn-outline-primary' %>
-        </div>
-      </div>
-    </li>
+      </li>
+    <% end %>
 
-    <li class="list-group-item">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <h5 class="mb-1">単位マスター</h5>
-          <p class="mb-0 text-muted">商品の単位情報を管理します。</p>
-        </div>
-        <div class="btn-group">
-          <%= link_to '一覧', units_path, class: 'btn btn-primary' %>
-          <%= link_to '新規', new_unit_path, class: 'btn btn-outline-primary' %>
-        </div>
-      </div>
-    </li>
-
-    <li class="list-group-item">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <h5 class="mb-1">納品先マスター</h5>
-          <p class="mb-0 text-muted">取引先ごとの納品先情報を管理します。</p>
-        </div>
-        <div class="btn-group">
-          <%= link_to '一覧', delivery_locations_path, class: 'btn btn-primary' %>
-          <%= link_to '新規', new_delivery_location_path, class: 'btn btn-outline-primary' %>
-        </div>
-      </div>
-    </li>
   </ul>
 </div>
