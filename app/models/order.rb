@@ -122,7 +122,7 @@ class Order < ApplicationRecord
       rel = rel.where("order_date <= ?", params[:order_date_to])
     end
 
-    # 予定納品日での検索
+    # 希望納品日での検索
     if params[:expected_delivery_date_from].present?
       rel = rel.where("expected_delivery_date >= ?", params[:expected_delivery_date_from])
     end

@@ -1,11 +1,23 @@
 class CustomersController < ApplicationController
-  before_action :require_login
-  before_action :require_editor_limited_access
+  before_action :require_login, except: [:company_name_search]
+  before_action :require_editor_limited_access, except: [:company_name_search]
   before_action :require_editor, only: [ :new, :create, :update, :destroy ]
   before_action :set_customer, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @customers = Customer.order(:company_name).page(params[:page]).per(25)
+    @customers = Customer.order(:company_name)
+    
+    # 顧客コードで検索
+    if params[:customer_code].present?
+      @customers = @customers.where("customer_code LIKE ?", "%#{params[:customer_code]}%")
+    end
+    
+    # 顧客名で検索
+    if params[:company_name].present?
+      @customers = @customers.where("company_name LIKE ?", "%#{params[:company_name]}%")
+    end
+    
+    @customers = @customers.page(params[:page]).per(25)
   end
 
   def show
@@ -57,6 +69,19 @@ class CustomersController < ApplicationController
   def search
     @customers = Customer.where("company_name LIKE ?", "%#{params[:q]}%").limit(10)
     render json: @customers.map { |c| { id: c.id, text: c.company_name } }
+  end
+
+  # 顧客名のインクリメンタルサーチ用API
+  def company_name_search
+    query = params[:q]
+    if query.present?
+      @customers = Customer.where("company_name LIKE ?", "%#{query}%")
+                          .order(:company_name)
+                          .limit(10)
+      render json: @customers.map { |c| { id: c.id, name: c.company_name } }
+    else
+      render json: []
+    end
   end
 
   # 顧客に紐づく納品先を取得するAPIエンドポイント
