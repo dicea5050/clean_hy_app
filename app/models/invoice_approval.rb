@@ -1,6 +1,6 @@
 class InvoiceApproval < ApplicationRecord
   belongs_to :invoice
-  belongs_to :approver, polymorphic: true
+  belongs_to :approver, polymorphic: true, optional: true
 
   # 承認状態の定義
   STATUSES = {
@@ -11,7 +11,8 @@ class InvoiceApproval < ApplicationRecord
 
   validates :invoice_id, presence: true
   validates :status, presence: true, inclusion: { in: STATUSES.values }
-  validates :approver, presence: true
+  # approverは承認時点で設定されるため、作成時はoptional
+  validates :approver, presence: true, if: -> { status == STATUSES[:approved] || status == STATUSES[:rejected] }
 
   # 承認時に自動的に承認日時を設定
   before_save :set_approved_at, if: :status_changed_to_approved?

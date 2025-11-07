@@ -265,9 +265,22 @@ class InvoicePdf < Prawn::Document
     move_down 15
     text_box "消費税: ¥#{number_with_delimiter(total_with_tax - total_without_tax)}", at: [ bounds.width - 150, cursor ], width: 150, align: :right
     move_down 15
-    text_box "合計金額: ¥#{number_with_delimiter(total_with_tax)}", at: [ bounds.width - 150, cursor ], width: 150, align: :right, style: :bold
+    text_box "請求金額: ¥#{number_with_delimiter(total_with_tax)}", at: [ bounds.width - 150, cursor ], width: 150, align: :right, style: :bold
 
-    move_down 30
+    move_down 20
+
+    # 繰越金額と請求合計金額を表示
+    carryover_amount = Invoice.carryover_amount_for_customer(@invoice.customer_id, exclude_invoice_id: @invoice.id)
+    total_request_amount = total_with_tax + carryover_amount
+
+    if carryover_amount > 0
+      text_box "繰越金額: ¥#{number_with_delimiter(carryover_amount)}", at: [ bounds.width - 150, cursor ], width: 150, align: :right
+      move_down 15
+      text_box "請求合計金額: ¥#{number_with_delimiter(total_request_amount)}", at: [ bounds.width - 150, cursor ], width: 150, align: :right, style: :bold
+      move_down 20
+    else
+      move_down 10
+    end
 
     # 備考欄
     if @invoice.notes.present?
@@ -283,9 +296,6 @@ class InvoicePdf < Prawn::Document
     stroke_horizontal_rule
     move_down 10
     text "本請求書に関するお問い合わせは上記までご連絡ください。", align: :center, size: 10
-    if @invoice.approval_status == "承認済み"
-      text "この請求書は承認済みです。", align: :center, size: 10, style: :bold
-    end
   end
 
   def number_with_delimiter(number)

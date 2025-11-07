@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_15_091813) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_07_095924) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -109,8 +109,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_15_091813) do
   create_table "invoice_approvals", force: :cascade do |t|
     t.bigint "invoice_id", null: false
     t.string "status", null: false
-    t.string "approver_type", null: false
-    t.bigint "approver_id", null: false
+    t.string "approver_type"
+    t.bigint "approver_id"
     t.datetime "approved_at"
     t.text "notes"
     t.datetime "created_at", null: false
@@ -138,7 +138,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_15_091813) do
     t.text "notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "approval_status", default: "未申請", null: false
+    t.string "approval_status", default: "承認待ち", null: false
     t.datetime "first_issued_at"
     t.datetime "last_issued_at"
     t.integer "issued_count", default: 0, null: false
@@ -192,13 +192,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_15_091813) do
   end
 
   create_table "payment_records", force: :cascade do |t|
-    t.bigint "invoice_id", null: false
+    t.bigint "invoice_id"
     t.date "payment_date"
-    t.string "payment_type"
-    t.decimal "amount", precision: 12, scale: 2
-    t.text "memo"
+    t.string "category"
+    t.integer "amount", null: false
+    t.text "notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "customer_id", null: false
+    t.integer "paid_amount", default: 0, null: false
+    t.index ["customer_id"], name: "index_payment_records_on_customer_id"
     t.index ["invoice_id"], name: "index_payment_records_on_invoice_id"
   end
 
@@ -260,7 +263,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_15_091813) do
   add_foreign_key "order_items", "units"
   add_foreign_key "orders", "customers"
   add_foreign_key "orders", "delivery_locations"
-  add_foreign_key "payment_records", "invoices"
+  add_foreign_key "payment_records", "customers"
   add_foreign_key "products", "product_categories"
   add_foreign_key "products", "tax_rates"
 end

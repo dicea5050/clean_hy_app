@@ -4,9 +4,22 @@
   </div>
 
   <% if @invoice_approvals.any? %>
+    <!-- 一括操作ボタン -->
+    <div class="mb-3">
+      <button type="button" class="btn btn-success me-2" id="bulk-approve-btn" disabled>
+        <i class="bi bi-check-circle"></i> 選択した請求書を承認
+      </button>
+      <button type="button" class="btn btn-danger" id="bulk-reject-btn" disabled>
+        <i class="bi bi-x-circle"></i> 選択した請求書を差し戻し
+      </button>
+    </div>
+
     <table class="table">
       <thead>
         <tr>
+          <th>
+            <input type="checkbox" id="select-all" class="form-check-input">
+          </th>
           <th>請求書番号</th>
           <th>取引先</th>
           <th>請求日</th>
@@ -20,6 +33,9 @@
       <tbody>
         <% @invoice_approvals.each do |approval| %>
           <tr>
+            <td>
+              <input type="checkbox" name="approval_ids[]" value="<%= approval.id %>" class="form-check-input approval-checkbox">
+            </td>
             <td><%= link_to approval.invoice.invoice_number, invoice_path(approval.invoice) %></td>
             <td><%= approval.invoice.customer.company_name %></td>
             <td><%= l approval.invoice.invoice_date %></td>
@@ -53,4 +69,107 @@
   <div class="d-flex justify-content-center">
     <%= paginate @invoice_approvals %>
   </div>
-</div> 
+</div>
+
+<script>
+  $(document).ready(function() {
+    // 全選択チェックボックス
+    $('#select-all').on('change', function() {
+      $('.approval-checkbox').prop('checked', $(this).prop('checked'));
+      updateBulkButtonState();
+    });
+
+    // 個別チェックボックスの変更
+    $(document).on('change', '.approval-checkbox', function() {
+      // 全選択チェックボックスの状態を更新
+      var totalCheckboxes = $('.approval-checkbox').length;
+      var checkedCheckboxes = $('.approval-checkbox:checked').length;
+      $('#select-all').prop('checked', totalCheckboxes > 0 && totalCheckboxes === checkedCheckboxes);
+      updateBulkButtonState();
+    });
+
+    // 一括承認ボタンのクリック
+    $('#bulk-approve-btn').on('click', function() {
+      var selectedIds = $('.approval-checkbox:checked').map(function() {
+        return $(this).val();
+      }).get();
+
+      if (selectedIds.length === 0) {
+        alert('請求書を選択してください。');
+        return;
+      }
+
+      if (!confirm('選択した請求書を承認しますか？')) {
+        return;
+      }
+
+      // フォームを作成して送信
+      var form = $('<form>', {
+        'method': 'POST',
+        'action': '<%= bulk_approve_invoice_approvals_path %>'
+      });
+
+      form.append($('<input>', {
+        'type': 'hidden',
+        'name': 'authenticity_token',
+        'value': $('meta[name="csrf-token"]').attr('content')
+      }));
+
+      form.append($('<input>', {
+        'type': 'hidden',
+        'name': 'approval_ids',
+        'value': selectedIds.join(',')
+      }));
+
+      $('body').append(form);
+      form.submit();
+    });
+
+    // 一括差し戻しボタンのクリック
+    $('#bulk-reject-btn').on('click', function() {
+      var selectedIds = $('.approval-checkbox:checked').map(function() {
+        return $(this).val();
+      }).get();
+
+      if (selectedIds.length === 0) {
+        alert('請求書を選択してください。');
+        return;
+      }
+
+      if (!confirm('選択した請求書を差し戻しますか？')) {
+        return;
+      }
+
+      // フォームを作成して送信
+      var form = $('<form>', {
+        'method': 'POST',
+        'action': '<%= bulk_reject_invoice_approvals_path %>'
+      });
+
+      form.append($('<input>', {
+        'type': 'hidden',
+        'name': 'authenticity_token',
+        'value': $('meta[name="csrf-token"]').attr('content')
+      }));
+
+      form.append($('<input>', {
+        'type': 'hidden',
+        'name': 'approval_ids',
+        'value': selectedIds.join(',')
+      }));
+
+      $('body').append(form);
+      form.submit();
+    });
+
+    // ボタンの有効/無効を更新
+    function updateBulkButtonState() {
+      var hasChecked = $('.approval-checkbox:checked').length > 0;
+      $('#bulk-approve-btn').prop('disabled', !hasChecked);
+      $('#bulk-reject-btn').prop('disabled', !hasChecked);
+    }
+
+    // 初期状態を設定
+    updateBulkButtonState();
+  });
+</script> 

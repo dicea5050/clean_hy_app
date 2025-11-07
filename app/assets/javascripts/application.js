@@ -1,8 +1,8 @@
 // 外部JavaScriptファイルを明示的に読み込み
 //= require delivery_locations_form
 //= require order_calculations
-//= require payment_records
 //= require customers
+//= require payment_management
 
 // 商品選択時にAjaxで情報を取得
 $(document).ready(function() {
@@ -187,5 +187,35 @@ $(document).ready(function() {
       $('#delivery-contact').html('<strong>連絡先:</strong> ' + data.contact_person + ' (' + data.phone + ')');
       $('#delivery-location-details').show();
     });
+  });
+
+  // 入金管理：取引先選択時の処理
+  $(document).on('change', '#customer-select', function() {
+    var customerId = $(this).val();
+    var $unpaidButton = $('[data-payment-management-target="unpaidButton"]');
+    var $paidButton = $('[data-payment-management-target="paidButton"]');
+    var $historyButton = $('[data-payment-management-target="historyButton"]');
+    var $customerIdField = $('[data-payment-management-target="customerIdField"]');
+
+    if (customerId) {
+      // ボタンを有効化
+      $unpaidButton.prop('disabled', false);
+      $paidButton.prop('disabled', false);
+      $historyButton.prop('disabled', false);
+      
+      // 隠しフィールドに値を設定
+      if ($customerIdField.length) {
+        $customerIdField.val(customerId);
+      }
+    } else {
+      // ボタンを無効化
+      $unpaidButton.prop('disabled', true);
+      $paidButton.prop('disabled', true);
+      $historyButton.prop('disabled', true);
+      
+      // カードを非表示
+      $('[data-payment-management-target="invoicesCard"]').hide();
+      $('[data-payment-management-target="paymentCard"]').hide();
+    }
   });
 });

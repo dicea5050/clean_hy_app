@@ -2,16 +2,12 @@ class Invoice < ApplicationRecord
   belongs_to :customer
   has_many :invoice_orders, dependent: :destroy
   has_many :orders, through: :invoice_orders
-  has_many :payment_records, dependent: :destroy
-
-  # payment_recordsのネストした属性を受け入れる
-  accepts_nested_attributes_for :payment_records,
-                               allow_destroy: true,
-                               reject_if: proc { |attributes| attributes["payment_date"].blank? || attributes["amount"].blank? }
+  has_many :invoice_approvals, dependent: :destroy
+  # 充当記録のみを取得（invoice_idが存在するpayment_records）
+  has_many :payment_records, -> { where.not(invoice_id: nil) }, class_name: 'PaymentRecord', foreign_key: 'invoice_id', dependent: :destroy
 
   # 承認状態の定義を先に行う
   APPROVAL_STATUSES = {
-    pending: "未申請",
     waiting: "承認待ち",
     approved: "承認済み",
     rejected: "差し戻し"
@@ -31,6 +27,7 @@ class Invoice < ApplicationRecord
 
   before_validation :generate_invoice_number, on: :create
   before_validation :set_default_approval_status, on: :create
+  after_create :create_initial_invoice_approval
 
   # 請求書番号を生成（年月ごとにリセットされる連番）
   def generate_invoice_number
@@ -63,7 +60,18 @@ class Invoice < ApplicationRecord
 
   # デフォルトの承認状態を設定
   def set_default_approval_status
-    self.approval_status ||= APPROVAL_STATUSES[:pending]
+    self.approval_status ||= APPROVAL_STATUSES[:waiting]
+  end
+
+  # 請求書作成時にInvoiceApprovalレコードを自動作成
+  def create_initial_invoice_approval
+    # 既にInvoiceApprovalが存在する場合は作成しない
+    return if invoice_approvals.exists?
+
+    invoice_approvals.create!(
+      status: InvoiceApproval::STATUSES[:pending]
+      # approverは承認時点で設定されるため、作成時は設定しない
+    )
   end
 
   # 合計金額（税抜）
@@ -75,32 +83,45 @@ class Invoice < ApplicationRecord
 
   # 合計金額（税込）
   def total_amount
-    orders.sum do |order|
-      order.order_items.sum(&:subtotal)
+    result = orders.sum do |order|
+      order.order_items.sum(&:subtotal) || 0
     end
+    result || 0
   end
 
-  # 入金済み金額の合計
+  # 入金済み金額の合計（充当記録のpaid_amountを集計）
   def total_paid_amount
-    payment_records.sum(:amount)
+    PaymentRecord.where(invoice_id: id).sum(:paid_amount) || 0
   end
 
   # 未入金金額
   def unpaid_amount
-    total_amount - total_paid_amount
+    calculated_total = total_amount
+    calculated_paid = total_paid_amount
+    result = calculated_total - calculated_paid
+    
+    # デバッグログ（必要に応じて）
+    Rails.logger.debug "Invoice #{id} unpaid_amount計算: total=#{calculated_total}, paid=#{calculated_paid}, unpaid=#{result}" if Rails.env.development?
+    
+    result
+  end
+
+  # 未入金金額（remaining_amountの別名）
+  def remaining_amount
+    unpaid_amount
   end
 
   # 承認状態に応じたバッジのクラスを返すヘルパーメソッド
   def approval_status_badge_class
     case approval_status
-    when "未申請"
-      "badge bg-secondary"
     when "承認待ち"
       "badge bg-warning"
     when "承認済み"
       "badge bg-success"
     when "差し戻し"
       "badge bg-danger"
+    else
+      "badge bg-secondary"
     end
   end
 
@@ -131,4 +152,21 @@ class Invoice < ApplicationRecord
   scope :by_customer_code, ->(customer_code) {
     joins(:customer).where("customers.customer_code LIKE ?", "%#{customer_code}%") if customer_code.present?
   }
+
+  # 同一顧客の繰越金額（未入金請求書の合計）を計算
+  # 承認済みの請求書で未入金額があるものの合計を返す
+  # exclude_invoice_id: 繰越金額の計算から除外する請求書ID（edit/show画面で現在の請求書を除外するため）
+  def self.carryover_amount_for_customer(customer_id, exclude_invoice_id: nil)
+    return 0 if customer_id.blank?
+
+    # 承認済みの請求書を取得
+    approved_invoices = where(customer_id: customer_id, approval_status: APPROVAL_STATUSES[:approved])
+                       .includes(orders: :order_items)
+
+    # 特定の請求書を除外
+    approved_invoices = approved_invoices.where.not(id: exclude_invoice_id) if exclude_invoice_id.present?
+
+    # 未入金額がある請求書の未入金額を合計
+    approved_invoices.sum { |invoice| [invoice.unpaid_amount, 0].max }
+  end
 end

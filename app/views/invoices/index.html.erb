@@ -2,10 +2,6 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
       <h1>請求情報一覧</h1>
-      <%= button_tag '選択した請求書の承認申請',
-          class: 'btn btn-success me-2',
-          id: 'bulk-approve-button',
-          disabled: true %>
     </div>
   </div>
 
@@ -118,11 +114,18 @@
     </div>
   </div>
 
+  <!-- 一括操作ボタン -->
+  <div class="mb-3">
+    <button type="button" class="btn btn-primary" id="bulk-request-approval-btn" disabled>
+      <i class="bi bi-check-circle"></i> 選択した請求書を承認申請
+    </button>
+  </div>
+
   <table class="table">
     <thead>
       <tr>
         <th>
-          <input type="checkbox" id="select-all" class="order-checkbox">
+          <input type="checkbox" id="select-all" class="form-check-input">
         </th>
         <th>請求書番号</th>
         <th>取引先</th>
@@ -140,10 +143,11 @@
       <% @invoices.each do |invoice| %>
         <tr>
           <td>
-            <input type="checkbox"
-                   class="order-checkbox invoice-checkbox"
-                   value="<%= invoice.id %>"
-                   <%= 'disabled' unless ['未申請', '差し戻し'].include?(invoice.approval_status) %>>
+            <% if invoice.approval_status == Invoice::APPROVAL_STATUSES[:rejected] %>
+              <input type="checkbox" name="invoice_ids[]" value="<%= invoice.id %>" class="form-check-input invoice-checkbox">
+            <% else %>
+              <input type="checkbox" disabled class="form-check-input" title="差し戻しステータスの請求書のみ選択可能です">
+            <% end %>
           </td>
           <td><%= link_to invoice.invoice_number, invoice_path(invoice) %></td>
           <td><%= invoice.customer.company_name %></td>
@@ -215,77 +219,73 @@
   </div>
 <% end %>
 
-<%# JavaScriptを更新 %>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const selectAll = document.getElementById('select-all');
-  const invoiceCheckboxes = document.querySelectorAll('.invoice-checkbox:not([disabled])');
-  const bulkApproveButton = document.getElementById('bulk-approve-button');
-
-  // 全選択チェックボックスの制御
-  selectAll.addEventListener('change', function() {
-    invoiceCheckboxes.forEach(checkbox => {
-      checkbox.checked = this.checked;
-    });
-    updateBulkApproveButton();
-  });
-
-  // 個別チェックボックスの制御
-  invoiceCheckboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', function() {
-      updateBulkApproveButton();
-      updateSelectAllCheckbox();
-    });
-  });
-
-  // 承認申請ボタンの有効/無効を制御
-  function updateBulkApproveButton() {
-    const checkedCount = document.querySelectorAll('.invoice-checkbox:checked').length;
-    bulkApproveButton.disabled = checkedCount === 0;
-  }
-
-  // 全選択チェックボックスの状態を更新
-  function updateSelectAllCheckbox() {
-    const allChecked = Array.from(invoiceCheckboxes).every(checkbox => checkbox.checked);
-    selectAll.checked = allChecked;
-  }
-
-  // 承認申請ボタンのクリックイベントを追加
-  bulkApproveButton.addEventListener('click', function() {
-    const checkedBoxes = document.querySelectorAll('.invoice-checkbox:checked');
-    if (checkedBoxes.length === 0) return;
-
-    const invoiceIds = Array.from(checkedBoxes).map(cb => cb.value).join(',');
-
-    if (confirm('選択した請求書を承認申請します。よろしいですか？')) {
-      // フォームを動的に作成して送信
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = '/invoice_approvals/bulk_create';
-
-      // CSRF Token
-      const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-      const csrfInput = document.createElement('input');
-      csrfInput.type = 'hidden';
-      csrfInput.name = 'authenticity_token';
-      csrfInput.value = csrfToken;
-
-      // 請求書IDsのinput
-      const idsInput = document.createElement('input');
-      idsInput.type = 'hidden';
-      idsInput.name = 'invoice_ids';
-      idsInput.value = invoiceIds;
-
-      form.appendChild(csrfInput);
-      form.appendChild(idsInput);
-      document.body.appendChild(form);
-      form.submit();
-    }
-  });
-});
-</script>
 
 <%= javascript_include_tag "/assets/javascripts/search_form.js" %>
+
+<script>
+  $(document).ready(function() {
+    // 全選択チェックボックス（差し戻しステータスの請求書のみ選択）
+    $('#select-all').on('change', function() {
+      $('.invoice-checkbox:not(:disabled)').prop('checked', $(this).prop('checked'));
+      updateBulkButtonState();
+    });
+
+    // 個別チェックボックスの変更
+    $(document).on('change', '.invoice-checkbox', function() {
+      // 全選択チェックボックスの状態を更新（差し戻しステータスの請求書のみをカウント）
+      var totalCheckboxes = $('.invoice-checkbox:not(:disabled)').length;
+      var checkedCheckboxes = $('.invoice-checkbox:checked').length;
+      $('#select-all').prop('checked', totalCheckboxes > 0 && totalCheckboxes === checkedCheckboxes);
+      updateBulkButtonState();
+    });
+
+    // 一括承認申請ボタンのクリック
+    $('#bulk-request-approval-btn').on('click', function() {
+      var selectedIds = $('.invoice-checkbox:checked').map(function() {
+        return $(this).val();
+      }).get();
+
+      if (selectedIds.length === 0) {
+        alert('請求書を選択してください。');
+        return;
+      }
+
+      if (!confirm('選択した請求書を承認申請しますか？')) {
+        return;
+      }
+
+      // フォームを作成して送信
+      var form = $('<form>', {
+        'method': 'POST',
+        'action': '<%= bulk_request_approval_invoices_path %>'
+      });
+
+      form.append($('<input>', {
+        'type': 'hidden',
+        'name': 'authenticity_token',
+        'value': $('meta[name="csrf-token"]').attr('content')
+      }));
+
+      form.append($('<input>', {
+        'type': 'hidden',
+        'name': 'invoice_ids',
+        'value': selectedIds.join(',')
+      }));
+
+      $('body').append(form);
+      form.submit();
+    });
+
+    // ボタンの有効/無効を更新
+    function updateBulkButtonState() {
+      var hasChecked = $('.invoice-checkbox:checked').length > 0;
+      $('#bulk-request-approval-btn').prop('disabled', !hasChecked);
+    }
+
+    // 初期状態を設定
+    updateBulkButtonState();
+  });
+</script>
 
 <style>
 .clear-left {

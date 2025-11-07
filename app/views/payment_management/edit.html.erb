@@ -1,0 +1,73 @@
+<div class="container" style="max-width: 800px;">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-2">入金編集</h2>
+      <p class="text-muted mb-0">入金記録を編集します</p>
+    </div>
+    <%= link_to '入金管理に戻る', payment_management_index_path, class: 'btn btn-secondary' %>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <%= form_with model: @payment_record, url: payment_management_path(@payment_record), method: :patch, local: true, scope: :payment do |form| %>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group mb-3">
+              <%= form.label :payment_date, "入金日", class: "form-label" %>
+              <%= form.date_field :payment_date, class: "form-control", required: true %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group mb-3">
+              <%= form.label :category, "入金種別", class: "form-label" %>
+              <%= form.select :category, 
+                  options_for_select([
+                    ['入金（振込）', '入金（振込）'],
+                    ['入金（現金）', '入金（現金）'],
+                    ['振込手数料', '振込手数料'],
+                    ['相殺', '相殺'],
+                    ['返金', '返金']
+                  ], @payment_record.category), 
+                  { prompt: "選択してください" }, 
+                  { class: "form-select", required: true } %>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group mb-3">
+              <%= form.label :amount, "入金額", class: "form-label" %>
+              <%= form.number_field :amount, class: "form-control", min: 1, step: 1, required: true %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group mb-3">
+              <%= form.label :notes, "備考", class: "form-label" %>
+              <%= form.text_field :notes, class: "form-control" %>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <div class="alert alert-info">
+              <strong>注意:</strong> 入金額を変更した場合、請求書への充当が自動的に再計算されます。
+              新しい金額で最新の請求書から順番に充当処理が行われます。
+            </div>
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-12">
+            <div class="d-flex gap-2">
+              <%= form.submit "更新", class: "btn btn-primary" %>
+              <%= link_to "キャンセル", payment_management_index_path, class: "btn btn-secondary" %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
