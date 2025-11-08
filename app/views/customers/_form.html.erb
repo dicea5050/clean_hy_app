@@ -1,4 +1,4 @@
-<%= form_with(model: customer, local: true) do |form| %>
+<%= form_with(model: customer, local: true, html: { class: 'h-adr' }) do |form| %>
   <% if customer.errors.any? %>
     <div class="alert alert-danger">
       <h4><%= pluralize(customer.errors.count, "つのエラー") %> が発生しました:</h4>
@@ -10,75 +10,104 @@
     </div>
   <% end %>
 
-  <div class="form-group">
-    <%= form.label :customer_code, '顧客コード' %>
-    <%= form.text_field :customer_code, class: 'form-control' %>
+  <span class="p-country-name" style="display:none;">Japan</span>
+
+  <div class="form-group" style="line-height: 1.5; margin-bottom: 1.5rem;">
+    <div class="d-flex align-items-end gap-3">
+      <div>
+        <%= form.label :customer_code, '顧客コード' do %>
+          顧客コード <span class="text-danger">*</span>
+        <% end %>
+        <%= form.text_field :customer_code, class: 'form-control', style: 'width: 100px;' %>
+      </div>
+      <div style="flex: 1;">
+        <%= form.label :company_name, '社名（屋号）' do %>
+          社名（屋号） <span class="text-danger">*</span>
+        <% end %>
+        <%= form.text_field :company_name, class: 'form-control' %>
+      </div>
+    </div>
   </div>
 
-  <div class="form-group">
-    <%= form.label :company_name, '社名（屋号）' %>
-    <%= form.text_field :company_name, class: 'form-control' %>
+  <div class="form-group" style="line-height: 1.5; margin-bottom: 1.5rem;">
+    <div class="d-flex align-items-end gap-3">
+      <div>
+        <%= form.label :postal_code, '郵便番号' do %>
+          郵便番号 <span class="text-danger">*</span>
+        <% end %>
+        <%= form.text_field :postal_code, class: 'form-control p-postal-code', style: 'width: 100px;' %>
+      </div>
+      <div style="flex: 1;">
+        <%= form.label :address, '住所' do %>
+          住所 <span class="text-danger">*</span>
+        <% end %>
+        <%= form.text_field :address, class: 'form-control p-region p-locality p-street-address' %>
+      </div>
+    </div>
   </div>
 
-  <div class="form-group">
-    <%= form.label :postal_code, '郵便番号' %>
-    <%= form.text_field :postal_code, class: 'form-control' %>
+  <div class="form-group" style="line-height: 1.5; margin-bottom: 1.5rem;">
+    <div class="d-flex align-items-end gap-3">
+      <div style="width: 30%;">
+        <%= form.label :department, '部署名' %>
+        <%= form.text_field :department, class: 'form-control' %>
+      </div>
+      <div style="width: 30%;">
+        <%= form.label :contact_name, '担当者名' %>
+        <%= form.text_field :contact_name, class: 'form-control' %>
+      </div>
+      <div style="width: 30%;">
+        <%= form.label :phone_number, '電話番号' %>
+        <%= form.text_field :phone_number, class: 'form-control' %>
+      </div>
+    </div>
   </div>
 
-  <div class="form-group">
-    <%= form.label :address, '住所' %>
-    <%= form.text_field :address, class: 'form-control' %>
+  <div class="form-group" style="line-height: 1.5; margin-bottom: 1.5rem;">
+    <div class="d-flex align-items-start gap-3">
+      <div style="width: 30%;">
+        <%= form.label :email, 'メールアドレス' do %>
+          メールアドレス <span id="email_required_mark" class="text-danger" style="display: none;">*</span>
+        <% end %>
+        <%= form.email_field :email, class: 'form-control', id: 'customer_email' %>
+      </div>
+      <div style="width: 30%;">
+        <%= form.label :password, 'パスワード' %>
+        <%= form.password_field :password, class: 'form-control' %>
+        <% if customer.persisted? && customer.password_set? %>
+          <small class="form-text text-muted">パスワードが設定済みです。変更する場合のみ入力してください。</small>
+        <% else %>
+          <small class="form-text text-muted">ネットショップ用のパスワードが未設定です。ネットショップでの袋購入をする場合は設定してください。</small>
+        <% end %>
+      </div>
+      <div style="width: 30%;">
+        <%= form.label :password_confirmation, 'パスワード（確認）' %>
+        <%= form.password_field :password_confirmation, class: 'form-control' %>
+      </div>
+    </div>
   </div>
 
-  <div class="form-group">
-    <%= form.label :department, '部署名' %>
-    <%= form.text_field :department, class: 'form-control' %>
-  </div>
-
-  <div class="form-group">
-    <%= form.label :contact_name, '担当者名' %>
-    <%= form.text_field :contact_name, class: 'form-control' %>
-  </div>
-
-  <div class="form-group">
-    <%= form.label :phone_number, '電話番号' %>
-    <%= form.text_field :phone_number, class: 'form-control' %>
-  </div>
-
-  <div class="form-group">
-    <%= form.label :invoice_delivery_method, '請求書送付方法' %>
-    <%= form.select :invoice_delivery_method, 
-                 { '電子請求' => 'electronic', '郵送' => 'postal' }, 
-                 { include_blank: '選択してください' }, 
-                 { class: 'form-control' } %>
-  </div>
-
-  <div class="form-group">
-    <%= form.label :billing_closing_day, '請求締日' %>
-    <%= form.select :billing_closing_day, 
-                 Customer::BILLING_CLOSING_DAYS, 
-                 { include_blank: '選択してください' }, 
-                 { class: 'form-control' } %>
-  </div>
-
-  <div class="form-group">
-    <%= form.label :email, 'メールアドレス' %>
-    <%= form.email_field :email, class: 'form-control' %>
-  </div>
-
-  <div class="form-group">
-    <%= form.label :password, 'パスワード' %>
-    <%= form.password_field :password, class: 'form-control' %>
-    <% if customer.persisted? && customer.password_set? %>
-      <small class="form-text text-muted">パスワードが設定済みです。変更する場合のみ入力してください。</small>
-    <% else %>
-      <small class="form-text text-muted">ネットショップ用のパスワードが未設定です。ネットショップでの袋購入をする場合は設定してください。</small>
-    <% end %>
-  </div>
-
-  <div class="form-group">
-    <%= form.label :password_confirmation, 'パスワード（確認）' %>
-    <%= form.password_field :password_confirmation, class: 'form-control' %>
+  <div class="form-group" style="line-height: 1.5; margin-bottom: 1.5rem;">
+    <div class="d-flex align-items-end gap-3">
+      <div>
+        <%= form.label :invoice_delivery_method, '請求書送付方法' do %>
+          請求書送付方法 <span class="text-danger">*</span>
+        <% end %>
+        <%= form.select :invoice_delivery_method, 
+                     { '電子請求' => 'electronic', '郵送' => 'postal' }, 
+                     { include_blank: '選択してください' }, 
+                     { class: 'form-control', style: 'width: auto; min-width: fit-content;', id: 'customer_invoice_delivery_method' } %>
+      </div>
+      <div>
+        <%= form.label :billing_closing_day, '請求締日' do %>
+          請求締日 <span class="text-danger">*</span>
+        <% end %>
+        <%= form.select :billing_closing_day, 
+                     Customer::BILLING_CLOSING_DAYS, 
+                     { include_blank: '選択してください' }, 
+                     { class: 'form-control', style: 'width: 150px;' } %>
+      </div>
+    </div>
   </div>
 
   <div class="form-group mt-4">

@@ -34,8 +34,17 @@ class Customer < ApplicationRecord
   validates :address, presence: true
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
   validates :invoice_delivery_method, presence: true
-  validates :billing_closing_day, inclusion: { in: BILLING_CLOSING_DAYS.map(&:last) }, allow_blank: true
+  validates :billing_closing_day, presence: true, inclusion: { in: BILLING_CLOSING_DAYS.map(&:last) }
   # パスワードは任意項目
+  
+  # 電子請求の場合のみメールアドレスを必須にする
+  validate :email_required_for_electronic_invoice
+  
+  def email_required_for_electronic_invoice
+    if invoice_delivery_method == 'electronic' && email.blank?
+      errors.add(:email, '電子請求を選択した場合はメールアドレスが必須です')
+    end
+  end
 
   def name
     company_name

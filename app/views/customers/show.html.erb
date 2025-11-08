@@ -1,55 +1,62 @@
 <div class="container mt-4">
   <div class="card">
-    <div class="card-header">
+    <div class="card-header bg-primary text-white">
       <h2>顧客詳細</h2>
     </div>
     <div class="card-body">
-      <dl class="row">
-        <dt class="col-sm-3">顧客コード:</dt>
-        <dd class="col-sm-9"><%= @customer.customer_code %></dd>
+      <div class="mb-3">
+        <strong>顧客コード:</strong> <%= @customer.customer_code %>
+      </div>
 
-        <dt class="col-sm-3">社名（屋号）:</dt>
-        <dd class="col-sm-9"><%= @customer.company_name %></dd>
+      <div class="mb-3">
+        <strong>社名（屋号）:</strong> <%= @customer.company_name %>
+      </div>
 
-        <dt class="col-sm-3">郵便番号:</dt>
-        <dd class="col-sm-9"><%= @customer.postal_code %></dd>
+      <div class="mb-3">
+        <strong>郵便番号:</strong> <%= @customer.postal_code %>
+      </div>
 
-        <dt class="col-sm-3">住所:</dt>
-        <dd class="col-sm-9"><%= @customer.address %></dd>
+      <div class="mb-3">
+        <strong>住所:</strong> <%= @customer.address %>
+      </div>
 
-        <dt class="col-sm-3">部署名:</dt>
-        <dd class="col-sm-9"><%= @customer.department %></dd>
+      <div class="mb-3">
+        <strong>部署名:</strong> <%= @customer.department %>
+      </div>
 
-        <dt class="col-sm-3">担当者名:</dt>
-        <dd class="col-sm-9"><%= @customer.contact_name %></dd>
+      <div class="mb-3">
+        <strong>担当者名:</strong> <%= @customer.contact_name %>
+      </div>
 
-        <dt class="col-sm-3">電話番号:</dt>
-        <dd class="col-sm-9"><%= @customer.phone_number %></dd>
+      <div class="mb-3">
+        <strong>電話番号:</strong> <%= @customer.phone_number %>
+      </div>
 
-        <dt class="col-sm-3">請求書送付方法:</dt>
-        <dd class="col-sm-9">
-          <% if @customer.electronic? %>
-            <span class="badge bg-info">電子請求</span>
-          <% else %>
-            <span class="badge bg-secondary">郵送</span>
-          <% end %>
-        </dd>
+      <div class="mb-3">
+        <strong>請求書送付方法:</strong>
+        <% if @customer.electronic? %>
+          <span class="badge bg-info">電子請求</span>
+        <% else %>
+          <span class="badge bg-secondary">郵送</span>
+        <% end %>
+      </div>
 
-        <dt class="col-sm-3">請求締日:</dt>
-        <dd class="col-sm-9"><%= @customer.billing_closing_day_display %></dd>
+      <div class="mb-3">
+        <strong>請求締日:</strong> <%= @customer.billing_closing_day_display %>
+      </div>
 
-        <dt class="col-sm-3">メールアドレス:</dt>
-        <dd class="col-sm-9"><%= @customer.email %></dd>
+      <div class="mb-3">
+        <strong>メールアドレス:</strong> <%= @customer.email %>
+      </div>
 
-        <dt class="col-sm-3">パスワード設定状況:</dt>
-        <dd class="col-sm-9">
-          <% if @customer.password_set? %>
-            <span class="badge bg-success">パスワード設定済み</span>
-          <% else %>
-            <span class="badge bg-warning">パスワード未設定</span>
-          <% end %>
-        </dd>
-      </dl>
+      <div class="mb-3">
+        <strong>パスワード設定状況:</strong>
+        <% if @customer.password_set? %>
+          <span class="badge bg-success">パスワード設定済み</span>
+        <% else %>
+          <span class="badge bg-warning">パスワード未設定</span>
+        <% end %>
+      </div>
 
       <h4 class="mt-4 mb-3">納品先一覧</h4>
       <div class="table-responsive">

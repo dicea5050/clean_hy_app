@@ -1,5 +1,7 @@
 <div class="container">
-  <h1>受注詳細</h1>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>受注詳細</h1>
+  </div>
 
   <% if flash[:alert] %>
     <div class="alert alert-danger" role="alert">
@@ -8,8 +10,10 @@
   <% end %>
 
   <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="card-title mb-0">基本情報</h5>
+    </div>
     <div class="card-body">
-      <h5 class="card-title">基本情報</h5>
       <div class="row mb-3">
         <div class="col-md-3">
           <strong>受注番号:</strong>
@@ -57,8 +61,10 @@
   </div>
 
   <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="card-title mb-0">納品情報</h5>
+    </div>
     <div class="card-body">
-      <h5 class="card-title">納品情報</h5>
       <% if @order.delivery_location.present? %>
         <div class="row mb-3">
           <div class="col-md-12">
@@ -103,8 +109,10 @@
   </div>
 
   <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="card-title mb-0">注文明細</h5>
+    </div>
     <div class="card-body">
-      <h5 class="card-title">注文明細</h5>
       <table class="table">
         <thead>
           <tr>

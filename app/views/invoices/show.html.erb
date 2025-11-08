@@ -12,7 +12,7 @@
   </div>
 
   <div class="card mb-4">
-    <div class="card-header">
+    <div class="card-header bg-primary text-white">
       <h2 class="card-title">
         <%= @invoice.invoice_number %>
         <span class="<%= @invoice.approval_status_badge_class %> ms-2"><%= @invoice.approval_status %></span>
@@ -150,7 +150,7 @@
 
   <!-- 入金履歴セクション -->
   <div class="card mb-4">
-    <div class="card-header">
+    <div class="card-header bg-primary text-white">
       <h3 class="card-title mb-0">入金履歴</h3>
     </div>
     <div class="card-body">
