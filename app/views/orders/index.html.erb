@@ -24,9 +24,14 @@
 
           <div class="col-md-3 me-3">
             <label class="form-label">取引先名</label>
-            <%= f.text_field :customer_name,
-                value: @search_params&.dig(:customer_name),
-                class: 'form-control' %>
+            <div class="position-relative">
+              <%= f.text_field :customer_name,
+                  id: "customer_name_search",
+                  value: @search_params&.dig(:customer_name),
+                  class: 'form-control',
+                  autocomplete: "off" %>
+              <div id="customer_name_suggestions" class="position-absolute w-100 bg-white border rounded shadow-lg" style="z-index: 1000; display: none;"></div>
+            </div>
           </div>
 
           <div class="col-md-4 me-3">
@@ -185,6 +190,7 @@
                     data-order-id="<%= order.id %>"
                     data-payment-method="<%= order.payment_method %>"
                     data-actual-delivery-date="<%= order.actual_delivery_date.present? %>"
+                    data-invoiced="<%= order.invoiced? %>"
                     <%= 'disabled' if order.invoiced? %>>
             </td>
             <td><%= order.id %></td>
@@ -305,9 +311,10 @@
             }
           });
         } else {
-          // チェックされていない場合、すべてのチェックボックスを有効化
+          // チェックされていない場合、元々請求書発行済みで無効化されていないチェックボックスのみを有効化
           checkboxes.forEach(cb => {
-            if (!cb.hasAttribute('disabled') || !cb.disabled) {
+            // 元々請求書発行済みで無効化されているチェックボックスは有効化しない
+            if (cb.dataset.invoiced !== 'true') {
               cb.disabled = false;
             }
           });
@@ -320,6 +327,16 @@
         selectedOrderIdsInput.value = selectedOrderIds.join(',');
       });
     });
+    
+    // 取引先名のインクリメンタルサーチを初期化
+    if (window.CompanyNameSearch) {
+      window.CompanyNameSearch.setup(document, {
+        inputSelector: '#customer_name_search',
+        suggestionsSelector: '#customer_name_suggestions',
+        apiUrl: '/customers/company_name_search',
+        autoSubmit: true
+      });
+    }
   });
 </script>
 

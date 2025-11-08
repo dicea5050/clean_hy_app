@@ -23,7 +23,13 @@
 
           <div class="col-md-3 me-3">
             <label class="form-label">取引先名</label>
-            <%= text_field_tag 'search[company_name]', params.dig(:search, :company_name), class: 'form-control' %>
+            <div class="position-relative">
+              <%= text_field_tag 'search[company_name]', params.dig(:search, :company_name), 
+                  id: "invoice_company_name_search",
+                  class: 'form-control',
+                  autocomplete: "off" %>
+              <div id="invoice_company_name_suggestions" class="position-absolute w-100 bg-white border rounded shadow-lg" style="z-index: 1000; display: none;"></div>
+            </div>
           </div>
 
           <div class="col-md-2 me-3">
@@ -284,6 +290,16 @@
 
     // 初期状態を設定
     updateBulkButtonState();
+    
+    // 取引先名のインクリメンタルサーチを初期化
+    if (window.CompanyNameSearch) {
+      window.CompanyNameSearch.setup(document, {
+        inputSelector: '#invoice_company_name_search',
+        suggestionsSelector: '#invoice_company_name_suggestions',
+        apiUrl: '/customers/company_name_search',
+        autoSubmit: true
+      });
+    }
   });
 </script>
 
