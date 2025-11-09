@@ -7,34 +7,34 @@ class PaymentManagementService
   def unpaid_invoices
     Rails.logger.debug "=== PaymentManagementService#unpaid_invoices 開始 ==="
     Rails.logger.debug "顧客ID: #{@customer.id}, 顧客名: #{@customer.company_name}"
-    
+
     # 承認済みの請求書を取得
     # 注意: approval_statusは文字列で比較するため、定数を使用
     invoices = Invoice.where(customer: @customer, approval_status: Invoice::APPROVAL_STATUSES[:approved])
                      .includes(orders: :order_items)
                      .order(:invoice_date, :id)
-    
+
     Rails.logger.debug "承認済み請求書数（フィルタリング前）: #{invoices.count}"
-    
+
     # 各請求書の詳細情報をログに出力
     invoices.each do |invoice|
       total_amount = invoice.total_amount
       total_paid_amount = invoice.total_paid_amount
       unpaid_amount = invoice.unpaid_amount
-      
+
       Rails.logger.debug "請求書ID: #{invoice.id}, 番号: #{invoice.invoice_number}, " \
                         "承認状態: #{invoice.approval_status}, " \
                         "合計金額: #{total_amount}, " \
                         "入金済み額: #{total_paid_amount}, " \
                         "未入金額: #{unpaid_amount}"
     end
-    
+
     # 未入金の請求書をフィルタリング
     unpaid_list = invoices.select { |invoice| invoice.unpaid_amount > 0 }
-    
+
     Rails.logger.debug "未入金請求書数（フィルタリング後）: #{unpaid_list.count}"
     Rails.logger.debug "=== PaymentManagementService#unpaid_invoices 終了 ==="
-    
+
     unpaid_list
   end
 
@@ -44,7 +44,7 @@ class PaymentManagementService
     invoices = Invoice.where(customer: @customer)
                      .includes(:orders, :payment_records)
                      .order(:invoice_date, :id)
-    
+
     # 入金済み（一部入金済みを含む）の請求書をフィルタリング
     invoices.select { |invoice| invoice.total_paid_amount > 0 }
   end
@@ -60,10 +60,10 @@ class PaymentManagementService
       total_amount = invoice.total_amount
       already_paid_amount = invoice.total_paid_amount
       unpaid_amount = total_amount - already_paid_amount
-      
+
       next if unpaid_amount <= 0
 
-      paid_amount = [remaining_amount, unpaid_amount].min
+      paid_amount = [ remaining_amount, unpaid_amount ].min
       new_remaining = unpaid_amount - paid_amount
 
       allocation_results << {
@@ -90,7 +90,7 @@ class PaymentManagementService
     ActiveRecord::Base.transaction do
       # 数値変換を確実に行う
       amount = amount.to_i
-      
+
       # 入金記録を作成（最初はinvoice_idなし）
       payment_record = PaymentRecord.new(
         customer: @customer,
@@ -117,10 +117,10 @@ class PaymentManagementService
         total_amount = invoice.total_amount
         already_paid_amount = invoice.total_paid_amount
         unpaid_amount = total_amount - already_paid_amount
-        
+
         next if unpaid_amount <= 0
 
-        paid_amount = [remaining_amount, unpaid_amount].min
+        paid_amount = [ remaining_amount, unpaid_amount ].min
 
         # この請求書への充当記録を作成
         allocation_record = PaymentRecord.new(
@@ -170,7 +170,7 @@ class PaymentManagementService
 
     # 元入金IDでグループ化
     grouped_records = {}
-    
+
     allocation_records.each do |record|
       # notesから元入金IDを抽出
       original_payment_id = extract_original_payment_id(record.notes)
@@ -192,26 +192,26 @@ class PaymentManagementService
           category: original_payment.category,
           amount: original_payment.amount,
           notes: original_payment.notes,
-          invoice_numbers: [{
+          invoice_numbers: [ {
             number: record.invoice.invoice_number,
             id: record.invoice.id
-          }]
+          } ]
         }
       end
     end
 
     # 配列に変換してソート
-    grouped_records.values.sort_by { |record| [record[:payment_date], record[:payment_id]] }.reverse
+    grouped_records.values.sort_by { |record| [ record[:payment_date], record[:payment_id] ] }.reverse
   end
 
   # 入金記録の更新（金額変更時の請求書調整含む）
   def update_payment_with_invoice_adjustment(payment_record, params)
     ActiveRecord::Base.transaction do
       new_amount = params[:amount].to_i
-      
+
       # 既存の充当記録を削除
       delete_allocation_records(payment_record)
-      
+
       # 入金記録を更新
       payment_record.update!(
         payment_date: params[:payment_date],
@@ -220,22 +220,22 @@ class PaymentManagementService
         notes: params[:notes],
         paid_amount: 0 # 一旦0にリセット
       )
-      
+
       # 新しい金額で充当処理を実行
       if new_amount > 0
         remaining_amount = new_amount
         unpaid_invoices_list = unpaid_invoices
-        
+
         unpaid_invoices_list.each do |invoice|
           break if remaining_amount <= 0
 
           total_amount = invoice.total_amount
           already_paid_amount = invoice.total_paid_amount
           unpaid_amount = total_amount - already_paid_amount
-          
+
           next if unpaid_amount <= 0
 
-          paid_amount = [remaining_amount, unpaid_amount].min
+          paid_amount = [ remaining_amount, unpaid_amount ].min
 
           # この請求書への充当記録を作成
           allocation_record = PaymentRecord.new(
@@ -255,7 +255,7 @@ class PaymentManagementService
 
           remaining_amount -= paid_amount
         end
-        
+
         # 元の入金記録のpaid_amountを更新
         payment_record.update!(paid_amount: new_amount - remaining_amount)
       end
@@ -267,7 +267,7 @@ class PaymentManagementService
     ActiveRecord::Base.transaction do
       # 既存の充当記録を削除
       delete_allocation_records(payment_record)
-      
+
       # 元の入金記録を削除
       payment_record.destroy!
     end
@@ -277,7 +277,7 @@ class PaymentManagementService
 
   def extract_original_payment_id(notes)
     return nil unless notes.present?
-    
+
     match = notes.match(/消し込み（元入金ID: (\d+)）/)
     match ? match[1].to_i : nil
   end
@@ -289,4 +289,3 @@ class PaymentManagementService
                  .destroy_all
   end
 end
-

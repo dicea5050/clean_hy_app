@@ -2,7 +2,7 @@ class PaymentRecord < ApplicationRecord
   belongs_to :invoice, optional: true
   belongs_to :customer
 
-  VALID_CATEGORIES = ['入金（振込）', '入金（現金）', '振込手数料', '相殺', '返金']
+  VALID_CATEGORIES = [ "\u5165\u91D1\uFF08\u632F\u8FBC\uFF09", "\u5165\u91D1\uFF08\u73FE\u91D1\uFF09", "\u632F\u8FBC\u624B\u6570\u6599", "\u76F8\u6BBA", "\u8FD4\u91D1" ]
 
   validates :payment_date, presence: true
   validates :category, presence: true, inclusion: { in: VALID_CATEGORIES }

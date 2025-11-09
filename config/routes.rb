@@ -74,7 +74,7 @@ Rails.application.routes.draw do
   end
 
   # 入金管理機能
-  resources :payment_management, only: [:index, :create, :edit, :update, :destroy] do
+  resources :payment_management, only: [ :index, :create, :edit, :update, :destroy ] do
     collection do
       get :unpaid_invoices
       get :paid_invoices

@@ -74,14 +74,14 @@ class InvoicesController < ApplicationController
       if search_params[:payment_statuses].present?
         # payment_statusは計算される値のため、先に他の条件で絞り込んでからフィルタリング
         invoice_ids = @q.pluck(:id)
-        
+
         if invoice_ids.present?
           # 各請求書の入金状況を計算してフィルタリング
           filtered_ids = Invoice.includes(orders: :order_items).includes(:payment_records)
                                 .where(id: invoice_ids)
                                 .select { |inv| search_params[:payment_statuses].include?(inv.payment_status) }
                                 .map(&:id)
-          
+
           @q = @q.where(id: filtered_ids)
         else
           @q = @q.none
@@ -163,7 +163,7 @@ class InvoicesController < ApplicationController
   def update
     # 更新前の承認ステータスを保存
     previous_approval_status = @invoice.approval_status
-    
+
     if @invoice.update(invoice_params)
       # 関連する受注を更新
       @invoice.invoice_orders.destroy_all
@@ -174,7 +174,7 @@ class InvoicesController < ApplicationController
       end
 
       # 承認済みまたは差し戻しステータスの請求書が更新された場合、ステータスを「承認待ち」に戻す
-      if previous_approval_status == Invoice::APPROVAL_STATUSES[:approved] || 
+      if previous_approval_status == Invoice::APPROVAL_STATUSES[:approved] ||
          previous_approval_status == Invoice::APPROVAL_STATUSES[:rejected]
         @invoice.update(approval_status: Invoice::APPROVAL_STATUSES[:waiting])
         # 新しい承認申請レコードを作成

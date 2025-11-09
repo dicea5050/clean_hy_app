@@ -4,7 +4,7 @@ class Invoice < ApplicationRecord
   has_many :orders, through: :invoice_orders
   has_many :invoice_approvals, dependent: :destroy
   # 充当記録のみを取得（invoice_idが存在するpayment_records）
-  has_many :payment_records, -> { where.not(invoice_id: nil) }, class_name: 'PaymentRecord', foreign_key: 'invoice_id', dependent: :destroy
+  has_many :payment_records, -> { where.not(invoice_id: nil) }, class_name: "PaymentRecord", foreign_key: "invoice_id", dependent: :destroy
 
   # 承認状態の定義を先に行う
   APPROVAL_STATUSES = {
@@ -99,10 +99,10 @@ class Invoice < ApplicationRecord
     calculated_total = total_amount
     calculated_paid = total_paid_amount
     result = calculated_total - calculated_paid
-    
+
     # デバッグログ（必要に応じて）
     Rails.logger.debug "Invoice #{id} unpaid_amount計算: total=#{calculated_total}, paid=#{calculated_paid}, unpaid=#{result}" if Rails.env.development?
-    
+
     result
   end
 
@@ -167,7 +167,7 @@ class Invoice < ApplicationRecord
     approved_invoices = approved_invoices.where.not(id: exclude_invoice_id) if exclude_invoice_id.present?
 
     # 未入金額がある請求書の未入金額を合計
-    approved_invoices.sum { |invoice| [invoice.unpaid_amount, 0].max }
+    approved_invoices.sum { |invoice| [ invoice.unpaid_amount, 0 ].max }
   end
 
   # 最新の差し戻し理由を取得

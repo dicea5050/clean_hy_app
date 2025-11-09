@@ -18,8 +18,8 @@ class Customer < ApplicationRecord
 
   # 請求書送付方法の選択肢を定義
   INVOICE_DELIVERY_METHOD_OPTIONS = {
-    '電子請求' => 'electronic',
-    '郵送' => 'postal'
+    "\u96FB\u5B50\u8ACB\u6C42" => "electronic",
+    "\u90F5\u9001" => "postal"
   }.freeze
 
   # コールバック：顧客作成時と更新時に本社納品先も同期する
@@ -42,13 +42,13 @@ class Customer < ApplicationRecord
   validates :invoice_delivery_method, presence: true
   validates :billing_closing_day, presence: true, inclusion: { in: BILLING_CLOSING_DAYS.map(&:last) }
   # パスワードは任意項目
-  
+
   # 電子請求の場合のみメールアドレスを必須にする
   validate :email_required_for_electronic_invoice
-  
+
   def email_required_for_electronic_invoice
-    if invoice_delivery_method == 'electronic' && email.blank?
-      errors.add(:email, '電子請求を選択した場合はメールアドレスが必須です')
+    if invoice_delivery_method == "electronic" && email.blank?
+      errors.add(:email, "\u96FB\u5B50\u8ACB\u6C42\u3092\u9078\u629E\u3057\u305F\u5834\u5408\u306F\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u304C\u5FC5\u9808\u3067\u3059")
     end
   end
 

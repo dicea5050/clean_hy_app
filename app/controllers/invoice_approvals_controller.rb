@@ -27,7 +27,7 @@ class InvoiceApprovalsController < ApplicationController
 
   def approve
     invoice = @invoice_approval.invoice
-    
+
     Rails.logger.debug "=== 承認処理開始 ==="
     Rails.logger.debug "InvoiceApproval ID: #{@invoice_approval.id}"
     Rails.logger.debug "Invoice ID: #{invoice.id}"
@@ -36,7 +36,7 @@ class InvoiceApprovalsController < ApplicationController
     Rails.logger.debug "更新前のInvoice approval_status: #{invoice.approval_status}"
     Rails.logger.debug "設定するInvoiceApproval status: #{InvoiceApproval::STATUSES[:approved]}"
     Rails.logger.debug "設定するInvoice approval_status: #{Invoice::APPROVAL_STATUSES[:approved]}"
-    
+
     ActiveRecord::Base.transaction do
       # InvoiceApprovalの更新
       Rails.logger.debug "InvoiceApprovalを更新中..."
@@ -47,7 +47,7 @@ class InvoiceApprovalsController < ApplicationController
       )
       Rails.logger.debug "InvoiceApproval更新結果: #{result1}"
       Rails.logger.debug "更新後のInvoiceApproval status: #{@invoice_approval.reload.status}"
-      
+
       # Invoiceの更新
       Rails.logger.debug "Invoiceを更新中..."
       result2 = invoice.update!(
@@ -55,12 +55,12 @@ class InvoiceApprovalsController < ApplicationController
       )
       Rails.logger.debug "Invoice更新結果: #{result2}"
       Rails.logger.debug "更新後のInvoice approval_status: #{invoice.reload.approval_status}"
-      
+
       # 更新後の確認
       Rails.logger.debug "=== 更新後の確認 ==="
       Rails.logger.debug "InvoiceApproval.reload.status: #{@invoice_approval.reload.status}"
       Rails.logger.debug "Invoice.reload.approval_status: #{invoice.reload.approval_status}"
-      
+
       # バリデーションエラーの確認
       if @invoice_approval.errors.any?
         Rails.logger.error "InvoiceApprovalバリデーションエラー: #{@invoice_approval.errors.full_messages.join(', ')}"
@@ -83,33 +83,33 @@ class InvoiceApprovalsController < ApplicationController
 
   def reject
     invoice = @invoice_approval.invoice
-    
+
     Rails.logger.debug "=== 差し戻し処理開始 ==="
     Rails.logger.debug "InvoiceApproval ID: #{@invoice_approval.id}"
     Rails.logger.debug "Invoice ID: #{invoice.id}"
     Rails.logger.debug "Invoice Number: #{invoice.invoice_number}"
     Rails.logger.debug "更新前のInvoiceApproval status: #{@invoice_approval.status}"
     Rails.logger.debug "更新前のInvoice approval_status: #{invoice.approval_status}"
-    
+
     rejection_reason = params[:rejection_reason]
-    
+
     ActiveRecord::Base.transaction do
       update_params = {
         status: InvoiceApproval::STATUSES[:rejected],
         approver: current_administrator
       }
       update_params[:notes] = rejection_reason if rejection_reason.present?
-      
+
       result1 = @invoice_approval.update!(update_params)
       Rails.logger.debug "InvoiceApproval更新結果: #{result1}"
       Rails.logger.debug "更新後のInvoiceApproval status: #{@invoice_approval.reload.status}"
-      
+
       result2 = invoice.update!(
         approval_status: Invoice::APPROVAL_STATUSES[:rejected]
       )
       Rails.logger.debug "Invoice更新結果: #{result2}"
       Rails.logger.debug "更新後のInvoice approval_status: #{invoice.reload.approval_status}"
-      
+
       if @invoice_approval.errors.any?
         Rails.logger.error "InvoiceApprovalバリデーションエラー: #{@invoice_approval.errors.full_messages.join(', ')}"
       end
@@ -148,7 +148,7 @@ class InvoiceApprovalsController < ApplicationController
         Rails.logger.debug "--- 請求書ID: #{invoice_id} の処理開始 ---"
         invoice = Invoice.find(invoice_id)
         Rails.logger.debug "更新前のInvoice approval_status: #{invoice.approval_status}"
-        
+
         approval = InvoiceApproval.create!(
           invoice_id: invoice_id,
           status: InvoiceApproval::STATUSES[:pending]
@@ -160,7 +160,7 @@ class InvoiceApprovalsController < ApplicationController
         result = invoice.update!(approval_status: Invoice::APPROVAL_STATUSES[:waiting])
         Rails.logger.debug "Invoice更新結果: #{result}"
         Rails.logger.debug "更新後のInvoice approval_status: #{invoice.reload.approval_status}"
-        
+
         if invoice.errors.any?
           Rails.logger.error "Invoiceバリデーションエラー: #{invoice.errors.full_messages.join(', ')}"
         end
@@ -281,7 +281,7 @@ class InvoiceApprovalsController < ApplicationController
           approver: current_administrator
         }
         update_params[:notes] = rejection_reason if rejection_reason.present?
-        
+
         result1 = approval.update!(update_params)
         Rails.logger.debug "InvoiceApproval更新結果: #{result1}"
 

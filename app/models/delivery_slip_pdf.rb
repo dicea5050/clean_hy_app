@@ -16,10 +16,10 @@ class DeliverySlipPdf < Prawn::Document
     # ページを上下に分割して同じ内容を表示
     # 上半分：お客様用
     draw_content(is_top_half: true)
-    
+
     # 中央に区切り線
     stroke_horizontal_line 0, bounds.width, at: bounds.height / 2
-    
+
     # 下半分：自社控え
     draw_content(is_top_half: false)
   end
@@ -69,10 +69,10 @@ class DeliverySlipPdf < Prawn::Document
   def customer_info(is_top_half:)
     # 現在のカーソル位置を保存
     start_y = cursor
-    
+
     # 左側：顧客情報と納品先情報
     left_width = bounds.width * 0.5
-    
+
     # 左側の行数を計算
     left_lines = 1 # 顧客名
     left_lines += 1 # 空行
@@ -87,7 +87,7 @@ class DeliverySlipPdf < Prawn::Document
       left_lines += 1 # 郵便番号
       left_lines += 1 # 住所
     end
-    
+
     # 右側の行数を計算
     right_lines = 1 # 郵便番号
     right_lines += 1 # 住所
@@ -95,16 +95,16 @@ class DeliverySlipPdf < Prawn::Document
     right_lines += 1 if @company_info.representative_name.present? # 代表取締役
     right_lines += 1 # TEL
     right_lines += 1 if @company_info.invoice_registration_number.present? # インボイス登録番号
-    
+
     # フォントサイズと行間から高さを計算
     font_size = is_top_half ? 9 : 7
     line_height = font_size * 1.2
     left_height = left_lines * line_height + (is_top_half ? 20 : 15)
     right_height = right_lines * line_height + (is_top_half ? 20 : 15)
-    max_height = [left_height, right_height].max
-    
+    max_height = [ left_height, right_height ].max
+
     # 左側を描画
-    bounding_box([0, start_y], width: left_width) do
+    bounding_box([ 0, start_y ], width: left_width) do
       text "#{@order.customer.company_name} 御中", size: (is_top_half ? 12 : 9), style: :bold
       move_down(is_top_half ? 4 : 3)
 
@@ -124,8 +124,8 @@ class DeliverySlipPdf < Prawn::Document
     # 右側：自社情報（納品先情報と同じ高さに配置）
     right_width = bounds.width * 0.5
     right_x = bounds.width * 0.5
-    
-    bounding_box([right_x, start_y], width: right_width) do
+
+    bounding_box([ right_x, start_y ], width: right_width) do
       text "〒#{@company_info.postal_code}", size: (is_top_half ? 9 : 7), align: :right
       text @company_info.address, size: (is_top_half ? 9 : 7), align: :right
       text "#{@company_info.name}", size: (is_top_half ? 11 : 8), style: :bold, align: :right
@@ -192,34 +192,34 @@ class DeliverySlipPdf < Prawn::Document
   def receipt_stamp(is_top_half:)
     # 受領印欄（控え側のみ）
     move_down(15)
-    
+
     # 受領印欄の枠を描画
     stamp_width = 120
     stamp_height = 60
     stamp_x = bounds.width - stamp_width - 50
     stamp_y = cursor
-    
+
     # 枠線
-    stroke_rectangle [stamp_x, stamp_y], stamp_width, stamp_height
-    
+    stroke_rectangle [ stamp_x, stamp_y ], stamp_width, stamp_height
+
     # 「受領印」のテキスト
-    text_box "受領印", 
-             at: [stamp_x, stamp_y - 5],
+    text_box "受領印",
+             at: [ stamp_x, stamp_y - 5 ],
              width: stamp_width,
              height: 15,
              size: 7,
              align: :center,
              valign: :top
-    
+
     # 日付欄
-    text_box "年    月    日", 
-             at: [stamp_x, stamp_y - 20],
+    text_box "年    月    日",
+             at: [ stamp_x, stamp_y - 20 ],
              width: stamp_width,
              height: 15,
              size: 6,
              align: :center,
              valign: :top
-    
+
     move_down(15)
   end
 

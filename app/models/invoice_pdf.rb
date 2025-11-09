@@ -186,7 +186,6 @@ class InvoicePdf < Prawn::Document
           span_rows[items_data.size - 1] = { columns: [ 0 ] }
         end
       end
-
     end
 
     # テーブルを描画（文字サイズを大きく）
