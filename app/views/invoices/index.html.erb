@@ -28,7 +28,7 @@
                   id: "invoice_company_name_search",
                   class: 'form-control',
                   autocomplete: "off" %>
-              <div id="invoice_company_name_suggestions" class="position-absolute w-100 bg-white border rounded shadow-lg" style="z-index: 1000; display: none;"></div>
+              <div id="invoice_company_name_suggestions" class="autocomplete-results position-absolute w-100 bg-white border rounded shadow-lg d-none"></div>
             </div>
           </div>
 
@@ -141,7 +141,7 @@
 
   <!-- 一括操作ボタン -->
   <div class="mb-3">
-    <button type="button" class="btn btn-primary" id="bulk-request-approval-btn" disabled>
+    <button type="button" class="btn btn-primary" id="bulk-request-approval-btn" disabled data-bulk-request-approval-path="<%= bulk_request_approval_invoices_path %>">
       <i class="bi bi-check-circle"></i> 選択した請求書を承認申請
     </button>
   </div>
@@ -197,8 +197,7 @@
             <% confirm_msg = t('confirms.destroy', default: '本当に削除しますか？') %>
             <%= button_to invoice_path(invoice),
                             method: :delete,
-                            form: { data: { turbo_confirm: confirm_msg, confirm: confirm_msg },
-                                    onsubmit: "return confirm('#{j confirm_msg}')",
+                            form: { data: { turbo_confirm: confirm_msg },
                                     class: 'd-inline' },
                             class: 'btn btn-sm btn-danger' do %>
               <%= t('buttons.destroy', default: '削除') %>
@@ -221,84 +220,4 @@
 
 
 <%= javascript_include_tag "/assets/javascripts/search_form.js" %>
-
-<script>
-  $(document).ready(function() {
-    // 全選択チェックボックス（差し戻しステータスの請求書のみ選択）
-    $('#select-all').on('change', function() {
-      $('.invoice-checkbox:not(:disabled)').prop('checked', $(this).prop('checked'));
-      updateBulkButtonState();
-    });
-
-    // 個別チェックボックスの変更
-    $(document).on('change', '.invoice-checkbox', function() {
-      // 全選択チェックボックスの状態を更新（差し戻しステータスの請求書のみをカウント）
-      var totalCheckboxes = $('.invoice-checkbox:not(:disabled)').length;
-      var checkedCheckboxes = $('.invoice-checkbox:checked').length;
-      $('#select-all').prop('checked', totalCheckboxes > 0 && totalCheckboxes === checkedCheckboxes);
-      updateBulkButtonState();
-    });
-
-    // 一括承認申請ボタンのクリック
-    $('#bulk-request-approval-btn').on('click', function() {
-      var selectedIds = $('.invoice-checkbox:checked').map(function() {
-        return $(this).val();
-      }).get();
-
-      if (selectedIds.length === 0) {
-        alert('請求書を選択してください。');
-        return;
-      }
-
-      if (!confirm('選択した請求書を承認申請しますか？')) {
-        return;
-      }
-
-      // フォームを作成して送信
-      var form = $('<form>', {
-        'method': 'POST',
-        'action': '<%= bulk_request_approval_invoices_path %>'
-      });
-
-      form.append($('<input>', {
-        'type': 'hidden',
-        'name': 'authenticity_token',
-        'value': $('meta[name="csrf-token"]').attr('content')
-      }));
-
-      form.append($('<input>', {
-        'type': 'hidden',
-        'name': 'invoice_ids',
-        'value': selectedIds.join(',')
-      }));
-
-      $('body').append(form);
-      form.submit();
-    });
-
-    // ボタンの有効/無効を更新
-    function updateBulkButtonState() {
-      var hasChecked = $('.invoice-checkbox:checked').length > 0;
-      $('#bulk-request-approval-btn').prop('disabled', !hasChecked);
-    }
-
-    // 初期状態を設定
-    updateBulkButtonState();
-    
-    // 取引先名のインクリメンタルサーチを初期化
-    if (window.CompanyNameSearch) {
-      window.CompanyNameSearch.setup(document, {
-        inputSelector: '#invoice_company_name_search',
-        suggestionsSelector: '#invoice_company_name_suggestions',
-        apiUrl: '/customers/company_name_search',
-        autoSubmit: true
-      });
-    }
-  });
-</script>
-
-<style>
-.clear-left {
-  clear: left;
-}
-</style>
+<%= javascript_include_tag "invoices/index" %>

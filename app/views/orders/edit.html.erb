@@ -5,7 +5,7 @@
     <div class="col-md-12">
       <strong>受注番号：</strong><%= @order.order_number %>
       <% if @order.invoiced? %>
-        <span style="display: inline-block; margin-left: 1rem;">
+        <span class="d-inline-block ms-3">
           <strong>請求書番号：</strong>
           <% @order.invoices.each_with_index do |invoice, index| %>
             <%= link_to invoice.invoice_number, invoice_path(invoice), class: 'text-decoration-none' %><%= ', ' unless index == @order.invoices.size - 1 %>

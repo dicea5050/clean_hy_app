@@ -2,9 +2,9 @@
 //= require delivery_locations_form
 //= require order_calculations
 //= require customers
-//= require payment_management
 // 注意: Propshaftでは//= requireは動作しません
 // orders/edit_button_guardはレイアウトファイルで個別に読み込まれます
+// payment_managementはStimulusコントローラー（app/assets/javascripts/controllers/payment_management_controller.js）を使用
 
 // 商品選択時にAjaxで情報を取得
 $(document).ready(function() {
@@ -204,33 +204,5 @@ $(document).ready(function() {
     });
   });
 
-  // 入金管理：取引先選択時の処理
-  $(document).on('change', '#customer-select', function() {
-    var customerId = $(this).val();
-    var $unpaidButton = $('[data-payment-management-target="unpaidButton"]');
-    var $paidButton = $('[data-payment-management-target="paidButton"]');
-    var $historyButton = $('[data-payment-management-target="historyButton"]');
-    var $customerIdField = $('[data-payment-management-target="customerIdField"]');
-
-    if (customerId) {
-      // ボタンを有効化
-      $unpaidButton.prop('disabled', false);
-      $paidButton.prop('disabled', false);
-      $historyButton.prop('disabled', false);
-      
-      // 隠しフィールドに値を設定
-      if ($customerIdField.length) {
-        $customerIdField.val(customerId);
-      }
-    } else {
-      // ボタンを無効化
-      $unpaidButton.prop('disabled', true);
-      $paidButton.prop('disabled', true);
-      $historyButton.prop('disabled', true);
-      
-      // カードを非表示
-      $('[data-payment-management-target="invoicesCard"]').hide();
-      $('[data-payment-management-target="paymentCard"]').hide();
-    }
-  });
+  // 入金管理の取引先選択処理はStimulusコントローラー（payment_management_controller.js）で実装されています
 });

@@ -27,7 +27,7 @@ var initializeCompanyNameSearch = function(root, options) {
   searchInput.setAttribute(initAttr, 'true');
 
   var hideSuggestions = function() {
-    suggestionsDiv.style.display = 'none';
+    suggestionsDiv.classList.add('d-none');
     suggestionsDiv.innerHTML = '';
   };
 
@@ -44,7 +44,7 @@ var initializeCompanyNameSearch = function(root, options) {
     });
     
     suggestionsDiv.innerHTML = html;
-    suggestionsDiv.style.display = 'block';
+    suggestionsDiv.classList.remove('d-none');
 
     // 候補クリックイベントを追加
     suggestionsDiv.querySelectorAll('.suggestion-item').forEach(function(item) {

@@ -10,17 +10,17 @@
     </div>
   <% end %>
 
-  <span class="p-country-name" style="display:none;">Japan</span>
+  <span class="p-country-name d-none">Japan</span>
 
-  <div class="form-group" style="line-height: 1.5; margin-bottom: 1.5rem;">
+  <div class="form-group form-group-spacing">
     <div class="d-flex align-items-end gap-3">
       <div>
         <%= form.label :customer_code, '顧客コード' do %>
           顧客コード <span class="text-danger">*</span>
         <% end %>
-        <%= form.text_field :customer_code, class: 'form-control', style: 'width: 100px;' %>
+        <%= form.text_field :customer_code, class: 'form-control form-control-width-100' %>
       </div>
-      <div style="flex: 1;">
+      <div class="flex-fill">
         <%= form.label :company_name, '社名（屋号）' do %>
           社名（屋号） <span class="text-danger">*</span>
         <% end %>
@@ -29,15 +29,15 @@
     </div>
   </div>
 
-  <div class="form-group" style="line-height: 1.5; margin-bottom: 1.5rem;">
+  <div class="form-group form-group-spacing">
     <div class="d-flex align-items-end gap-3">
       <div>
         <%= form.label :postal_code, '郵便番号' do %>
           郵便番号 <span class="text-danger">*</span>
         <% end %>
-        <%= form.text_field :postal_code, class: 'form-control p-postal-code', style: 'width: 100px;' %>
+        <%= form.text_field :postal_code, class: 'form-control p-postal-code form-control-width-100' %>
       </div>
-      <div style="flex: 1;">
+      <div class="flex-fill">
         <%= form.label :address, '住所' do %>
           住所 <span class="text-danger">*</span>
         <% end %>
@@ -46,32 +46,32 @@
     </div>
   </div>
 
-  <div class="form-group" style="line-height: 1.5; margin-bottom: 1.5rem;">
-    <div class="d-flex align-items-end gap-3">
-      <div style="width: 30%;">
+  <div class="form-group form-group-spacing">
+    <div class="d-flex align-items-end gap-3 form-three-columns">
+      <div>
         <%= form.label :department, '部署名' %>
         <%= form.text_field :department, class: 'form-control' %>
       </div>
-      <div style="width: 30%;">
+      <div>
         <%= form.label :contact_name, '担当者名' %>
         <%= form.text_field :contact_name, class: 'form-control' %>
       </div>
-      <div style="width: 30%;">
+      <div>
         <%= form.label :phone_number, '電話番号' %>
         <%= form.text_field :phone_number, class: 'form-control' %>
       </div>
     </div>
   </div>
 
-  <div class="form-group" style="line-height: 1.5; margin-bottom: 1.5rem;">
-    <div class="d-flex align-items-start gap-3">
-      <div style="width: 30%;">
+  <div class="form-group form-group-spacing">
+    <div class="d-flex align-items-start gap-3 form-three-columns">
+      <div>
         <%= form.label :email, 'メールアドレス' do %>
-          メールアドレス <span id="email_required_mark" class="text-danger" style="display: none;">*</span>
+          メールアドレス <span id="email_required_mark" class="text-danger d-none">*</span>
         <% end %>
         <%= form.email_field :email, class: 'form-control', id: 'customer_email' %>
       </div>
-      <div style="width: 30%;">
+      <div>
         <%= form.label :password, 'パスワード' %>
         <%= form.password_field :password, class: 'form-control' %>
         <% if customer.persisted? && customer.password_set? %>
@@ -80,14 +80,14 @@
           <small class="form-text text-muted">ネットショップ用のパスワードが未設定です。ネットショップでの袋購入をする場合は設定してください。</small>
         <% end %>
       </div>
-      <div style="width: 30%;">
+      <div>
         <%= form.label :password_confirmation, 'パスワード（確認）' %>
         <%= form.password_field :password_confirmation, class: 'form-control' %>
       </div>
     </div>
   </div>
 
-  <div class="form-group" style="line-height: 1.5; margin-bottom: 1.5rem;">
+  <div class="form-group form-group-spacing">
     <div class="d-flex align-items-end gap-3">
       <div>
         <%= form.label :invoice_delivery_method, '請求書送付方法' do %>
@@ -96,7 +96,7 @@
         <%= form.select :invoice_delivery_method, 
                      Customer::INVOICE_DELIVERY_METHOD_OPTIONS, 
                      { include_blank: '選択してください' }, 
-                     { class: 'form-control', style: 'width: auto; min-width: fit-content;', id: 'customer_invoice_delivery_method' } %>
+                     { class: 'form-control form-control-width-auto', id: 'customer_invoice_delivery_method' } %>
       </div>
       <div>
         <%= form.label :billing_closing_day, '請求締日' do %>
@@ -105,7 +105,7 @@
         <%= form.select :billing_closing_day, 
                      Customer::BILLING_CLOSING_DAYS, 
                      { include_blank: '選択してください' }, 
-                     { class: 'form-control', style: 'width: 150px;' } %>
+                     { class: 'form-control form-control-width-150' } %>
       </div>
     </div>
   </div>

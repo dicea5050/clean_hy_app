@@ -26,6 +26,18 @@
     <!-- Bootstrap JS から CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Stimulus を CDN から読み込む -->
+    <script type="module">
+      import { Application, Controller } from "https://cdn.jsdelivr.net/npm/@hotwired/stimulus@3.2.2/+esm"
+      window.Stimulus = Application.start();
+      window.StimulusController = Controller;
+      window.StimulusLoaded = true;
+      console.log('Stimulus initialized:', window.Stimulus);
+      console.log('Stimulus Controller:', window.StimulusController);
+      // カスタムイベントを発火して読み込み完了を通知
+      window.dispatchEvent(new Event('stimulus:loaded'));
+    </script>
+
     <!-- jQueryをCDNから読み込む -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
 
@@ -38,10 +50,10 @@
     <%= javascript_include_tag "delivery_locations_form" %>
     <%= javascript_include_tag "customers" %>
     <%= javascript_include_tag "company_name_search" %>
-    <%= javascript_include_tag "payment_management" %>
     <%= javascript_include_tag "invoice_edit_confirmation" %>
     <%= javascript_include_tag "invoice_approvals" %>
     <%= javascript_include_tag "orders/edit_button_guard" %>
+    <%= javascript_include_tag "payment_management_controller" %>
   </head>
 
   <body>

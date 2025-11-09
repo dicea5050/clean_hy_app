@@ -1,8 +1,8 @@
 <% if order.invoiced? %>
-  <%= link_to invoice_path(order.invoices.first), style: "text-decoration: none;" do %>
-    <span style="display: inline-block; padding: 0.25em 0.6em; font-size: 0.75rem; font-weight: 700; line-height: 1; text-align: center; white-space: nowrap; vertical-align: baseline; border-radius: 0.375rem; color: #fff; background-color: #28a745; cursor: pointer;">発行済</span>
+  <%= link_to invoice_path(order.invoices.first), class: "text-decoration-none" do %>
+    <span class="badge badge-success">発行済</span>
   <% end %>
 <% else %>
-  <span style="display: inline-block; padding: 0.25em 0.6em; font-size: 0.75rem; font-weight: 700; line-height: 1; text-align: center; white-space: nowrap; vertical-align: baseline; border-radius: 0.375rem; color: #fff; background-color: #6c757d;">未発行</span>
+  <span class="badge badge-secondary">未発行</span>
 <% end %>
 

@@ -56,13 +56,20 @@ class PaymentManagementController < ApplicationController
         
         invoices_data = @unpaid_invoices.map do |invoice|
           begin
+            # 元入金IDを取得（充当記録のnotesから抽出）
+            original_payment_ids = invoice.payment_records.map do |pr|
+              extract_original_payment_id(pr.notes)
+            end.compact.uniq
+            
             {
               id: invoice.id,
               invoice_number: invoice.invoice_number,
               invoice_date: invoice.invoice_date&.strftime('%Y-%m-%d'),
               total_amount: invoice.total_amount.to_i,
               paid_amount: invoice.total_paid_amount.to_i,
-              remaining_amount: invoice.remaining_amount.to_i
+              remaining_amount: invoice.remaining_amount.to_i,
+              payment_ids: invoice.payment_records.pluck(:id),
+              original_payment_ids: original_payment_ids
             }
           rescue => e
             Rails.logger.error "Error processing invoice #{invoice.id}: #{e.message}"
@@ -106,6 +113,11 @@ class PaymentManagementController < ApplicationController
           success: true,
           title: '入金済み（一部入金済みを含む）請求書一覧',
           invoices: @paid_invoices.map do |invoice|
+            # 元入金IDを取得（充当記録のnotesから抽出）
+            original_payment_ids = invoice.payment_records.map do |pr|
+              extract_original_payment_id(pr.notes)
+            end.compact.uniq
+            
             {
               id: invoice.id,
               invoice_number: invoice.invoice_number,
@@ -113,7 +125,8 @@ class PaymentManagementController < ApplicationController
               total_amount: invoice.total_amount.to_i,
               paid_amount: invoice.total_paid_amount.to_i,
               remaining_amount: invoice.remaining_amount.to_i,
-              payment_ids: invoice.payment_records.pluck(:id)
+              payment_ids: invoice.payment_records.pluck(:id),
+              original_payment_ids: original_payment_ids
             }
           end
         }
@@ -246,6 +259,13 @@ class PaymentManagementController < ApplicationController
 
   def payment_params
     params.require(:payment).permit(:payment_date, :category, :amount, :notes, :customer_id)
+  end
+
+  def extract_original_payment_id(notes)
+    return nil unless notes.present?
+    
+    match = notes.match(/消し込み（元入金ID: (\d+)）/)
+    match ? match[1].to_i : nil
   end
 end
 

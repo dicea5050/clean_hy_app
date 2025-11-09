@@ -1,7 +1,7 @@
-<div class="container" style="max-width: 1500px;" data-controller="payment-management">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="container" data-controller="payment-management">
+  <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
-      <h2 class="mb-2">入金管理</h2>
+      <h1>入金管理</h1>
       <p class="text-muted mb-0">発行済み請求書への入金消し込みを行います</p>
     </div>
     <%= link_to '請求書一覧に戻る', invoices_path, class: 'btn btn-secondary' %>
@@ -10,9 +10,9 @@
   <!-- 取引先選択カード -->
   <div class="card shadow-sm mb-4">
     <div class="card-body">
-      <h5 class="card-title">取引先選択</h5>
+      <h3 class="card-title">取引先選択</h3>
       <div class="row">
-        <div class="col-md-5">
+        <div class="col-md-4">
           <div class="form-group">
             <label for="customer-select" class="form-label">取引先名</label>
             <select id="customer-select" class="form-select" data-payment-management-target="customerSelect" data-action="change->payment-management#onCustomerChange">
@@ -23,15 +23,15 @@
             </select>
           </div>
         </div>
-        <div class="col-md-5 d-flex align-items-end">
+        <div class="col-md-8 d-flex align-items-end">
           <div class="d-flex gap-2 w-100" data-payment-management-target="invoiceButtons">
-            <button type="button" class="btn btn-primary payment-btn rounded" data-action="click->payment-management#loadUnpaidInvoices" data-payment-management-target="unpaidButton" disabled>
+            <button type="button" class="btn btn-primary payment-btn rounded text-nowrap" data-action="click->payment-management#loadUnpaidInvoices" data-payment-management-target="unpaidButton" disabled>
               入金未完了請求書を表示
             </button>
-            <button type="button" class="btn btn-primary payment-btn rounded" data-action="click->payment-management#loadPaidInvoices" data-payment-management-target="paidButton" disabled>
+            <button type="button" class="btn btn-primary payment-btn rounded text-nowrap" data-action="click->payment-management#loadPaidInvoices" data-payment-management-target="paidButton" disabled>
               入金済み請求書を表示
             </button>
-            <button type="button" class="btn btn-primary payment-btn rounded" data-action="click->payment-management#loadPaymentHistory" data-payment-management-target="historyButton" disabled>
+            <button type="button" class="btn btn-primary payment-btn rounded text-nowrap" data-action="click->payment-management#loadPaymentHistory" data-payment-management-target="historyButton" disabled>
               入金履歴を表示
             </button>
           </div>
@@ -41,21 +41,20 @@
   </div>
 
   <!-- 請求書一覧カード -->
-  <div class="card shadow-sm mb-4" data-payment-management-target="invoicesCard" style="display: none;">
+  <div class="card shadow-sm mb-4 d-none" data-payment-management-target="invoicesCard">
     <div class="card-body">
-      <h5 class="card-title" data-payment-management-target="invoicesTitle">請求書一覧</h5>
+      <h3 class="card-title" data-payment-management-target="invoicesTitle">請求書一覧</h3>
       <div class="table-responsive">
         <table class="table table-striped table-bordered">
           <thead data-payment-management-target="tableHeader">
             <tr>
+              <th>入金ID</th>
               <th>請求書番号</th>
               <th>請求日</th>
               <th>請求金額（税込）</th>
               <th>入金済み額</th>
               <th>未入金額</th>
-              <th>充当予定額</th>
-              <th>充当後残高</th>
-              <th>入金ID</th>
+              <th>元入金ID</th>
             </tr>
           </thead>
           <tbody data-payment-management-target="invoicesTableBody">
@@ -67,9 +66,9 @@
   </div>
 
   <!-- 入金入力カード -->
-  <div class="card shadow-sm mb-4" data-payment-management-target="paymentCard" style="display: none;">
+  <div class="card shadow-sm mb-4 d-none" data-payment-management-target="paymentCard">
     <div class="card-body">
-      <h5 class="card-title">入金入力</h5>
+      <h3 class="card-title">入金登録</h3>
       <%= form_with url: payment_management_index_path, method: :post, local: true, scope: :payment, data: { payment_management_target: "paymentForm" } do |form| %>
         <div class="row">
           <div class="col-md-3">
@@ -114,7 +113,7 @@
             </button>
           </div>
           <div class="col-md-6 text-end">
-            <div class="alert alert-info mb-0" data-payment-management-target="allocationSummary" style="display: none;">
+            <div class="alert alert-info mb-0 d-none" data-payment-management-target="allocationSummary">
               <!-- 充当結果サマリー -->
             </div>
           </div>
@@ -127,7 +126,7 @@
   </div>
 
   <!-- ローディング表示 -->
-  <div class="text-center" data-payment-management-target="loadingSpinner" style="display: none;">
+  <div class="text-center d-none" data-payment-management-target="loadingSpinner">
     <div class="spinner-border" role="status">
       <span class="visually-hidden">読み込み中...</span>
     </div>

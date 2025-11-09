@@ -1,77 +1,74 @@
 <tr class="nested-fields">
-  <td style="width: 90px;">
+  <td>
     <input type="text"
            name="order[order_items_attributes][<%= f.index %>][product_code]"
            id="order_order_items_attributes_<%= f.index %>_product_code"
-           class="form-control product-code-input"
-           style="width: 100%;"
+           class="form-control product-code-input w-100"
            placeholder="商品コード"
            value="<%= f.object.product&.product_code || '' %>">
   </td>
-  <td style="width: 160px;">
-    <div class="autocomplete-container" style="position: relative;">
+  <td>
+    <div class="autocomplete-container position-relative">
       <%= f.hidden_field :product_id %>
       <%= f.hidden_field :product_name_override %>
       <input type="text"
-             class="form-control product-search"
+             class="form-control product-search w-100"
              placeholder="商品名を入力"
              value="<%= f.object.display_product_name %>"
-             autocomplete="off"
-             style="width: 100%;">
-      <div class="autocomplete-results product-results" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ccc; border-top: none; max-height: 200px; overflow-y: auto; z-index: 1000;"></div>
+             autocomplete="off">
+      <div class="autocomplete-results product-results d-none"></div>
     </div>
   </td>
-  <td style="width: 70px;">
+  <td>
     <%= f.collection_select :product_specification_id,
         ProductSpecification.active.order(:name),
         :id,
         :name,
         { include_blank: "規格を選択", selected: f.object.product_specification_id },
-        { class: "form-control product-specification-select", style: "width: 100%;" } %>
+        { class: "form-control product-specification-select w-100" } %>
   </td>
-  <td style="width: 85px;">
+  <td>
     <%= f.hidden_field :unit_price, class: "unit-price-input" %>
     <input type="number"
-           class="form-control unit-price-display text-right"
-           style="width: 100%;"
+           class="form-control unit-price-display text-end w-100"
            step="1"
            min="0"
            value="<%= f.object.unit_price.present? && f.object.product_id.present? ? f.object.unit_price.to_i : '' %>"
            <%= 'readonly' if f.object.product&.fixed_price? %>>
   </td>
-  <td style="width: 70px; vertical-align: middle;">
+  <td>
     <%= f.hidden_field :tax_rate %>
-    <span class="tax-rate-display" style="text-align: right; display: inline-block; min-width: 20px; vertical-align: middle;">
+    <span class="tax-rate-display text-end d-inline-block">
       <%= f.object.tax_rate.present? && f.object.product_id.present? ? f.object.tax_rate : '' %>
     </span>%
   </td>
-  <td style="width: 88px;">
+  <td>
     <%= f.text_field :quantity,
-        { class: "form-control quantity-input", style: "width: 100%;", required: true, 
+        { class: "form-control quantity-input w-100", required: true, 
           placeholder: "数量", type: "number", step: "0.001", min: "0",
           value: f.object.quantity.present? ? number_with_precision(f.object.quantity, precision: 3, strip_insignificant_zeros: true) : '' } %>
   </td>
-  <td style="width: 64px;">
+  <td>
     <%= f.select :unit_id, Unit.all.map { |u| [u.name, u.id] },
         { include_blank: "単位", selected: f.object.unit_id },
-        { class: "form-control", style: "width: 100%;" } %>
+        { class: "form-control w-100" } %>
   </td>
-  <td style="width: 100px; vertical-align: middle;">
-    <span class="subtotal-without-tax" style="display: inline-block; min-width: 80px; text-align: right; vertical-align: middle;">
+  <td>
+    <span class="subtotal-without-tax d-inline-block text-end">
       <%= f.object.subtotal_without_tax.present? ? number_to_currency(f.object.subtotal_without_tax, precision: 0) : number_to_currency(0, precision: 0) %>
     </span>
   </td>
-  <td style="width: 100px; vertical-align: middle;">
-    <span class="subtotal-with-tax" style="display: inline-block; min-width: 80px; text-align: right; vertical-align: middle;">
+  <td>
+    <span class="subtotal-with-tax d-inline-block text-end">
       <%= f.object.subtotal.present? ? number_to_currency(f.object.subtotal, precision: 0) : number_to_currency(0, precision: 0) %>
     </span>
   </td>
-  <td style="width: 162px;">
+  <td>
     <%= f.text_field :notes, class: "form-control", placeholder: "備考", value: f.object.notes %>
   </td>
-  <td class="text-center" style="width: 70px; vertical-align: middle;">
+  <td class="text-center">
     <%= f.hidden_field :id if f.object.persisted? %>
     <%= f.hidden_field :_destroy %>
-    <%= link_to "削除", '#', class: "btn btn-sm btn-danger remove-item", style: "min-width: 60px; white-space: nowrap; height: 38px; line-height: 1.5; padding: 0.375rem 0.75rem; display: inline-flex; align-items: center; justify-content: center;" %>
+    <%= link_to "削除", '#', class: "btn btn-sm btn-danger remove-item text-nowrap d-inline-flex align-items-center justify-content-center" %>
   </td>
 </tr>

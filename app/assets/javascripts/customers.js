@@ -11,12 +11,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // 初期状態を設定
     function updateEmailRequiredMark() {
       if (invoiceDeliveryMethodSelect.value === 'electronic') {
-        emailRequiredMark.style.display = 'inline';
+        emailRequiredMark.classList.remove('d-none');
+        emailRequiredMark.classList.add('d-inline');
         if (emailField) {
           emailField.setAttribute('required', 'required');
         }
       } else {
-        emailRequiredMark.style.display = 'none';
+        emailRequiredMark.classList.remove('d-inline');
+        emailRequiredMark.classList.add('d-none');
         if (emailField) {
           emailField.removeAttribute('required');
         }
