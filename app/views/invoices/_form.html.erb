@@ -11,7 +11,7 @@
   <% end %>
 
   <%= hidden_field_tag :order_ids, @order_ids.join(',') if @order_ids.present? %>
-  
+
   <% if form_mode == :new && @orders.present? && @invoice.customer_id.present? %>
     <%= form.hidden_field :customer_id %>
   <% end %>
@@ -39,22 +39,22 @@
     <div class="col-md-4">
       <div class="form-group">
         <%= form.label :customer_id, '取引先' %>
-        <%= form.collection_select :customer_id, @customers, :id, :company_name, 
-                                  { prompt: '取引先を選択してください', selected: @invoice.customer_id }, 
+        <%= form.collection_select :customer_id, @customers, :id, :company_name,
+                                  { prompt: '取引先を選択してください', selected: @invoice.customer_id },
                                   { class: 'form-control', disabled: customer_disabled } %>
         <% if form_mode == :edit %>
           <small class="form-text text-muted">取引先は変更できません</small>
         <% end %>
       </div>
     </div>
-    
+
     <div class="col-md-4">
       <div class="form-group">
         <%= form.label :invoice_date, '請求日' %>
         <%= form.date_field :invoice_date, class: 'form-control' %>
       </div>
     </div>
-    
+
     <div class="col-md-4">
       <div class="form-group">
         <%= form.label :due_date, '支払期限' %>
@@ -127,7 +127,7 @@
       </tbody>
     </table>
 
-    <% 
+    <%
       # 請求金額（税込）を計算
       request_amount = @orders.sum { |order| order.order_items.sum { |item| item.subtotal } } || 0
       # 繰越金額

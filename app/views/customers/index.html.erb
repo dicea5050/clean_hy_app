@@ -10,18 +10,18 @@
       <%= form_with url: customers_path, method: :get, local: true, class: "row g-3" do |form| %>
         <div class="col-md-4">
           <label for="customer_code_search" class="form-label">顧客コードで検索</label>
-          <%= form.text_field :customer_code, 
+          <%= form.text_field :customer_code,
                               id: "customer_code_search",
-                              class: "form-control", 
+                              class: "form-control",
                               placeholder: "顧客コードを入力",
                               value: params[:customer_code] %>
         </div>
         <div class="col-md-4">
           <label for="company_name_search" class="form-label">顧客名で検索</label>
           <div class="position-relative">
-            <%= form.text_field :company_name, 
+            <%= form.text_field :company_name,
                                 id: "company_name_search",
-                                class: "form-control", 
+                                class: "form-control",
                                 placeholder: "顧客名を入力",
                                 value: params[:company_name],
                                 autocomplete: "off" %>

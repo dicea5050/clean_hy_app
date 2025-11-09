@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // 一括承認申請ボタンとパスを取得
   const bulkRequestApprovalBtn = document.getElementById('bulk-request-approval-btn');
   const bulkRequestApprovalPath = bulkRequestApprovalBtn ? bulkRequestApprovalBtn.dataset.bulkRequestApprovalPath : null;
-  
+
   // 全選択チェックボックス（差し戻しステータスの請求書のみ選択）
   const selectAllCheckbox = document.getElementById('select-all');
   if (selectAllCheckbox) {
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // 初期状態を設定
   updateBulkButtonState();
-  
+
   // 取引先名のインクリメンタルサーチを初期化
   if (window.CompanyNameSearch) {
     window.CompanyNameSearch.setup(document, {

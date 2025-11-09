@@ -1,11 +1,11 @@
 <div class="container">
   <h1>新規請求情報登録</h1>
 
-  <%= render 'form', 
+  <%= render 'form',
       form_mode: :new,
       submit_button_text: '請求書を発行する',
       back_path: orders_path,
       show_invoice_number: false,
       customer_disabled: @orders.present?,
       show_detail_button: false %>
-</div> 
+</div>

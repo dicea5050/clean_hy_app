@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const invoiceDeliveryMethodSelect = document.getElementById('customer_invoice_delivery_method');
   const emailRequiredMark = document.getElementById('email_required_mark');
   const emailField = document.getElementById('customer_email');
-  
+
   if (invoiceDeliveryMethodSelect && emailRequiredMark) {
     // 初期状態を設定
     function updateEmailRequiredMark() {
@@ -24,20 +24,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
     }
-    
+
     // 初期状態を設定
     updateEmailRequiredMark();
-    
+
     // 請求書送付方法が変更されたときに更新
     invoiceDeliveryMethodSelect.addEventListener('change', function() {
       updateEmailRequiredMark();
-      
+
       // 電子請求に変更した場合でメールアドレスが空の場合、アラートを表示
       if (this.value === 'electronic' && emailField && !emailField.value.trim()) {
         alert('電子請求を選択した場合はメールアドレスが必須です。メールアドレスを入力してください。');
       }
     });
-    
+
     // フォーム送信時のバリデーション
     const form = invoiceDeliveryMethodSelect.closest('form');
     if (form) {

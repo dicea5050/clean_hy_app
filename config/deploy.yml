@@ -24,7 +24,7 @@ proxy:
 # Docker Hubを使わない設定（ローカルビルド）
 registry:
   username: dicea5050
-  password: 
+  password:
     - KAMAL_REGISTRY_PASSWORD
 
 # Inject ENV variables into containers (secrets come from .kamal/secrets).

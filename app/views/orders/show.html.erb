@@ -2,10 +2,10 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1>受注詳細</h1>
     <div>
-      <%= link_to '編集', edit_order_path(@order), 
+      <%= link_to '編集', edit_order_path(@order),
                  class: 'btn btn-sm btn-primary edit-order-btn',
                  data: { has_pending_or_approved_invoice: @order.has_pending_or_approved_invoice? } %>
-      <%= render 'shared/show_action_buttons', 
+      <%= render 'shared/show_action_buttons',
                   edit_path: nil,
                   delete_path: order_path(@order),
                   back_path: orders_path %>
@@ -58,8 +58,8 @@
       </div>
       <div class="row mt-3">
         <div class="col-md-12">
-          <%= render 'shared/delivery_slip_button', 
-                      order: @order, 
+          <%= render 'shared/delivery_slip_button',
+                      order: @order,
                       text: '納品書PDF発行',
                       id: 'delivery-slip-btn',
                       tooltip: true %>
@@ -167,10 +167,10 @@
   </div>
 
   <div class="text-center mb-4">
-    <%= link_to '編集', edit_order_path(@order), 
+    <%= link_to '編集', edit_order_path(@order),
                class: 'btn btn-sm btn-primary edit-order-btn',
                data: { has_pending_or_approved_invoice: @order.has_pending_or_approved_invoice? } %>
-    <%= render 'shared/show_action_buttons', 
+    <%= render 'shared/show_action_buttons',
                 edit_path: nil,
                 delete_path: order_path(@order),
                 back_path: orders_path %>

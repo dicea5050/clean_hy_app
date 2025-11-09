@@ -3,13 +3,13 @@
 var initializeCompanyNameSearch = function(root, options) {
   var container = root || document;
   options = options || {};
-  
+
   // デフォルトのID/セレクタ
   var inputSelector = options.inputSelector || '#company_name_search';
   var suggestionsSelector = options.suggestionsSelector || '#company_name_suggestions';
   var apiUrl = options.apiUrl || '/customers/company_name_search';
   var autoSubmit = options.autoSubmit !== false; // デフォルトはtrue
-  
+
   var searchInput = container.querySelector(inputSelector);
   var suggestionsDiv = container.querySelector(suggestionsSelector);
   var currentRequest = null;
@@ -39,10 +39,10 @@ var initializeCompanyNameSearch = function(root, options) {
 
     var html = '';
     suggestions.forEach(function(suggestion) {
-      html += '<div class="suggestion-item p-2 border-bottom cursor-pointer" data-name="' + 
+      html += '<div class="suggestion-item p-2 border-bottom cursor-pointer" data-name="' +
               suggestion.name + '">' + suggestion.name + '</div>';
     });
-    
+
     suggestionsDiv.innerHTML = html;
     suggestionsDiv.classList.remove('d-none');
 
@@ -90,7 +90,7 @@ var initializeCompanyNameSearch = function(root, options) {
       // fetch APIを使用
       var url = new URL(apiUrl, window.location.origin);
       url.searchParams.append('q', query);
-      
+
       fetch(url)
         .then(function(response) {
           if (!response.ok) {
@@ -110,7 +110,7 @@ var initializeCompanyNameSearch = function(root, options) {
   // 入力イベント
   searchInput.addEventListener('input', function(event) {
     var query = event.target.value.trim();
-    
+
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(function() {
       searchCustomers(query);
@@ -207,7 +207,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!(node instanceof HTMLElement)) {
           return;
         }
-        
+
         // 顧客マスター用
         if (node.querySelector && node.querySelector('#company_name_search')) {
           setupCompanyNameSearch(node, {
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', function() {
             autoSubmit: true
           });
         }
-        
+
         // 受注一覧用
         if (node.querySelector && node.querySelector('#customer_name_search')) {
           setupCompanyNameSearch(node, {
@@ -241,7 +241,7 @@ document.addEventListener('DOMContentLoaded', function() {
             autoSubmit: true
           });
         }
-        
+
         // 請求書一覧用
         if (node.querySelector && node.querySelector('#invoice_company_name_search')) {
           setupCompanyNameSearch(node, {

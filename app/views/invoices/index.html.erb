@@ -24,7 +24,7 @@
           <div class="col-md-3 me-3">
             <label class="form-label">取引先名</label>
             <div class="position-relative">
-              <%= text_field_tag 'search[company_name]', params.dig(:search, :company_name), 
+              <%= text_field_tag 'search[company_name]', params.dig(:search, :company_name),
                   id: "invoice_company_name_search",
                   class: 'form-control',
                   autocomplete: "off" %>
@@ -187,7 +187,7 @@
           <td>
             <%= render 'shared/detail_button', path: invoice_path(invoice) %>
             <% if invoice.approval_status == Invoice::APPROVAL_STATUSES[:approved] %>
-              <%= link_to '編集', edit_invoice_path(invoice), class: 'btn btn-sm btn-primary edit-approved-invoice', 
+              <%= link_to '編集', edit_invoice_path(invoice), class: 'btn btn-sm btn-primary edit-approved-invoice',
                           data: { invoice_id: invoice.id, approval_status: invoice.approval_status } %>
             <% else %>
               <%= link_to '編集', edit_invoice_path(invoice), class: 'btn btn-sm btn-primary' %>

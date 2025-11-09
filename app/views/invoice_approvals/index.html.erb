@@ -45,12 +45,12 @@
             <td>
               <%= render 'shared/detail_button', path: invoice_path(approval.invoice), extra_class: 'me-2' %>
               <%= render 'shared/invoice_pdf_button', invoice: approval.invoice, text: 'PDF', extra_class: 'me-2' %>
-              <%= button_to '承認', approve_invoice_approval_path(approval), 
+              <%= button_to '承認', approve_invoice_approval_path(approval),
                           class: 'btn btn-sm btn-success me-2 d-inline',
                           form: { class: 'd-inline' },
                           data: { turbo_confirm: '承認してよろしいですか？' } %>
-              <button type="button" class="btn btn-sm btn-danger" 
-                      data-bs-toggle="modal" 
+              <button type="button" class="btn btn-sm btn-danger"
+                      data-bs-toggle="modal"
                       data-bs-target="#rejectModal<%= approval.id %>">
                 差戻
               </button>
@@ -88,8 +88,8 @@
             </div>
             <div class="mb-3">
               <label for="rejection_reason_<%= approval.id %>" class="form-label">差し戻し理由（任意）</label>
-              <%= form.text_area :rejection_reason, 
-                                class: 'form-control', 
+              <%= form.text_area :rejection_reason,
+                                class: 'form-control',
                                 id: "rejection_reason_#{approval.id}",
                                 rows: 4,
                                 placeholder: '差し戻し理由を入力してください' %>
@@ -121,8 +121,8 @@
           </div>
           <div class="mb-3">
             <label for="bulk_rejection_reason" class="form-label">差し戻し理由（任意）</label>
-            <%= form.text_area :rejection_reason, 
-                              class: 'form-control', 
+            <%= form.text_area :rejection_reason,
+                              class: 'form-control',
                               id: "bulk_rejection_reason",
                               rows: 4,
                               placeholder: '差し戻し理由を入力してください' %>
@@ -221,4 +221,4 @@
     // 初期状態を設定
     updateBulkButtonState();
   });
-</script> 
+</script>

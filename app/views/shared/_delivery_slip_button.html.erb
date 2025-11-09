@@ -10,7 +10,7 @@
             class: "btn #{size_class} btn-success delivery-slip-btn",
             target: '_blank',
             id: local_assigns[:id],
-            data: { 
+            data: {
               has_delivery_date: order.actual_delivery_date.present?,
               bs_toggle: local_assigns[:tooltip] ? 'tooltip' : nil,
               bs_placement: local_assigns[:tooltip] ? 'top' : nil,

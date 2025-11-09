@@ -93,18 +93,18 @@
         <%= form.label :invoice_delivery_method, '請求書送付方法' do %>
           請求書送付方法 <span class="text-danger">*</span>
         <% end %>
-        <%= form.select :invoice_delivery_method, 
-                     Customer::INVOICE_DELIVERY_METHOD_OPTIONS, 
-                     { include_blank: '選択してください' }, 
+        <%= form.select :invoice_delivery_method,
+                     Customer::INVOICE_DELIVERY_METHOD_OPTIONS,
+                     { include_blank: '選択してください' },
                      { class: 'form-control form-control-width-auto', id: 'customer_invoice_delivery_method' } %>
       </div>
       <div>
         <%= form.label :billing_closing_day, '請求締日' do %>
           請求締日 <span class="text-danger">*</span>
         <% end %>
-        <%= form.select :billing_closing_day, 
-                     Customer::BILLING_CLOSING_DAYS, 
-                     { include_blank: '選択してください' }, 
+        <%= form.select :billing_closing_day,
+                     Customer::BILLING_CLOSING_DAYS,
+                     { include_blank: '選択してください' },
                      { class: 'form-control form-control-width-150' } %>
       </div>
     </div>

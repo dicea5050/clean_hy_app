@@ -1,7 +1,7 @@
 // Bootstrapのメインスタイルを読み込み
 @use "bootstrap/scss/bootstrap";
 
-// カスタムスタイルをここに記述 
+// カスタムスタイルをここに記述
 
 // ヘッダーナビゲーション用のカスタムスタイル
 .navbar {
@@ -174,7 +174,7 @@ h4, .h4 {
 // 注文明細テーブルの列幅指定
 .order-item-table {
   table-layout: fixed;
-  
+
   colgroup {
     col:nth-child(1) { width: 90px; }  // 商品コード
     col:nth-child(2) { width: 160px; } // 商品
@@ -188,37 +188,37 @@ h4, .h4 {
     col:nth-child(10) { width: 162px; } // 備考
     col:nth-child(11) { width: 70px; }  // 削除ボタン
   }
-  
+
   thead th:nth-child(1),
   tbody td:nth-child(1) { width: 90px; }
-  
+
   thead th:nth-child(2),
   tbody td:nth-child(2) { width: 160px; }
-  
+
   thead th:nth-child(3),
   tbody td:nth-child(3) { width: 70px; }
-  
+
   thead th:nth-child(4),
   tbody td:nth-child(4) { width: 85px; }
-  
+
   thead th:nth-child(5),
   tbody td:nth-child(5) { width: 70px; }
-  
+
   thead th:nth-child(6),
   tbody td:nth-child(6) { width: 88px; }
-  
+
   thead th:nth-child(7),
   tbody td:nth-child(7) { width: 64px; }
-  
+
   thead th:nth-child(8),
   tbody td:nth-child(8) { width: 100px; }
-  
+
   thead th:nth-child(9),
   tbody td:nth-child(9) { width: 100px; }
-  
+
   thead th:nth-child(10),
   tbody td:nth-child(10) { width: 162px; }
-  
+
   thead th:nth-child(11),
   tbody td:nth-child(11) { width: 70px; }
 }
@@ -230,7 +230,7 @@ h4, .h4 {
   .subtotal-with-tax {
     min-width: 80px;
   }
-  
+
   td {
     vertical-align: middle;
   }

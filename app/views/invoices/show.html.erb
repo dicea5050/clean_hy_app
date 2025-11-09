@@ -5,12 +5,12 @@
       <%= render 'shared/invoice_pdf_button', invoice: @invoice %>
       <%= render 'shared/invoice_receipt_button', invoice: @invoice, modal_id: 'receiptModal' %>
       <% if @invoice.approval_status == Invoice::APPROVAL_STATUSES[:approved] %>
-        <%= link_to '編集', edit_invoice_path(@invoice), class: 'btn btn-sm btn-primary edit-approved-invoice', 
+        <%= link_to '編集', edit_invoice_path(@invoice), class: 'btn btn-sm btn-primary edit-approved-invoice',
                     data: { invoice_id: @invoice.id, approval_status: @invoice.approval_status } %>
       <% else %>
         <%= link_to '編集', edit_invoice_path(@invoice), class: 'btn btn-sm btn-primary' %>
       <% end %>
-      <%= render 'shared/show_action_buttons', 
+      <%= render 'shared/show_action_buttons',
                   edit_path: nil,
                   delete_path: nil,
                   back_path: invoices_path %>
@@ -47,7 +47,7 @@
         </div>
       </div>
 
-      <% 
+      <%
         # 請求金額（税込）
         request_amount = @invoice.total_amount
         # 繰越金額
@@ -187,12 +187,12 @@
     <%= render 'shared/invoice_pdf_button', invoice: @invoice %>
     <%= render 'shared/invoice_receipt_button', invoice: @invoice, modal_id: 'receiptModal' %>
     <% if @invoice.approval_status == Invoice::APPROVAL_STATUSES[:approved] %>
-      <%= link_to '編集', edit_invoice_path(@invoice), class: 'btn btn-sm btn-primary edit-approved-invoice', 
+      <%= link_to '編集', edit_invoice_path(@invoice), class: 'btn btn-sm btn-primary edit-approved-invoice',
                   data: { invoice_id: @invoice.id, approval_status: @invoice.approval_status } %>
     <% else %>
       <%= link_to '編集', edit_invoice_path(@invoice), class: 'btn btn-sm btn-primary' %>
     <% end %>
-    <%= render 'shared/show_action_buttons', 
+    <%= render 'shared/show_action_buttons',
                 edit_path: nil,
                 delete_path: nil,
                 back_path: invoices_path %>

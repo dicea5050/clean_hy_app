@@ -10,14 +10,14 @@
     <%= f.label :customer_code, 'ログインID' %>
     <%= f.text_field :customer_code, class: 'form-control' %>
   </div>
-  
+
   <div class="form-group">
     <%= f.label :password, 'パスワード' %>
     <%= f.password_field :password, class: 'form-control' %>
   </div>
-  
+
   <div class="form-actions mt-3">
     <%= f.submit 'ログイン', class: 'btn btn-primary' %>
     <%= link_to 'カートに戻る', shop_cart_path, class: 'btn btn-outline-secondary' %>
   </div>
-<% end %> 
+<% end %>

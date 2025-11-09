@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   });
-  
+
   // 取引先名のインクリメンタルサーチを初期化
   if (window.CompanyNameSearch) {
     window.CompanyNameSearch.setup(document, {

@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const customerCodeField = document.getElementById('order_customer_code');
   const customerSearchField = document.getElementById('customer_search_input');
   const customerIdField = document.getElementById('order_customer_id');
-  
+
   // 編集時の初期化処理
   if (customerIdField && customerIdField.value) {
     // 既に顧客が選択されている場合、納品先の選択肢を更新
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
               if (customerIdField) {
                 customerIdField.value = data.customer.id;
               }
-              
+
               // 納品先の選択肢を更新
               deliverySelect.innerHTML = '<option value="">納品先を選択してください</option>';
               data.customer.delivery_locations.forEach(location => {
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
               if (customerIdField) {
                 customerIdField.value = data.customer.id;
               }
-              
+
               // 納品先の選択肢を更新
               const deliverySelect = document.getElementById('order_delivery_location_id');
               if (deliverySelect) {
@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 deliverySelect.disabled = false;
               }
-              
+
               showMessage('顧客情報を取得しました', 'success');
             } else {
               showMessage('顧客コードが見つかりません', 'error');

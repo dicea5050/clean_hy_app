@@ -30,9 +30,9 @@
 
     class PaymentManagementController extends Controller {
       static targets = [
-        "customerSelect", "invoicesCard", "paymentCard", "invoicesTableBody", 
-        "amountInput", "customerIdField", "confirmButton", "allocationSummary", 
-        "loadingSpinner", "paymentForm", "invoiceButtons", "invoicesTitle", 
+        "customerSelect", "invoicesCard", "paymentCard", "invoicesTableBody",
+        "amountInput", "customerIdField", "confirmButton", "allocationSummary",
+        "loadingSpinner", "paymentForm", "invoiceButtons", "invoicesTitle",
         "unpaidButton", "paidButton", "historyButton", "tableHeader"
       ];
 
@@ -47,7 +47,7 @@
         console.log('onCustomerChange called');
         const customerId = this.customerSelectTarget.value;
         console.log('Customer ID:', customerId);
-        
+
         if (customerId) {
           console.log('Enabling buttons');
           this.enableButtons();
@@ -64,7 +64,7 @@
 
       async loadUnpaidInvoices() {
         const customerId = this.customerSelectTarget.value;
-        
+
         if (!customerId) {
           this.hideInvoicesCard();
           this.hidePaymentCard();
@@ -72,11 +72,11 @@
         }
 
         this.showLoading();
-        
+
         try {
           const response = await fetch(`/payment_management/unpaid_invoices?customer_id=${customerId}`);
           const data = await response.json();
-          
+
           if (data.success) {
             this.unpaidInvoices = data.invoices;
             this.invoicesTitleTarget.textContent = data.title;
@@ -106,7 +106,7 @@
 
       async loadPaidInvoices() {
         const customerId = this.customerSelectTarget.value;
-        
+
         if (!customerId) {
           this.hideInvoicesCard();
           this.hidePaymentCard();
@@ -114,11 +114,11 @@
         }
 
         this.showLoading();
-        
+
         try {
           const response = await fetch(`/payment_management/paid_invoices?customer_id=${customerId}`);
           const data = await response.json();
-          
+
           if (data.success) {
             this.unpaidInvoices = data.invoices;
             this.invoicesTitleTarget.textContent = data.title;
@@ -148,7 +148,7 @@
 
       async loadPaymentHistory() {
         const customerId = this.customerSelectTarget.value;
-        
+
         if (!customerId) {
           this.hideInvoicesCard();
           this.hidePaymentCard();
@@ -156,11 +156,11 @@
         }
 
         this.showLoading();
-        
+
         try {
           const response = await fetch(`/payment_management/payment_history?customer_id=${customerId}`);
           const data = await response.json();
-          
+
           if (data.success) {
             this.paymentHistory = data.payment_history;
             this.invoicesTitleTarget.textContent = data.title;
@@ -235,10 +235,10 @@
           const row = document.createElement('tr');
           const invoiceLink = `<a href="/invoices/${invoice.id}" class="text-decoration-none">${invoice.invoice_number}</a>`;
           const paymentIds = invoice.payment_ids ? invoice.payment_ids.join(', ') : '-';
-          const originalPaymentIds = invoice.original_payment_ids && invoice.original_payment_ids.length > 0 
-            ? invoice.original_payment_ids.join(', ') 
+          const originalPaymentIds = invoice.original_payment_ids && invoice.original_payment_ids.length > 0
+            ? invoice.original_payment_ids.join(', ')
             : '-';
-          
+
           const rowHTML = showAllocationColumns ? `
             <td class="text-center">${paymentIds}</td>
             <td>${invoiceLink}</td>
@@ -258,7 +258,7 @@
             <td class="text-end">¥${this.formatNumber(invoice.remaining_amount)}</td>
             <td class="text-center">${originalPaymentIds}</td>
           `;
-          
+
           row.innerHTML = rowHTML;
           tbody.appendChild(row);
         });
@@ -293,11 +293,11 @@
 
         this.paymentHistory.forEach(payment => {
           const row = document.createElement('tr');
-          
-          const invoiceLinks = payment.invoice_numbers.map(inv => 
+
+          const invoiceLinks = payment.invoice_numbers.map(inv =>
             `<a href="/invoices/${inv.id}" class="text-decoration-none">${inv.number}</a>`
           ).join(', ');
-          
+
           row.innerHTML = `
             <td class="text-center">${payment.payment_id}</td>
             <td>${this.formatDate(payment.payment_date)}</td>
@@ -310,7 +310,7 @@
                 <a href="/payment_management/${payment.payment_id}/edit" class="btn btn-primary btn-sm">
                   編集
                 </a>
-                <button type="button" class="btn btn-danger btn-sm" 
+                <button type="button" class="btn btn-danger btn-sm"
                         onclick="window.deletePayment(${payment.payment_id})">
                   削除
                 </button>
@@ -323,7 +323,7 @@
 
       calculateAllocation() {
         const amount = parseInt(this.amountInputTarget.value) || 0;
-        
+
         if (amount <= 0) {
           this.clearAllocation();
           this.confirmButtonTarget.disabled = true;
@@ -339,7 +339,7 @@
           const totalAmount = invoice.total_amount;
           const alreadyPaidAmount = invoice.paid_amount;
           const unpaidAmount = totalAmount - alreadyPaidAmount;
-          
+
           if (unpaidAmount <= 0) return;
 
           const paidAmount = Math.min(remainingAmount, unpaidAmount);
@@ -356,22 +356,22 @@
 
         this.updateAllocationDisplay();
         this.updateAllocationSummary(amount, remainingAmount);
-        
+
         this.confirmButtonTarget.disabled = false;
       }
 
       updateAllocationDisplay() {
         const rows = this.invoicesTableBodyTarget.querySelectorAll('tr');
-        
+
         rows.forEach((row, index) => {
           const allocationCell = row.querySelector('[data-allocation-amount]');
           const remainingCell = row.querySelector('[data-remaining-after]');
-          
+
           if (this.allocationResults[index]) {
             const result = this.allocationResults[index];
             allocationCell.textContent = `¥${this.formatNumber(result.paidAmount)}`;
             remainingCell.textContent = `¥${this.formatNumber(result.newRemaining)}`;
-            
+
             if (result.paidAmount > 0) {
               allocationCell.classList.add('text-success', 'fw-bold');
               remainingCell.classList.add(result.newRemaining === 0 ? 'text-success' : 'text-warning');
@@ -390,11 +390,11 @@
       updateAllocationSummary(totalAmount, remainingAmount) {
         const summary = this.allocationSummaryTarget;
         const allocatedAmount = totalAmount - remainingAmount;
-        
+
         summary.innerHTML = `
-          <strong>充当結果:</strong> 
-          総入金額: ¥${this.formatNumber(totalAmount)} | 
-          充当額: ¥${this.formatNumber(allocatedAmount)} | 
+          <strong>充当結果:</strong>
+          総入金額: ¥${this.formatNumber(totalAmount)} |
+          充当額: ¥${this.formatNumber(allocatedAmount)} |
           未充当: ¥${this.formatNumber(remainingAmount)}
         `;
         summary.classList.remove('d-none');
@@ -413,7 +413,7 @@
             alert('入金額を正しく入力してください');
             return;
           }
-          
+
           this.paymentFormTarget.submit();
         }
       }
@@ -489,7 +489,7 @@
 
   // Stimulus読み込み完了イベントをリッスン
   window.addEventListener('stimulus:loaded', registerController);
-  
+
   // ページ読み込み時にコントローラーを登録（Stimulusが既に読み込まれている場合）
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
@@ -507,20 +507,20 @@
       const form = document.createElement('form');
       form.method = 'POST';
       form.action = `/payment_management/${paymentId}`;
-      
+
       const methodInput = document.createElement('input');
       methodInput.type = 'hidden';
       methodInput.name = '_method';
       methodInput.value = 'DELETE';
-      
+
       const tokenInput = document.createElement('input');
       tokenInput.type = 'hidden';
       tokenInput.name = 'authenticity_token';
       tokenInput.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-      
+
       form.appendChild(methodInput);
       form.appendChild(tokenInput);
-      
+
       document.body.appendChild(form);
       form.submit();
     }

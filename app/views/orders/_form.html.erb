@@ -26,8 +26,8 @@
             <% end %>
             <div class="autocomplete-container position-relative">
               <%= f.hidden_field :customer_id %>
-              <input type="text" 
-                     class="form-control customer-search" 
+              <input type="text"
+                     class="form-control customer-search"
                      id="customer_search_input"
                      placeholder="取引先名または顧客コードを入力"
                      value="<%= @order.customer&.company_name %>"

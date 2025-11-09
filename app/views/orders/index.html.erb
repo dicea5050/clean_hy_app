@@ -206,7 +206,7 @@
             </td>
             <td>
               <%= link_to '詳細', order_path(order), class: 'btn btn-sm btn-info' %>
-              <%= link_to '編集', edit_order_path(order), 
+              <%= link_to '編集', edit_order_path(order),
                          class: 'btn btn-sm btn-primary edit-order-btn',
                          data: { has_pending_or_approved_invoice: order.has_pending_or_approved_invoice? } %>
               <%= render 'shared/delivery_slip_button', order: order %>

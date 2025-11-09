@@ -80,15 +80,15 @@
           <div class="col-md-3">
             <div class="form-group">
               <%= form.label :category, "入金種別", class: "form-label" %>
-              <%= form.select :category, 
+              <%= form.select :category,
                   options_for_select([
                     ['入金（振込）', '入金（振込）'],
                     ['入金（現金）', '入金（現金）'],
                     ['振込手数料', '振込手数料'],
                     ['相殺', '相殺'],
                     ['返金', '返金']
-                  ]), 
-                  { prompt: "選択してください" }, 
+                  ]),
+                  { prompt: "選択してください" },
                   { class: "form-select", required: true } %>
             </div>
           </div>
@@ -105,7 +105,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="row mt-3">
           <div class="col-md-6">
             <button type="button" class="btn btn-success" data-action="click->payment-management#confirmPayment" data-payment-management-target="confirmButton" disabled>

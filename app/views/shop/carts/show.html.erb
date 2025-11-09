@@ -35,7 +35,7 @@
       </tr>
     </tfoot>
   </table>
-  
+
   <div class="cart-actions">
     <%= button_to 'カートを空にする', shop_cart_path, method: :delete, class: 'btn btn-outline-danger', data: { confirm: '本当にカートを空にしますか？' } %>
     <% if customer_signed_in? %>
@@ -47,4 +47,4 @@
 <% else %>
   <p>カートには商品が入っていません。</p>
   <%= link_to '商品一覧に戻る', shop_products_path, class: 'btn btn-primary' %>
-<% end %> 
+<% end %>

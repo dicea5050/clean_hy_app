@@ -20,20 +20,20 @@
           <div class="col-md-6">
             <div class="form-group mb-3">
               <%= form.label :category, "入金種別", class: "form-label" %>
-              <%= form.select :category, 
+              <%= form.select :category,
                   options_for_select([
                     ['入金（振込）', '入金（振込）'],
                     ['入金（現金）', '入金（現金）'],
                     ['振込手数料', '振込手数料'],
                     ['相殺', '相殺'],
                     ['返金', '返金']
-                  ], @payment_record.category), 
-                  { prompt: "選択してください" }, 
+                  ], @payment_record.category),
+                  { prompt: "選択してください" },
                   { class: "form-select", required: true } %>
             </div>
           </div>
         </div>
-        
+
         <div class="row">
           <div class="col-md-6">
             <div class="form-group mb-3">

@@ -28,12 +28,12 @@
   document.addEventListener('DOMContentLoaded', function() {
     // フォームを取得
     const orderForm = document.querySelector('form');
-    
+
     // フォーム送信前の処理を追加
     orderForm.addEventListener('submit', function(event) {
       // デフォルトの送信動作を一時停止
       event.preventDefault();
-      
+
       // 確認ダイアログを表示
       if (confirm('請求済みの受注情報です。本当に編集しますか？')) {
         // OKがクリックされた場合はフォームを送信
@@ -43,4 +43,4 @@
     });
   });
 </script>
-<% end %> 
+<% end %>

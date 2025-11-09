@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   });
-  
+
   // 一括差し戻しモーダルが開かれたときに選択されたIDを設定
   var bulkRejectModal = document.getElementById('bulkRejectModal');
   if (bulkRejectModal) {
