@@ -1,5 +1,5 @@
 class InvoiceApprovalsController < ApplicationController
-  before_action :require_editor_limited_access
+  before_action :require_admin_only
   before_action :require_administrator_login
   before_action :set_invoice_approval, only: [ :approve, :reject ]
 

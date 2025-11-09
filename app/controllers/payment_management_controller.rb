@@ -1,6 +1,6 @@
 class PaymentManagementController < ApplicationController
   before_action :require_editor_limited_access
-  before_action :require_editor_or_admin, only: [:create, :edit, :update, :destroy]
+  before_action :require_editor, only: [:create, :edit, :update, :destroy]
   before_action :set_payment_record, only: [:edit, :update, :destroy]
 
   def index
@@ -245,13 +245,6 @@ class PaymentManagementController < ApplicationController
   end
 
   private
-
-  def require_editor_or_admin
-    unless administrator_signed_in? && (current_administrator.editor? || current_administrator.admin?)
-      redirect_to payment_management_index_path, 
-                  alert: "この操作を行う権限がありません。"
-    end
-  end
 
   def set_payment_record
     @payment_record = PaymentRecord.find(params[:id])
