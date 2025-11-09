@@ -1,0 +1,14 @@
+<%# 詳細ボタンの共通パーシャル
+    Parameters:
+    - path: 詳細ページのパス（必須）
+    - text: ボタンのテキスト（デフォルト: '詳細'）
+    - size_class: ボタンサイズのクラス（デフォルト: 'btn-sm'）
+    - extra_class: 追加のCSSクラス（例: 'me-2'）
+    - id: ボタンのID属性
+-%>
+<% button_text = local_assigns[:text] || '詳細' %>
+<% size_class = local_assigns[:size_class] || 'btn-sm' %>
+<% extra_class = local_assigns[:extra_class] ? " #{local_assigns[:extra_class]}" : '' %>
+<% class_str = "btn #{size_class} btn-info#{extra_class}" %>
+<%= link_to button_text, local_assigns[:path], class: class_str, id: local_assigns[:id] %>
+

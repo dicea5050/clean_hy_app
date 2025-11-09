@@ -1,0 +1,19 @@
+<%# 請求書PDFボタンの共通パーシャル
+    Parameters:
+    - invoice: Invoiceオブジェクト（必須）
+    - text: ボタンのテキスト（デフォルト: '請求書PDF'）
+    - size_class: ボタンサイズのクラス（デフォルト: 'btn-sm'）
+    - button_class: ボタンの色クラス（デフォルト: 'btn-success'）
+    - extra_class: 追加のCSSクラス（例: 'me-2'）
+    - id: ボタンのID属性
+-%>
+<% button_text = local_assigns[:text] || '請求書PDF' %>
+<% size_class = local_assigns[:size_class] || 'btn-sm' %>
+<% button_class = local_assigns[:button_class] || 'btn-success' %>
+<% extra_class = local_assigns[:extra_class] ? " #{local_assigns[:extra_class]}" : '' %>
+<% class_str = "btn #{size_class} #{button_class}#{extra_class}" %>
+<%= link_to button_text, pdf_invoice_path(invoice, format: :pdf),
+            class: class_str,
+            target: '_blank',
+            id: local_assigns[:id] %>
+

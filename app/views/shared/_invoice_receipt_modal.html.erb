@@ -1,0 +1,41 @@
+<%# 領収書発行モーダルの共通パーシャル
+    Parameters:
+    - invoice: Invoiceオブジェクト（必須）
+    - modal_id: モーダルのID（デフォルト: "receiptModal#{invoice.id}"）
+-%>
+<% modal_id = local_assigns[:modal_id] || "receiptModal#{invoice.id}" %>
+<% label_id = "#{modal_id}Label" %>
+<% issue_date_id = "issue_date_#{invoice.id}" %>
+<div class="modal fade" id="<%= modal_id %>" tabindex="-1" aria-labelledby="<%= label_id %>" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="<%= label_id %>">領収書発行</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <%= form_with url: receipt_invoice_path(invoice, format: :pdf), method: :get, local: true, target: '_blank' do |form| %>
+          <div class="mb-3">
+            <label for="<%= issue_date_id %>" class="form-label">発行日</label>
+            <%= form.date_field :issue_date, value: Date.current, class: 'form-control', required: true, id: issue_date_id %>
+          </div>
+          <div class="mb-3">
+            <% if invoice.respond_to?(:invoice_number) %>
+              <p><strong>請求書番号:</strong> <%= invoice.invoice_number %></p>
+            <% end %>
+            <p><strong>顧客名:</strong> <%= invoice.customer.company_name %></p>
+            <% if invoice.customer.customer_code.present? %>
+              <p><strong>顧客コード:</strong> <%= invoice.customer.customer_code %></p>
+            <% end %>
+            <p><strong>領収金額:</strong> <%= number_to_currency(invoice.total_amount) %></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+            <%= form.submit '領収書PDF発行', class: 'btn btn-sm btn-warning' %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+

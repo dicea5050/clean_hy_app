@@ -34,11 +34,7 @@
 
       <div class="mb-3">
         <strong>請求書送付方法:</strong>
-        <% if @customer.electronic? %>
-          <span class="badge bg-info">電子請求</span>
-        <% else %>
-          <span class="badge bg-secondary">郵送</span>
-        <% end %>
+        <%= render 'shared/invoice_delivery_method_badge', customer: @customer %>
       </div>
 
       <div class="mb-3">

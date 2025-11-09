@@ -94,7 +94,7 @@
           請求書送付方法 <span class="text-danger">*</span>
         <% end %>
         <%= form.select :invoice_delivery_method, 
-                     { '電子請求' => 'electronic', '郵送' => 'postal' }, 
+                     Customer::INVOICE_DELIVERY_METHOD_OPTIONS, 
                      { include_blank: '選択してください' }, 
                      { class: 'form-control', style: 'width: auto; min-width: fit-content;', id: 'customer_invoice_delivery_method' } %>
       </div>

@@ -1,0 +1,14 @@
+<%# 領収書ボタンの共通パーシャル
+    Parameters:
+    - invoice: Invoiceオブジェクト（必須）
+    - text: ボタンのテキスト（デフォルト: '領収書発行'）
+    - size_class: ボタンサイズのクラス（デフォルト: 'btn-sm'）
+    - modal_id: モーダルのID（デフォルト: "receiptModal#{invoice.id}"）
+-%>
+<% button_text = local_assigns[:text] || '領収書発行' %>
+<% size_class = local_assigns[:size_class] || 'btn-sm' %>
+<% modal_id = local_assigns[:modal_id] || "receiptModal#{invoice.id}" %>
+<button type="button" class="btn <%= size_class %> btn-warning" data-bs-toggle="modal" data-bs-target="#<%= modal_id %>">
+  <%= button_text %>
+</button>
+

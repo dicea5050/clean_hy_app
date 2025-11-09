@@ -23,8 +23,8 @@
           <label>請求書番号</label>
           <div class="d-flex align-items-center">
             <span class="form-control-plaintext"><%= @invoice.invoice_number %></span>
-            <span class="<%= @invoice.approval_status_badge_class %> ms-2"><%= @invoice.approval_status %></span>
-            <span class="<%= @invoice.payment_status_badge_class %> ms-2"><%= @invoice.payment_status %></span>
+            <%= render 'shared/approval_status_badge', invoice: @invoice, margin_class: 'ms-2' %>
+            <%= render 'shared/payment_status_badge', object: @invoice, margin_class: 'ms-2' %>
           </div>
         </div>
       </div>
@@ -178,16 +178,16 @@
     </div>
   <% end %>
 
-  <div class="form-group text-center mt-4">
+  <div class="form-group text-center mt-4 mb-5">
     <% if form_mode == :new %>
-      <%= form.submit submit_button_text, class: 'btn btn-primary', disabled: @orders.blank? %>
+      <%= form.submit submit_button_text, class: 'btn btn-sm btn-primary', disabled: @orders.blank? %>
     <% else %>
-      <%= form.submit submit_button_text, class: 'btn btn-primary' %>
+      <%= form.submit submit_button_text, class: 'btn btn-sm btn-primary' %>
     <% end %>
     <% if show_detail_button %>
-      <%= link_to '詳細', @invoice, class: 'btn btn-info' %>
+      <%= link_to '詳細', @invoice, class: 'btn btn-sm btn-info' %>
     <% end %>
-    <%= link_to '戻る', back_path, class: 'btn btn-secondary' %>
+    <%= link_to '戻る', back_path, class: 'btn btn-sm btn-secondary' %>
   </div>
 <% end %>
 

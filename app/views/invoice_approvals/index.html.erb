@@ -43,10 +43,8 @@
             <td><%= number_to_currency(approval.invoice.total_amount) %></td>
             <td><%= l approval.created_at, format: :month_day_time %></td>
             <td>
-              <%= link_to '詳細', invoice_path(approval.invoice), class: 'btn btn-sm btn-info me-2' %>
-              <%= link_to 'PDF', pdf_invoice_path(approval.invoice, format: :pdf), 
-                          class: 'btn btn-sm btn-secondary me-2', 
-                          target: '_blank' %>
+              <%= render 'shared/detail_button', path: invoice_path(approval.invoice), extra_class: 'me-2' %>
+              <%= render 'shared/invoice_pdf_button', invoice: approval.invoice, text: 'PDF', extra_class: 'me-2' %>
               <%= button_to '承認', approve_invoice_approval_path(approval), 
                           class: 'btn btn-sm btn-success me-2 d-inline',
                           form: { class: 'd-inline' },

@@ -1,0 +1,19 @@
+<%# 納品書ボタンの共通パーシャル
+    Parameters:
+    - order: Orderオブジェクト（必須）
+    - text: ボタンのテキスト（デフォルト: '納品書'）
+    - size_class: ボタンサイズのクラス（デフォルト: 'btn-sm'）
+-%>
+<% button_text = local_assigns[:text] || '納品書' %>
+<% size_class = local_assigns[:size_class] || 'btn-sm' %>
+<%= link_to button_text, delivery_slip_order_path(order, format: :pdf),
+            class: "btn #{size_class} btn-success delivery-slip-btn",
+            target: '_blank',
+            id: local_assigns[:id],
+            data: { 
+              has_delivery_date: order.actual_delivery_date.present?,
+              bs_toggle: local_assigns[:tooltip] ? 'tooltip' : nil,
+              bs_placement: local_assigns[:tooltip] ? 'top' : nil,
+              title: local_assigns[:tooltip] ? '納品書PDFを表示します' : nil
+            }.compact %>
+

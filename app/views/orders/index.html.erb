@@ -202,26 +202,22 @@
             <td><%= number_to_currency(order.order_items.sum { |item| item.subtotal_without_tax }) %></td>
             <td><%= order.payment_method&.name %></td>
             <td>
-              <% if order.invoiced? %>
-                <%= link_to invoice_path(order.invoices.first), style: "text-decoration: none;" do %>
-                  <span style="display: inline-block; padding: 0.25em 0.6em; font-size: 0.75rem; font-weight: 700; line-height: 1; text-align: center; white-space: nowrap; vertical-align: baseline; border-radius: 0.375rem; color: #fff; background-color: #28a745; cursor: pointer;">発行済</span>
-                <% end %>
-              <% else %>
-                <span style="display: inline-block; padding: 0.25em 0.6em; font-size: 0.75rem; font-weight: 700; line-height: 1; text-align: center; white-space: nowrap; vertical-align: baseline; border-radius: 0.375rem; color: #fff; background-color: #6c757d;">未発行</span>
-              <% end %>
+              <%= render 'shared/invoice_status_badge', order: order %>
             </td>
             <td>
-              <%= link_to '詳細', order, class: 'btn btn-sm btn-info' %>
+              <%= link_to '詳細', order_path(order), class: 'btn btn-sm btn-info' %>
               <%= link_to '編集', edit_order_path(order), 
                          class: 'btn btn-sm btn-primary edit-order-btn',
                          data: { has_pending_or_approved_invoice: order.has_pending_or_approved_invoice? } %>
-              <%= link_to '納品書', delivery_slip_order_path(order, format: :pdf),
-                         class: 'btn btn-sm btn-success delivery-slip-btn',
-                         target: '_blank',
-                         data: { has_delivery_date: order.actual_delivery_date.present? } %>
-              <%= form_with(url: order_path(order), method: :delete, class: 'd-inline') do |f| %>
-                <%= f.submit '削除', class: 'btn btn-sm btn-danger', data: { confirm: '本当に削除しますか？' },
-                            onclick: "return confirm('本当に削除しますか？');" %>
+              <%= render 'shared/delivery_slip_button', order: order %>
+              <% confirm_msg = t('confirms.destroy', default: '本当に削除しますか？') %>
+              <%= button_to order_path(order),
+                              method: :delete,
+                              form: { data: { turbo_confirm: confirm_msg, confirm: confirm_msg },
+                                      onsubmit: "return confirm('#{j confirm_msg}')",
+                                      class: 'd-inline' },
+                              class: 'btn btn-sm btn-danger' do %>
+                <%= t('buttons.destroy', default: '削除') %>
               <% end %>
             </td>
           </tr>

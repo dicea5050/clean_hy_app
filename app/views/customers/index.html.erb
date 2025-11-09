@@ -65,11 +65,7 @@
                 <td><%= customer.contact_name %></td>
                 <td><%= customer.phone_number %></td>
                 <td>
-                  <% if customer.electronic? %>
-                    <span class="badge bg-info">電子請求</span>
-                  <% else %>
-                    <span class="badge bg-secondary">郵送</span>
-                  <% end %>
+                  <%= render 'shared/invoice_delivery_method_badge', customer: customer %>
                 </td>
                 <td><%= customer.billing_closing_day_display %></td>
                 <td><%= customer.email %></td>

@@ -35,12 +35,24 @@
   color: #fff;
 }
 
+// 請求書詳細画面のh2の横のバッジを請求書一覧画面と同じサイズにする
+h2 .badge, .h2 .badge {
+  font-size: 0.75rem !important;
+  padding: 0.25em 0.6em !important;
+}
+
 .badge-success {
   background-color: #28a745;
 }
 
 .badge-secondary {
   background-color: #6c757d;
+}
+
+// 受注一覧の「発行済」と同じ緑色（#28a745）を使用するバッジクラス
+.badge.bg-invoiced,
+.bg-invoiced {
+  background-color: #28a745 !important;
 }
 
 // 顧客名検索の候補表示スタイル
@@ -63,4 +75,17 @@
 
 .suggestion-item:last-child {
   border-bottom: none !important;
+}
+
+// h2、h3、h4のフォントサイズを10%小さくする
+h2, .h2 {
+  font-size: 1.8rem !important; // デフォルト2remの90%
+}
+
+h3, .h3 {
+  font-size: 1.575rem !important; // デフォルト1.75remの90%
+}
+
+h4, .h4 {
+  font-size: 1.215rem !important; // デフォルト1.5remの81%（90%のさらに90%）
 } 

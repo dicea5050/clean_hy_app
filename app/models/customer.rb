@@ -16,6 +16,12 @@ class Customer < ApplicationRecord
     [ "月末", "month_end" ]
   ].freeze
 
+  # 請求書送付方法の選択肢を定義
+  INVOICE_DELIVERY_METHOD_OPTIONS = {
+    '電子請求' => 'electronic',
+    '郵送' => 'postal'
+  }.freeze
+
   # コールバック：顧客作成時と更新時に本社納品先も同期する
   after_create :create_main_office_delivery_location
   after_update :update_main_office_delivery_location, if: :address_changed?
@@ -53,6 +59,16 @@ class Customer < ApplicationRecord
   # i18n用のヘルパーメソッド
   def invoice_delivery_method_i18n
     I18n.t("enums.customer.invoice_delivery_method.#{invoice_delivery_method}")
+  end
+
+  # 請求書送付方法の表示テキストを返す
+  def invoice_delivery_method_display
+    electronic? ? "電子請求" : "郵送"
+  end
+
+  # 請求書送付方法に応じたバッジのクラスを返す
+  def invoice_delivery_method_badge_class
+    electronic? ? "badge bg-info" : "badge bg-invoiced"
   end
 
   # 請求締日の表示用メソッド
