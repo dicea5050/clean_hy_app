@@ -8,11 +8,11 @@
   <!-- 検索フォーム -->
   <div class="card mb-4">
     <div class="card-header bg-light">
-      <button class="btn btn-link btn-sm text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="false" aria-controls="searchCollapse">
+      <button class="btn btn-link btn-sm text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="true" aria-controls="searchCollapse">
         <i class="bi bi-search"></i> 検索条件
       </button>
     </div>
-    <div class="collapse" id="searchCollapse">
+    <div class="collapse show" id="searchCollapse">
       <div class="card-body">
         <%= form_with url: invoices_path, method: :get, local: true, id: 'search-form', class: 'row g-3' do %>
           <!-- 1行目：顧客コード、取引先名、請求書番号、請求書送付方法 -->
@@ -100,6 +100,25 @@
                         id: "status_#{status}",
                         class: 'form-check-input' %>
                     <label class="form-check-label" for="<%= "status_#{status}" %>"><%= status %></label>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- 3行目：入金状況 -->
+          <div class="col-md-4 clear-left">
+            <label class="form-label">入金状況</label>
+            <div class="row g-2">
+              <% Invoice::PAYMENT_STATUSES.values.each do |status| %>
+                <div class="col-auto me-2">
+                  <div class="form-check">
+                    <%= check_box_tag 'search[payment_statuses][]',
+                        status,
+                        params.dig(:search, :payment_statuses)&.include?(status),
+                        id: "payment_status_#{status}",
+                        class: 'form-check-input' %>
+                    <label class="form-check-label" for="<%= "payment_status_#{status}" %>"><%= status %></label>
                   </div>
                 </div>
               <% end %>

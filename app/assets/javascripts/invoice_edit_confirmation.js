@@ -13,7 +13,8 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // 編集画面のフォーム送信時の確認ダイアログ
-  const invoiceForm = document.querySelector('form[action*="/invoices"]');
+  // 検索フォーム（id="search-form"）を除外し、編集画面のフォームのみを対象とする
+  const invoiceForm = document.querySelector('form[action*="/invoices"]:not(#search-form)');
   if (invoiceForm) {
     // フォームが編集画面のものかどうかを確認（承認済み請求書の場合のみ）
     const approvalStatusBadge = document.querySelector('.badge.bg-success');

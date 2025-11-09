@@ -169,4 +169,13 @@ class Invoice < ApplicationRecord
     # 未入金額がある請求書の未入金額を合計
     approved_invoices.sum { |invoice| [invoice.unpaid_amount, 0].max }
   end
+
+  # 最新の差し戻し理由を取得
+  def latest_rejection_reason
+    latest_rejection = invoice_approvals
+                       .where(status: InvoiceApproval::STATUSES[:rejected])
+                       .order(updated_at: :desc)
+                       .first
+    latest_rejection&.notes
+  end
 end

@@ -91,11 +91,16 @@ class InvoiceApprovalsController < ApplicationController
     Rails.logger.debug "更新前のInvoiceApproval status: #{@invoice_approval.status}"
     Rails.logger.debug "更新前のInvoice approval_status: #{invoice.approval_status}"
     
+    rejection_reason = params[:rejection_reason]
+    
     ActiveRecord::Base.transaction do
-      result1 = @invoice_approval.update!(
+      update_params = {
         status: InvoiceApproval::STATUSES[:rejected],
         approver: current_administrator
-      )
+      }
+      update_params[:notes] = rejection_reason if rejection_reason.present?
+      
+      result1 = @invoice_approval.update!(update_params)
       Rails.logger.debug "InvoiceApproval更新結果: #{result1}"
       Rails.logger.debug "更新後のInvoiceApproval status: #{@invoice_approval.reload.status}"
       
@@ -253,6 +258,7 @@ class InvoiceApprovalsController < ApplicationController
     Rails.logger.debug "承認ID数: #{approval_ids.size}"
     Rails.logger.debug "承認IDs: #{approval_ids.join(', ')}"
 
+    rejection_reason = params[:rejection_reason]
     success_count = 0
     error_count = 0
 
@@ -270,10 +276,13 @@ class InvoiceApprovalsController < ApplicationController
         end
 
         # InvoiceApprovalの更新
-        result1 = approval.update!(
+        update_params = {
           status: InvoiceApproval::STATUSES[:rejected],
           approver: current_administrator
-        )
+        }
+        update_params[:notes] = rejection_reason if rejection_reason.present?
+        
+        result1 = approval.update!(update_params)
         Rails.logger.debug "InvoiceApproval更新結果: #{result1}"
 
         # Invoiceの更新

@@ -31,6 +31,10 @@
     </div>
   <% end %>
 
+  <% if form_mode == :edit %>
+    <%= render 'rejection_reason' %>
+  <% end %>
+
   <div class="row mb-3">
     <div class="col-md-4">
       <div class="form-group">
