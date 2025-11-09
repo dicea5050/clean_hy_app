@@ -16,11 +16,10 @@ class InvoicePdf < Prawn::Document
 
     header
     customer_info
-    tax_summary
-    bank_accounts
+    summary_table
     order_details
-    total_amount
-    footer
+    bank_accounts_and_tax_summary
+    notes
   end
 
   def header
@@ -102,11 +101,35 @@ class InvoicePdf < Prawn::Document
     move_down 10
   end
 
-  def bank_accounts
-    text "【お振込先】", size: 12, style: :bold
-    move_down 10
+  def summary_table
+    # 繰越金額、小計（税抜）、消費税、請求合計額（税込）の表
+    total_without_tax = @invoice.total_amount_without_tax
+    total_with_tax = @invoice.total_amount
+    tax_amount = total_with_tax - total_without_tax
+    carryover_amount = Invoice.carryover_amount_for_customer(@invoice.customer_id, exclude_invoice_id: @invoice.id)
+    total_request_amount = total_with_tax + carryover_amount
 
-    # 銀行口座情報をテーブルで表示
+    summary_data = [
+      [ "繰越金額", "請求額（税抜）", "消費税", "請求合計額（税込）" ],
+      [
+        "¥#{number_with_delimiter(carryover_amount)}",
+        "¥#{number_with_delimiter(total_without_tax)}",
+        "¥#{number_with_delimiter(tax_amount)}",
+        "¥#{number_with_delimiter(total_request_amount)}"
+      ]
+    ]
+
+    table summary_data, width: bounds.width, cell_style: { size: 10, padding: [ 5, 5 ] } do
+      row(0).font_style = :bold
+      row(0).background_color = "DDDDDD"
+      columns(0..3).align = :right
+    end
+
+    move_down 20
+  end
+
+  def bank_accounts(include_title: false)
+    # 銀行口座情報をカラムを半角スペースで詰めて表示
     # 初回発行時は有効口座のみ、再発行時は全口座を表示
     accounts = if @reissue
                  BankAccount.all
@@ -115,30 +138,17 @@ class InvoicePdf < Prawn::Document
     end
 
     if accounts.present?
-      accounts_data = [ [ "金融機関名", "支店名", "種別", "口座番号", "口座名義" ] ]
-
       accounts.each do |account|
-        accounts_data << [
-          account.bank_name,
-          account.branch_name,
-          account.account_type,
-          account.account_number,
-          account.account_holder
-        ]
-      end
-
-      table accounts_data, width: bounds.width, cell_style: { size: 9, padding: [ 4, 4 ] } do
-        row(0).font_style = :bold
-        row(0).background_color = "EEEEEE"
+        account_text = "#{account.bank_name} #{account.branch_name} #{account.account_type} #{account.account_number} #{account.account_holder}"
+        text account_text, size: 9
       end
     else
-      # 銀行口座情報がない場合のダミーデータまたはメッセージ
+      # 銀行口座情報がない場合のメッセージ
       text "銀行口座情報が登録されていません。", size: 10, style: :italic
     end
 
     move_down 3
     text "※お振込手数料はお客様負担でお願いいたします。", size: 8
-    move_down 10
   end
 
   def order_details
@@ -146,8 +156,8 @@ class InvoicePdf < Prawn::Document
     text "【請求明細】", size: 14, style: :bold
     move_down 10
 
-    # 全ての受注と商品項目を1つの表にまとめる
-    items_data = [ [ "受注番号", "納品日", "商品名", "単価", "数量", "小計（税抜）", "税率", "小計（税込）" ] ]
+    # 全ての受注と商品項目を1つの表にまとめる（納品日を削除）
+    items_data = [ [ "受注番号", "商品名", "単価", "数量", "小計（税抜）", "税率", "小計（税込）" ] ]
 
     last_order_id = nil
     row_count = 0
@@ -161,7 +171,6 @@ class InvoicePdf < Prawn::Document
       order.order_items.each_with_index do |item, index|
         row = [
           order.order_number,
-          order.actual_delivery_date&.strftime("%Y年%m月%d日") || "未定",
           item.display_product_name,
           "¥#{number_with_delimiter(item.unit_price)}",
           item.quantity.to_s,
@@ -171,39 +180,27 @@ class InvoicePdf < Prawn::Document
         ]
         items_data << row
 
-        # 最初の商品以外は受注番号と納品日を空にして後でセル結合する
+        # 最初の商品以外は受注番号を空にして後でセル結合する
         if index > 0
-          # 受注番号と納品日のカラムの位置を記録
-          span_rows[items_data.size - 1] = { columns: [ 0, 1 ] }
+          # 受注番号のカラムの位置を記録
+          span_rows[items_data.size - 1] = { columns: [ 0 ] }
         end
-      end
-
-      # 受注ごとに区切り線を入れる（最後の受注以外）
-      unless order == @invoice.orders.last
-        items_data << [ "", "", "", "", "", "", "", "" ]
-        span_rows[items_data.size - 1] = { columns: (0..7).to_a, background: "EEEEEE" }
       end
     end
 
-    # テーブルを描画
-    table items_data, width: bounds.width, cell_style: { size: 8, padding: [ 3, 3 ] } do
+    # テーブルを描画（文字サイズを大きく）
+    table items_data, width: bounds.width, cell_style: { size: 10, padding: [ 4, 4 ] } do
       row(0).font_style = :bold
       row(0).background_color = "DDDDDD"
-      columns(3..7).align = :right
+      columns(2..6).align = :right
 
-      # 同一受注番号の商品行で受注番号と納品日のセルを結合
+      # 同一受注番号の商品行で受注番号のセルを結合
       span_rows.each do |row_index, options|
         if options[:columns].is_a?(Array)
           options[:columns].each do |col_index|
-            if options[:background]
-              # 区切り行の背景色設定
-              row(row_index).background_color = options[:background]
-              row(row_index).height = 5
-            else
-              # 前の行と結合して空セルにする
-              cell = cells[row_index, col_index]
-              cell.content = ""
-            end
+            # 前の行と結合して空セルにする
+            cell = cells[row_index, col_index]
+            cell.content = ""
           end
         end
       end
@@ -237,54 +234,108 @@ class InvoicePdf < Prawn::Document
     tax_free_tax_amount = 0 # 非課税なので消費税は0
     tax_free_total = tax_free_items.sum(&:subtotal)
 
-    # 税率別合計テーブルの表示
-    text "【税率別請求金額】", size: 14, style: :bold
-    move_down 10
-
+    # 税率別合計テーブルの表示（幅を広げて改行を防ぐ）
     tax_summary_data = [
       [ "区分", "税抜額", "消費税額", "請求金額（税込）" ],
       [ "標準税率対象（10.0%）", "¥#{number_with_delimiter(standard_tax_subtotal)}", "¥#{number_with_delimiter(standard_tax_amount)}", "¥#{number_with_delimiter(standard_tax_total)}" ],
       [ "非課税対象（0.0%）", "¥#{number_with_delimiter(tax_free_subtotal)}", "¥#{number_with_delimiter(tax_free_tax_amount)}", "¥#{number_with_delimiter(tax_free_total)}" ]
     ]
 
-    table tax_summary_data, width: bounds.width, cell_style: { size: 9, padding: [ 4, 4 ] } do
+    # カラム幅を指定して改行を防ぐ（区分カラムを広げる）
+    column_widths = [ bounds.width * 0.45, bounds.width * 0.18, bounds.width * 0.18, bounds.width * 0.19 ]
+    table tax_summary_data, width: bounds.width, cell_style: { size: 9, padding: [ 4, 4 ] }, column_widths: column_widths do
+      row(0).font_style = :bold
+      row(0).background_color = "DDDDDD"
+      columns(1..3).align = :right
+      # 区分カラムのテキストを改行しないように設定
+      columns(0).overflow = :shrink_to_fit
+    end
+  end
+
+  def bank_accounts_and_tax_summary
+    # 左側にお振込先、右側で税率別請求金額を並べて表示
+    current_y = cursor
+    bank_accounts_height = 0
+    tax_summary_height = 0
+
+    # 左側：お振込先
+    bounding_box([ 0, current_y ], width: bounds.width / 2 - 10) do
+      text "【お振込先】", size: 12, style: :bold
+      move_down 10
+      start_y = cursor
+      bank_accounts
+      bank_accounts_height = start_y - cursor
+    end
+
+    # 右側：税率別請求金額
+    bounding_box([ bounds.width / 2 + 10, current_y ], width: bounds.width / 2 - 10) do
+      text "【税率別請求金額】", size: 12, style: :bold
+      move_down 10
+      start_y = cursor
+      # 税率別請求金額テーブルを表示
+      tax_summary
+      tax_summary_height = start_y - cursor
+    end
+
+    # カーソルを適切な位置に移動（より高い方の高さを使用）
+    max_height = [ bank_accounts_height, tax_summary_height ].max
+    move_to(0, current_y - max_height - 20)
+  end
+
+  def tax_summary_right_aligned
+    # 税率別の合計額を計算
+    standard_tax_rate_items = [] # 標準税率10.0%
+    tax_free_items = []         # 非課税0.0%
+
+    @invoice.orders.each do |order|
+      order.order_items.each do |item|
+        if item.tax_rate == 10.0
+          standard_tax_rate_items << item
+        elsif item.tax_rate == 0.0
+          tax_free_items << item
+        end
+      end
+    end
+
+    # 標準税率対象（10.0%）の合計
+    standard_tax_subtotal = standard_tax_rate_items.sum(&:subtotal_without_tax)
+    standard_tax_amount = standard_tax_rate_items.sum { |item| item.subtotal - item.subtotal_without_tax }
+    standard_tax_total = standard_tax_rate_items.sum(&:subtotal)
+
+    # 非課税対象（0.0%）の合計
+    tax_free_subtotal = tax_free_items.sum(&:subtotal_without_tax)
+    tax_free_tax_amount = 0 # 非課税なので消費税は0
+    tax_free_total = tax_free_items.sum(&:subtotal)
+
+    # 税率別合計テーブルの表示（幅を狭く、右揃え）
+    tax_summary_data = [
+      [ "区分", "税抜額", "消費税額", "請求金額（税込）" ],
+      [ "標準税率対象（10.0%）", "¥#{number_with_delimiter(standard_tax_subtotal)}", "¥#{number_with_delimiter(standard_tax_amount)}", "¥#{number_with_delimiter(standard_tax_total)}" ],
+      [ "非課税対象（0.0%）", "¥#{number_with_delimiter(tax_free_subtotal)}", "¥#{number_with_delimiter(tax_free_tax_amount)}", "¥#{number_with_delimiter(tax_free_total)}" ]
+    ]
+
+    # テーブル幅を狭く設定（約90%の幅）
+    table_width = bounds.width * 0.9
+    # 右側に配置するためのx位置を計算
+    table_x = bounds.width - table_width
+    current_y = cursor
+
+    # 右側に移動してからテーブルを描画
+    move_to(table_x, current_y)
+    table tax_summary_data, width: table_width, cell_style: { size: 9, padding: [ 4, 4 ] } do
       row(0).font_style = :bold
       row(0).background_color = "DDDDDD"
       columns(1..3).align = :right
     end
-
-    move_down 20
   end
 
-  def total_amount
-    # 合計金額
-    total_without_tax = @invoice.total_amount_without_tax
-    total_with_tax = @invoice.total_amount
-
-    text_box "小計: ¥#{number_with_delimiter(total_without_tax)}", at: [ bounds.width - 150, cursor ], width: 150, align: :right
-    move_down 15
-    text_box "消費税: ¥#{number_with_delimiter(total_with_tax - total_without_tax)}", at: [ bounds.width - 150, cursor ], width: 150, align: :right
-    move_down 15
-    text_box "合計金額: ¥#{number_with_delimiter(total_with_tax)}", at: [ bounds.width - 150, cursor ], width: 150, align: :right, style: :bold
-
-    move_down 30
-
+  def notes
     # 備考欄
     if @invoice.notes.present?
+      move_down 20
       text "【備考】", size: 12, style: :bold
       move_down 5
       text @invoice.notes, size: 10
-    end
-  end
-
-  def footer
-    # フッター
-    move_down 20
-    stroke_horizontal_rule
-    move_down 10
-    text "本請求書に関するお問い合わせは上記までご連絡ください。", align: :center, size: 10
-    if @invoice.approval_status == "承認済み"
-      text "この請求書は承認済みです。", align: :center, size: 10, style: :bold
     end
   end
 

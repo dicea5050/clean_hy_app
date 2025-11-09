@@ -26,15 +26,34 @@
     <!-- Bootstrap JS から CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Stimulus を CDN から読み込む -->
+    <script type="module">
+      import { Application, Controller } from "https://cdn.jsdelivr.net/npm/@hotwired/stimulus@3.2.2/+esm"
+      window.Stimulus = Application.start();
+      window.StimulusController = Controller;
+      window.StimulusLoaded = true;
+      console.log('Stimulus initialized:', window.Stimulus);
+      console.log('Stimulus Controller:', window.StimulusController);
+      // カスタムイベントを発火して読み込み完了を通知
+      window.dispatchEvent(new Event('stimulus:loaded'));
+    </script>
+
     <!-- jQueryをCDNから読み込む -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+
+    <!-- yubinbango: 郵便番号から住所を自動入力 -->
+    <script src="https://yubinbango.github.io/yubinbango/yubinbango.js" charset="UTF-8"></script>
 
     <!-- アプリケーションのJavaScript -->
     <%= javascript_include_tag "application" %>
     <%= javascript_include_tag "order_calculations" %>
     <%= javascript_include_tag "delivery_locations_form" %>
-    <%= javascript_include_tag "payment_records" %>
     <%= javascript_include_tag "customers" %>
+    <%= javascript_include_tag "company_name_search" %>
+    <%= javascript_include_tag "invoice_edit_confirmation" %>
+    <%= javascript_include_tag "invoice_approvals" %>
+    <%= javascript_include_tag "orders/edit_button_guard" %>
+    <%= javascript_include_tag "payment_management_controller" %>
   </head>
 
   <body>
@@ -62,6 +81,9 @@
                     <%= link_to '承認', invoice_approvals_path, class: 'nav-link' %>
                   </li>
                 <% end %>
+                <li class="nav-item">
+                  <%= link_to '入金管理', payment_management_index_path, class: 'nav-link' %>
+                </li>
                 <li class="nav-item">
                   <%= button_to 'ログアウト', logout_path, method: :delete, class: 'btn btn-link nav-link' %>
                 </li>

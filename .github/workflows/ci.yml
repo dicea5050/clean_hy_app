@@ -88,6 +88,13 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
+      - name: Rebuild pg gem for Ruby 3.4 compatibility
+        run: |
+          bundle config build.pg --with-pg-config=/usr/bin/pg_config
+          bundle clean --force
+          gem uninstall pg -aIx || true
+          bundle install
+
       - name: Run tests
         env:
           RAILS_ENV: test

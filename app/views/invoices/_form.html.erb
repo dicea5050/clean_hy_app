@@ -1,0 +1,193 @@
+<%= form_with(model: @invoice, local: true) do |form| %>
+  <% if @invoice.errors.any? %>
+    <div class="alert alert-danger">
+      <h2><%= pluralize(@invoice.errors.count, "エラー") %> が発生しました:</h2>
+      <ul>
+        <% @invoice.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= hidden_field_tag :order_ids, @order_ids.join(',') if @order_ids.present? %>
+
+  <% if form_mode == :new && @orders.present? && @invoice.customer_id.present? %>
+    <%= form.hidden_field :customer_id %>
+  <% end %>
+
+  <% if show_invoice_number %>
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>請求書番号</label>
+          <div class="d-flex align-items-center">
+            <span class="form-control-plaintext"><%= @invoice.invoice_number %></span>
+            <%= render 'shared/approval_status_badge', invoice: @invoice, margin_class: 'ms-2' %>
+            <%= render 'shared/payment_status_badge', object: @invoice, margin_class: 'ms-2' %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <% if form_mode == :edit %>
+    <%= render 'rejection_reason' %>
+  <% end %>
+
+  <div class="row mb-3">
+    <div class="col-md-4">
+      <div class="form-group">
+        <%= form.label :customer_id, '取引先' %>
+        <%= form.collection_select :customer_id, @customers, :id, :company_name,
+                                  { prompt: '取引先を選択してください', selected: @invoice.customer_id },
+                                  { class: 'form-control', disabled: customer_disabled } %>
+        <% if form_mode == :edit %>
+          <small class="form-text text-muted">取引先は変更できません</small>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="form-group">
+        <%= form.label :invoice_date, '請求日' %>
+        <%= form.date_field :invoice_date, class: 'form-control' %>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="form-group">
+        <%= form.label :due_date, '支払期限' %>
+        <%= form.date_field :due_date, class: 'form-control' %>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group mb-3">
+    <%= form.label :notes, '備考' %>
+    <%= form.text_area :notes, class: 'form-control' %>
+  </div>
+
+  <% if @orders.present? %>
+    <h3>選択された受注情報</h3>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>確定納品日</th>
+          <th>受注番号</th>
+          <th>商品</th>
+          <th>数量</th>
+          <th>小計（税抜）</th>
+          <th>小計（税込）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% current_order_id = nil %>
+        <% @orders.each do |order| %>
+          <% order.order_items.each_with_index do |item, index| %>
+            <tr>
+              <td>
+                <% if current_order_id != order.id %>
+                  <%= l order.actual_delivery_date if order.actual_delivery_date %>
+                <% end %>
+              </td>
+              <td>
+                <% if current_order_id != order.id %>
+                  <%= order.order_number %>
+                <% end %>
+              </td>
+              <td>
+                <% if form_mode == :new %>
+                  <%= item.display_product_name %>
+                <% else %>
+                  <%= item.product.name %>
+                <% end %>
+              </td>
+              <td><%= item.quantity %></td>
+              <td class="text-right"><%= number_to_currency(item.subtotal_without_tax) %></td>
+              <td class="text-right"><%= number_to_currency(item.subtotal) %></td>
+            </tr>
+            <% current_order_id = order.id %>
+          <% end %>
+        <% end %>
+        <tr class="table-info">
+          <td colspan="4"><strong>合計</strong></td>
+          <% if form_mode == :new %>
+            <td class="text-right">
+              <strong><%= number_to_currency(@orders.sum { |order| order.order_items.sum(&:subtotal_without_tax) }) %></strong>
+            </td>
+            <td class="text-right">
+              <strong><%= number_to_currency(@orders.sum { |order| order.order_items.sum(&:subtotal) }) %></strong>
+            </td>
+          <% else %>
+            <td><strong><%= number_to_currency(@orders.sum { |order| order.order_items.sum { |item| item.subtotal_without_tax } }) %></strong></td>
+            <td class="total-invoice-amount"><strong><%= number_to_currency(@orders.sum { |order| order.order_items.sum { |item| item.subtotal } }) %></strong></td>
+          <% end %>
+        </tr>
+      </tbody>
+    </table>
+
+    <%
+      # 請求金額（税込）を計算
+      request_amount = @orders.sum { |order| order.order_items.sum { |item| item.subtotal } } || 0
+      # 繰越金額
+      carryover_amount = @carryover_amount || 0
+      # 請求合計金額
+      total_request_amount = request_amount + carryover_amount
+    %>
+
+    <div class="row mt-4 mb-3">
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">請求金額</h5>
+            <p class="card-text h4 text-primary">
+              <%= number_to_currency(request_amount) %>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">繰越金額</h5>
+            <p class="card-text h4 text-warning">
+              <%= number_to_currency(carryover_amount) %>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">請求合計金額</h5>
+            <p class="card-text h4 text-success">
+              <%= number_to_currency(total_request_amount) %>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <div class="alert alert-warning">
+      <% if form_mode == :new %>
+        選択された受注情報がありません。受注一覧画面から受注を選択してください。
+      <% else %>
+        選択された受注情報がありません。
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="form-group text-center mt-4 mb-5">
+    <% if form_mode == :new %>
+      <%= form.submit submit_button_text, class: 'btn btn-sm btn-primary', disabled: @orders.blank? %>
+    <% else %>
+      <%= form.submit submit_button_text, class: 'btn btn-sm btn-primary' %>
+    <% end %>
+    <% if show_detail_button %>
+      <%= link_to '詳細', @invoice, class: 'btn btn-sm btn-info' %>
+    <% end %>
+    <%= link_to '戻る', back_path, class: 'btn btn-sm btn-secondary' %>
+  </div>
+<% end %>
+

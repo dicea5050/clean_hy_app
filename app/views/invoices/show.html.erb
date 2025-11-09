@@ -2,36 +2,89 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1>請求情報詳細</h1>
     <div>
-      <%= link_to '請求書PDF', pdf_invoice_path(@invoice, format: :pdf), class: 'btn btn-success', target: '_blank' %>
-      <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#receiptModal">
-        領収書発行
-      </button>
-      <%= link_to '編集', edit_invoice_path(@invoice), class: 'btn btn-primary' %>
-      <%= link_to '一覧に戻る', invoices_path, class: 'btn btn-secondary' %>
+      <%= render 'shared/invoice_pdf_button', invoice: @invoice %>
+      <%= render 'shared/invoice_receipt_button', invoice: @invoice, modal_id: 'receiptModal' %>
+      <% if @invoice.approval_status == Invoice::APPROVAL_STATUSES[:approved] %>
+        <%= link_to '編集', edit_invoice_path(@invoice), class: 'btn btn-sm btn-primary edit-approved-invoice',
+                    data: { invoice_id: @invoice.id, approval_status: @invoice.approval_status } %>
+      <% else %>
+        <%= link_to '編集', edit_invoice_path(@invoice), class: 'btn btn-sm btn-primary' %>
+      <% end %>
+      <%= render 'shared/show_action_buttons',
+                  edit_path: nil,
+                  delete_path: nil,
+                  back_path: invoices_path %>
     </div>
   </div>
 
   <div class="card mb-4">
-    <div class="card-header">
+    <div class="card-header bg-light">
       <h2 class="card-title">
         <%= @invoice.invoice_number %>
-        <span class="<%= @invoice.approval_status_badge_class %> ms-2"><%= @invoice.approval_status %></span>
-        <span class="<%= @invoice.payment_status_badge_class %> ms-2"><%= @invoice.payment_status %></span>
+        <%= render 'shared/approval_status_badge', invoice: @invoice, margin_class: 'ms-2' %>
+        <%= render 'shared/payment_status_badge', object: @invoice, margin_class: 'ms-2' %>
       </h2>
     </div>
     <div class="card-body">
       <div class="row">
         <div class="col-md-4">
-          <h5>取引先:</h5>
-          <p><%= @invoice.customer.company_name %></p>
+          <div class="d-flex align-items-center">
+            <strong class="me-2">取引先:</strong>
+            <span><%= @invoice.customer.company_name %></span>
+          </div>
         </div>
         <div class="col-md-4">
-          <h5>請求日:</h5>
-          <p><%= l @invoice.invoice_date %></p>
+          <div class="d-flex align-items-center">
+            <strong class="me-2">請求日:</strong>
+            <span><%= l @invoice.invoice_date %></span>
+          </div>
         </div>
         <div class="col-md-4">
-          <h5>支払期限:</h5>
-          <p><%= l @invoice.due_date if @invoice.due_date %></p>
+          <div class="d-flex align-items-center">
+            <strong class="me-2">支払期限:</strong>
+            <span><%= l @invoice.due_date if @invoice.due_date %></span>
+          </div>
+        </div>
+      </div>
+
+      <%
+        # 請求金額（税込）
+        request_amount = @invoice.total_amount
+        # 繰越金額
+        carryover_amount = @carryover_amount || 0
+        # 請求合計金額
+        total_request_amount = request_amount + carryover_amount
+      %>
+      <div class="row mt-3">
+        <div class="col-md-3">
+          <div class="card">
+            <div class="card-body d-flex justify-content-between align-items-center py-2">
+              <span class="mb-0">請求金額</span>
+              <span class="h4 text-primary mb-0">
+                <%= number_to_currency(request_amount) %>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card">
+            <div class="card-body d-flex justify-content-between align-items-center py-2">
+              <span class="mb-0">繰越金額</span>
+              <span class="h4 text-warning mb-0">
+                <%= number_to_currency(carryover_amount) %>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card">
+            <div class="card-body d-flex justify-content-between align-items-center py-2">
+              <span class="mb-0">請求合計金額</span>
+              <span class="h4 text-success mb-0">
+                <%= number_to_currency(total_request_amount) %>
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -45,6 +98,8 @@
       <% end %>
     </div>
   </div>
+
+  <%= render 'rejection_reason' %>
 
   <h3>対象受注</h3>
   <table class="table table-striped">
@@ -80,108 +135,69 @@
     </tbody>
   </table>
 
-  <!-- 入金管理セクション -->
-  <div class="payment-management mt-4 mb-3">
-    <h3>入金管理</h3>
-
-    <div class="payment-summary mb-3">
-      <div class="row">
-        <div class="col-md-4">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">請求金額</h5>
-              <p class="card-text h4 text-primary">
-                <%= number_to_currency(@invoice.total_amount) %>
-              </p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">入金済み金額</h5>
-              <p class="card-text h4 text-success">
-                <%= number_to_currency(@invoice.total_paid_amount) %>
-              </p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">未入金金額</h5>
-              <p class="card-text h4 text-danger">
-                <%= number_to_currency(@invoice.unpaid_amount) %>
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+  <!-- 入金履歴セクション -->
+  <div class="card mb-4">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+      <h3 class="card-title mb-0">入金履歴</h3>
+      <%= link_to '入金登録', payment_management_index_path, class: 'btn btn-sm btn-primary' %>
     </div>
-
-    <table class="table table-bordered">
-      <thead class="table-light">
-        <tr>
-          <th style="width: 20%;">入金日</th>
-          <th style="width: 15%;">科目</th>
-          <th style="width: 20%;">入金額</th>
-          <th style="width: 45%;">メモ</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @invoice.payment_records.order(:payment_date).each do |payment| %>
-          <tr>
-            <td><%= l payment.payment_date %></td>
-            <td><%= payment.payment_type %></td>
-            <td class="text-end"><%= number_to_currency(payment.amount) %></td>
-            <td><%= payment.memo %></td>
-          </tr>
-        <% end %>
-        <% if @invoice.payment_records.empty? %>
-          <tr>
-            <td colspan="4" class="text-center">入金記録がありません</td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
+    <div class="card-body">
+      <% if @payment_records.any? %>
+        <div class="table-responsive">
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>入金日</th>
+                <th>入金ID</th>
+                <th>入金種別</th>
+                <th class="text-end">入金額</th>
+                <th class="text-end">充当額</th>
+                <th>備考</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @payment_records.each do |payment_record| %>
+                <tr>
+                  <td><%= l payment_record.payment_date %></td>
+                  <td><%= payment_record.id %></td>
+                  <td><%= payment_record.category %></td>
+                  <td class="text-end"><%= number_to_currency(payment_record.amount) %></td>
+                  <td class="text-end"><%= number_to_currency(payment_record.paid_amount) %></td>
+                  <td><%= payment_record.notes.presence || '-' %></td>
+                </tr>
+              <% end %>
+            </tbody>
+            <tfoot>
+              <tr class="table-info">
+                <td colspan="3"><strong>合計</strong></td>
+                <td class="text-end"><strong><%= number_to_currency(@payment_records.sum(:amount)) %></strong></td>
+                <td class="text-end"><strong><%= number_to_currency(@payment_records.sum(:paid_amount)) %></strong></td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      <% else %>
+        <p class="text-muted text-center py-4">入金履歴はありません</p>
+      <% end %>
+    </div>
   </div>
 
-  <div class="text-center mt-4">
-    <%= link_to '請求書PDF', pdf_invoice_path(@invoice, format: :pdf), class: 'btn btn-success me-2', target: '_blank' %>
-    <button type="button" class="btn btn-warning me-2" data-bs-toggle="modal" data-bs-target="#receiptModal">
-      領収書発行
-    </button>
-    <button class="btn btn-secondary" onclick="window.print();">印刷する</button>
+  <div class="text-center mt-4 mb-3">
+    <%= render 'shared/invoice_pdf_button', invoice: @invoice %>
+    <%= render 'shared/invoice_receipt_button', invoice: @invoice, modal_id: 'receiptModal' %>
+    <% if @invoice.approval_status == Invoice::APPROVAL_STATUSES[:approved] %>
+      <%= link_to '編集', edit_invoice_path(@invoice), class: 'btn btn-sm btn-primary edit-approved-invoice',
+                  data: { invoice_id: @invoice.id, approval_status: @invoice.approval_status } %>
+    <% else %>
+      <%= link_to '編集', edit_invoice_path(@invoice), class: 'btn btn-sm btn-primary' %>
+    <% end %>
+    <%= render 'shared/show_action_buttons',
+                edit_path: nil,
+                delete_path: nil,
+                back_path: invoices_path %>
   </div>
 </div>
 
 <!-- 領収書発行モーダル -->
-<div class="modal fade" id="receiptModal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="receiptModalLabel">領収書発行</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <%= form_with url: receipt_invoice_path(@invoice, format: :pdf), method: :get, local: true, target: '_blank' do |form| %>
-          <div class="mb-3">
-            <label for="issue_date" class="form-label">発行日</label>
-            <%= form.date_field :issue_date, value: Date.current, class: 'form-control', required: true %>
-          </div>
-          <div class="mb-3">
-            <p><strong>顧客名:</strong> <%= @invoice.customer.company_name %></p>
-            <% if @invoice.customer.customer_code.present? %>
-              <p><strong>顧客コード:</strong> <%= @invoice.customer.customer_code %></p>
-            <% end %>
-            <p><strong>領収金額:</strong> <%= number_to_currency(@invoice.total_amount) %></p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-            <%= form.submit '領収書PDF発行', class: 'btn btn-warning' %>
-          </div>
-        <% end %>
-      </div>
-    </div>
-  </div>
-</div>
+<%= render 'shared/invoice_receipt_modal', invoice: @invoice, modal_id: 'receiptModal' %>

@@ -16,6 +16,12 @@ class Customer < ApplicationRecord
     [ "月末", "month_end" ]
   ].freeze
 
+  # 請求書送付方法の選択肢を定義
+  INVOICE_DELIVERY_METHOD_OPTIONS = {
+    "\u96FB\u5B50\u8ACB\u6C42" => "electronic",
+    "\u90F5\u9001" => "postal"
+  }.freeze
+
   # コールバック：顧客作成時と更新時に本社納品先も同期する
   after_create :create_main_office_delivery_location
   after_update :update_main_office_delivery_location, if: :address_changed?
@@ -34,8 +40,17 @@ class Customer < ApplicationRecord
   validates :address, presence: true
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
   validates :invoice_delivery_method, presence: true
-  validates :billing_closing_day, inclusion: { in: BILLING_CLOSING_DAYS.map(&:last) }, allow_blank: true
+  validates :billing_closing_day, presence: true, inclusion: { in: BILLING_CLOSING_DAYS.map(&:last) }
   # パスワードは任意項目
+
+  # 電子請求の場合のみメールアドレスを必須にする
+  validate :email_required_for_electronic_invoice
+
+  def email_required_for_electronic_invoice
+    if invoice_delivery_method == "electronic" && email.blank?
+      errors.add(:email, "\u96FB\u5B50\u8ACB\u6C42\u3092\u9078\u629E\u3057\u305F\u5834\u5408\u306F\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u304C\u5FC5\u9808\u3067\u3059")
+    end
+  end
 
   def name
     company_name
@@ -44,6 +59,16 @@ class Customer < ApplicationRecord
   # i18n用のヘルパーメソッド
   def invoice_delivery_method_i18n
     I18n.t("enums.customer.invoice_delivery_method.#{invoice_delivery_method}")
+  end
+
+  # 請求書送付方法の表示テキストを返す
+  def invoice_delivery_method_display
+    electronic? ? "電子請求" : "郵送"
+  end
+
+  # 請求書送付方法に応じたバッジのクラスを返す
+  def invoice_delivery_method_badge_class
+    electronic? ? "badge bg-info" : "badge bg-invoiced"
   end
 
   # 請求締日の表示用メソッド

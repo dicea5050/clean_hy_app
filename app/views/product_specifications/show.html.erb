@@ -1,45 +1,26 @@
 <div class="container mt-4">
-    <h1>商品規格の詳細</h1>
-  </div>
-
   <div class="card">
+    <div class="card-header bg-primary text-white">
+      <h2>商品規格の詳細</h2>
+    </div>
     <div class="card-body">
-      <div class="row mb-3">
-        <div class="col-md-3">
-          <strong>規格名:</strong>
-        </div>
-        <div class="col-md-9">
-          <%= @product_specification.name %>
-        </div>
+      <div class="mb-3">
+        <strong>規格名:</strong> <%= @product_specification.name %>
       </div>
 
-      <div class="row mb-3">
-        <div class="col-md-3">
-          <strong>ステータス:</strong>
-        </div>
-        <div class="col-md-9">
-          <span class="badge <%= @product_specification.is_active ? 'bg-success' : 'bg-danger' %>">
-            <%= @product_specification.is_active ? '有効' : '無効' %>
-          </span>
-        </div>
+      <div class="mb-3">
+        <strong>ステータス:</strong>
+        <span class="badge <%= @product_specification.is_active ? 'bg-success' : 'bg-danger' %>">
+          <%= @product_specification.is_active ? '有効' : '無効' %>
+        </span>
       </div>
 
-      <div class="row mb-3">
-        <div class="col-md-3">
-          <strong>作成日時:</strong>
-        </div>
-        <div class="col-md-9">
-          <%= l @product_specification.created_at, format: :long %>
-        </div>
+      <div class="mb-3">
+        <strong>作成日時:</strong> <%= l @product_specification.created_at, format: :long %>
       </div>
 
-      <div class="row">
-        <div class="col-md-3">
-          <strong>更新日時:</strong>
-        </div>
-        <div class="col-md-9">
-          <%= l @product_specification.updated_at, format: :long %>
-        </div>
+      <div class="mb-3">
+        <strong>更新日時:</strong> <%= l @product_specification.updated_at, format: :long %>
       </div>
     </div>
   </div>

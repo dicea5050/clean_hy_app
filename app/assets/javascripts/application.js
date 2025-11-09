@@ -1,8 +1,10 @@
 // 外部JavaScriptファイルを明示的に読み込み
 //= require delivery_locations_form
 //= require order_calculations
-//= require payment_records
 //= require customers
+// 注意: Propshaftでは//= requireは動作しません
+// orders/edit_button_guardはレイアウトファイルで個別に読み込まれます
+// payment_managementはStimulusコントローラー（app/assets/javascripts/controllers/payment_management_controller.js）を使用
 
 // 商品選択時にAjaxで情報を取得
 $(document).ready(function() {
@@ -151,15 +153,28 @@ $(document).ready(function() {
     console.log("Remove item button clicked");
 
     var row = $(this).closest('tr');
+    var idField = row.find('input[name*="[id]"]');
     var destroyField = row.find('input[name*="[_destroy]"]');
 
-    if (destroyField.length) {
+    if (idField.length && idField.val()) {
       // 既存レコードの場合は非表示にして_destroyフラグを立てる
-      destroyField.val("1");
+      if (destroyField.length) {
+        destroyField.val("1");
+      } else {
+        // _destroyフィールドが存在しない場合は作成
+        var newDestroyField = $('<input>', {
+          type: 'hidden',
+          name: idField.attr('name').replace('[id]', '[_destroy]'),
+          value: '1'
+        });
+        row.append(newDestroyField);
+      }
       row.hide();
+      console.log("Existing record marked for destruction, id:", idField.val());
     } else {
       // 新規追加レコードの場合は行を削除
       row.remove();
+      console.log("New record removed from DOM");
     }
 
     // 合計を再計算
@@ -188,4 +203,6 @@ $(document).ready(function() {
       $('#delivery-location-details').show();
     });
   });
+
+  // 入金管理の取引先選択処理はStimulusコントローラー（payment_management_controller.js）で実装されています
 });

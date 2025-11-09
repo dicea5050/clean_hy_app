@@ -1,22 +1,24 @@
 <div class="container mt-4">
   <div class="card">
-    <div class="card-header">
+    <div class="card-header bg-primary text-white">
       <h2>税率詳細</h2>
     </div>
     <div class="card-body">
-      <dl class="row">
-        <dt class="col-sm-3">税率名:</dt>
-        <dd class="col-sm-9"><%= @tax_rate.name %></dd>
+      <div class="mb-3">
+        <strong>税率名:</strong> <%= @tax_rate.name %>
+      </div>
 
-        <dt class="col-sm-3">税率(%):</dt>
-        <dd class="col-sm-9"><%= @tax_rate.rate %></dd>
+      <div class="mb-3">
+        <strong>税率(%):</strong> <%= @tax_rate.rate %>
+      </div>
 
-        <dt class="col-sm-3">適用開始日:</dt>
-        <dd class="col-sm-9"><%= @tax_rate.start_date.strftime('%Y/%m/%d') %></dd>
+      <div class="mb-3">
+        <strong>適用開始日:</strong> <%= @tax_rate.start_date.strftime('%Y/%m/%d') %>
+      </div>
 
-        <dt class="col-sm-3">適用終了日:</dt>
-        <dd class="col-sm-9"><%= @tax_rate.end_date&.strftime('%Y/%m/%d') %></dd>
-      </dl>
+      <div class="mb-3">
+        <strong>適用終了日:</strong> <%= @tax_rate.end_date&.strftime('%Y/%m/%d') %>
+      </div>
     </div>
     <div class="card-footer">
       <%= render 'shared/show_action_buttons', edit_path: edit_tax_rate_path(@tax_rate), delete_path: tax_rate_path(@tax_rate), back_path: tax_rates_path %>

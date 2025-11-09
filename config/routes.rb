@@ -73,6 +73,15 @@ Rails.application.routes.draw do
     end
   end
 
+  # 入金管理機能
+  resources :payment_management, only: [ :index, :create, :edit, :update, :destroy ] do
+    collection do
+      get :unpaid_invoices
+      get :paid_invoices
+      get :payment_history
+    end
+  end
+
   # ショップ機能用のルート
   namespace :shop do
     resources :products, only: [ :index, :show ]
@@ -95,6 +104,8 @@ Rails.application.routes.draw do
   resources :invoice_approvals, only: [ :index ] do
     collection do
       post :bulk_create
+      post :bulk_approve
+      post :bulk_reject
     end
     member do
       post :approve

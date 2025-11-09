@@ -10,22 +10,22 @@
       <%= form_with url: customers_path, method: :get, local: true, class: "row g-3" do |form| %>
         <div class="col-md-4">
           <label for="customer_code_search" class="form-label">顧客コードで検索</label>
-          <%= form.text_field :customer_code, 
+          <%= form.text_field :customer_code,
                               id: "customer_code_search",
-                              class: "form-control", 
+                              class: "form-control",
                               placeholder: "顧客コードを入力",
                               value: params[:customer_code] %>
         </div>
         <div class="col-md-4">
           <label for="company_name_search" class="form-label">顧客名で検索</label>
           <div class="position-relative">
-            <%= form.text_field :company_name, 
+            <%= form.text_field :company_name,
                                 id: "company_name_search",
-                                class: "form-control", 
+                                class: "form-control",
                                 placeholder: "顧客名を入力",
                                 value: params[:company_name],
                                 autocomplete: "off" %>
-            <div id="company_name_suggestions" class="position-absolute w-100 bg-white border rounded shadow-lg" style="z-index: 1000; display: none;"></div>
+            <div id="company_name_suggestions" class="autocomplete-results position-absolute w-100 bg-white border rounded shadow-lg d-none"></div>
           </div>
         </div>
         <div class="col-md-4 d-flex align-items-end">
@@ -65,11 +65,7 @@
                 <td><%= customer.contact_name %></td>
                 <td><%= customer.phone_number %></td>
                 <td>
-                  <% if customer.electronic? %>
-                    <span class="badge bg-info">電子請求</span>
-                  <% else %>
-                    <span class="badge bg-secondary">郵送</span>
-                  <% end %>
+                  <%= render 'shared/invoice_delivery_method_badge', customer: customer %>
                 </td>
                 <td><%= customer.billing_closing_day_display %></td>
                 <td><%= customer.email %></td>

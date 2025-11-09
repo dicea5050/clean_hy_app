@@ -1,5 +1,6 @@
 class InvoicesController < ApplicationController
-  before_action :require_editor_limited_access
+  before_action :require_viewer_or_editor_access
+  before_action :require_editor, only: [ :new, :create, :edit, :update, :destroy, :bulk_request_approval, :pdf, :receipt ]
   before_action :set_invoice, only: [ :show, :edit, :update, :destroy ]
 
   def index
@@ -68,15 +69,36 @@ class InvoicesController < ApplicationController
       if search_params[:approval_statuses].present?
         @q = @q.where(approval_status: search_params[:approval_statuses])
       end
-    else
-      # 検索していない場合はデフォルトで今月の請求書を表示
-      @q = @q.where([ "created_at >= ?", Date.today.beginning_of_month ])
+
+      # 入金状況による検索
+      if search_params[:payment_statuses].present?
+        # payment_statusは計算される値のため、先に他の条件で絞り込んでからフィルタリング
+        invoice_ids = @q.pluck(:id)
+
+        if invoice_ids.present?
+          # 各請求書の入金状況を計算してフィルタリング
+          filtered_ids = Invoice.includes(orders: :order_items).includes(:payment_records)
+                                .where(id: invoice_ids)
+                                .select { |inv| search_params[:payment_statuses].include?(inv.payment_status) }
+                                .map(&:id)
+
+          @q = @q.where(id: filtered_ids)
+        else
+          @q = @q.none
+        end
+      end
     end
+    # 検索パラメータがない場合も全ての請求書を表示（承認待ち、承認済み、差し戻しを含む）
+    # 削除済みの請求書はdestroyで物理削除されるため自動的に除外される
 
     @invoices = @q.page(params[:page]).per(25)
   end
 
   def show
+    # 繰越金額を計算（現在の請求書を除外）
+    @carryover_amount = @invoice.customer_id.present? ? Invoice.carryover_amount_for_customer(@invoice.customer_id, exclude_invoice_id: @invoice.id) : 0
+    # この請求書に関連する入金履歴を取得（入金日降順）
+    @payment_records = @invoice.payment_records.order(payment_date: :desc, created_at: :desc)
   end
 
   def new
@@ -97,6 +119,9 @@ class InvoicesController < ApplicationController
       end
     end
 
+    # 繰越金額を計算（顧客IDが設定されている場合）
+    @carryover_amount = @invoice.customer_id.present? ? Invoice.carryover_amount_for_customer(@invoice.customer_id) : 0
+
     @customers = Customer.all.order(:company_name)
   end
 
@@ -104,9 +129,8 @@ class InvoicesController < ApplicationController
     @customers = Customer.all.order(:company_name)
     @orders = @invoice.orders
     @order_ids = @orders.pluck(:id)
-    @payment_records = @invoice.payment_records.order(:payment_date)
-    # 既存の入金記録がない場合は、空の入金記録を1つ追加
-    @payment_records.build if @payment_records.empty?
+    # 繰越金額を計算（現在の請求書を除外）
+    @carryover_amount = @invoice.customer_id.present? ? Invoice.carryover_amount_for_customer(@invoice.customer_id, exclude_invoice_id: @invoice.id) : 0
   end
 
   def create
@@ -137,6 +161,9 @@ class InvoicesController < ApplicationController
   end
 
   def update
+    # 更新前の承認ステータスを保存
+    previous_approval_status = @invoice.approval_status
+
     if @invoice.update(invoice_params)
       # 関連する受注を更新
       @invoice.invoice_orders.destroy_all
@@ -146,12 +173,21 @@ class InvoicesController < ApplicationController
         end
       end
 
+      # 承認済みまたは差し戻しステータスの請求書が更新された場合、ステータスを「承認待ち」に戻す
+      if previous_approval_status == Invoice::APPROVAL_STATUSES[:approved] ||
+         previous_approval_status == Invoice::APPROVAL_STATUSES[:rejected]
+        @invoice.update(approval_status: Invoice::APPROVAL_STATUSES[:waiting])
+        # 新しい承認申請レコードを作成
+        @invoice.invoice_approvals.create!(
+          status: InvoiceApproval::STATUSES[:pending]
+        )
+      end
+
       redirect_to @invoice, notice: "請求書が正常に更新されました。"
     else
       @customers = Customer.all.order(:company_name)
       @order_ids = params[:order_ids].split(",") if params[:order_ids].present?
       @orders = Order.eager_load(:customer, :order_items).where(id: @order_ids)
-      @payment_records = @invoice.payment_records.order(:payment_date)
       render :edit
     end
   end
@@ -161,28 +197,72 @@ class InvoicesController < ApplicationController
     redirect_to invoices_path, notice: "請求書が正常に削除されました。"
   end
 
-  # 一括承認申請アクションを追加
   def bulk_request_approval
     invoice_ids = params[:invoice_ids]&.split(",")
 
-    if invoice_ids.present?
-      invoices = Invoice.where(id: invoice_ids, approval_status: [ "未申請", "差し戻し" ])
-
-      Invoice.transaction do
-        invoices.each do |invoice|
-          invoice.update!(approval_status: "承認待ち")
-        end
-      end
-
-      flash[:notice] = "#{invoices.count}件の請求書を承認申請しました。"
-    else
-      flash[:alert] = "請求書が選択されていません。"
+    if invoice_ids.blank?
+      return redirect_to invoices_path, alert: "請求書が選択されていません。"
     end
 
-    redirect_to invoices_path
-  rescue => e
-    flash[:error] = "承認申請に失敗しました: #{e.message}"
-    redirect_to invoices_path
+    Rails.logger.debug "=== 一括承認申請処理開始 ==="
+    Rails.logger.debug "請求書ID数: #{invoice_ids.size}"
+    Rails.logger.debug "請求書IDs: #{invoice_ids.join(', ')}"
+
+    success_count = 0
+    error_count = 0
+
+    ActiveRecord::Base.transaction do
+      invoice_ids.each do |invoice_id|
+        Rails.logger.debug "--- 請求書ID: #{invoice_id} の処理開始 ---"
+        invoice = Invoice.find(invoice_id)
+        Rails.logger.debug "更新前のInvoice approval_status: #{invoice.approval_status}"
+
+        # 差し戻しステータスの請求書のみが選択可能なため、ここでは必ず差し戻しステータスのはず
+        # 念のためチェック
+        unless invoice.approval_status == Invoice::APPROVAL_STATUSES[:rejected]
+          Rails.logger.warn "請求書ID: #{invoice_id} は差し戻しステータスではありません（現在のステータス: #{invoice.approval_status}）"
+          error_count += 1
+          next
+        end
+
+        # 新しいInvoiceApprovalレコードを作成
+        approval = InvoiceApproval.create!(
+          invoice_id: invoice_id,
+          status: InvoiceApproval::STATUSES[:pending]
+          # approverは承認時点で設定されるため、作成時は設定しない
+        )
+        Rails.logger.debug "InvoiceApproval作成結果: ID=#{approval.id}, status=#{approval.status}"
+
+        # 請求書の状態を「承認待ち」に更新
+        result = invoice.update!(approval_status: Invoice::APPROVAL_STATUSES[:waiting])
+        Rails.logger.debug "Invoice更新結果: #{result}"
+        Rails.logger.debug "更新後のInvoice approval_status: #{invoice.reload.approval_status}"
+
+        if invoice.errors.any?
+          Rails.logger.error "Invoiceバリデーションエラー: #{invoice.errors.full_messages.join(', ')}"
+          error_count += 1
+        else
+          success_count += 1
+        end
+        Rails.logger.debug "--- 請求書ID: #{invoice_id} の処理完了 ---"
+      end
+    end
+
+    Rails.logger.debug "=== 一括承認申請処理完了 ==="
+    Rails.logger.debug "成功: #{success_count}, エラー: #{error_count}"
+
+    if success_count > 0
+      redirect_to invoices_path, notice: "#{success_count}件の請求書を承認申請しました。"
+    else
+      redirect_to invoices_path, alert: "承認申請に失敗しました。"
+    end
+  rescue ActiveRecord::RecordInvalid => e
+    Rails.logger.error "=== 一括承認申請処理エラー ==="
+    Rails.logger.error "エラーメッセージ: #{e.message}"
+    Rails.logger.error "エラークラス: #{e.class}"
+    Rails.logger.error "バックトレース:"
+    Rails.logger.error e.backtrace.join("\n")
+    redirect_to invoices_path, alert: "承認申請に失敗しました: #{e.message}"
   end
 
   def pdf
@@ -229,13 +309,12 @@ class InvoicesController < ApplicationController
 
   private
     def set_invoice
-      @invoice = Invoice.includes(:orders, :payment_records).find(params[:id])
+      @invoice = Invoice.includes(:orders).find(params[:id])
     end
 
     def invoice_params
       params.require(:invoice).permit(
-        :customer_id, :invoice_date, :due_date, :notes,
-        payment_records_attributes: [ :id, :payment_date, :payment_type, :amount, :memo, :_destroy ]
+        :customer_id, :invoice_date, :due_date, :notes
       )
     end
 end

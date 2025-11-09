@@ -2,21 +2,17 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
       <h1>請求情報一覧</h1>
-      <%= button_tag '選択した請求書の承認申請',
-          class: 'btn btn-success me-2',
-          id: 'bulk-approve-button',
-          disabled: true %>
     </div>
   </div>
 
   <!-- 検索フォーム -->
   <div class="card mb-4">
     <div class="card-header bg-light">
-      <button class="btn btn-link btn-sm text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="false" aria-controls="searchCollapse">
+      <button class="btn btn-link btn-sm text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="true" aria-controls="searchCollapse">
         <i class="bi bi-search"></i> 検索条件
       </button>
     </div>
-    <div class="collapse" id="searchCollapse">
+    <div class="collapse show" id="searchCollapse">
       <div class="card-body">
         <%= form_with url: invoices_path, method: :get, local: true, id: 'search-form', class: 'row g-3' do %>
           <!-- 1行目：顧客コード、取引先名、請求書番号、請求書送付方法 -->
@@ -27,7 +23,13 @@
 
           <div class="col-md-3 me-3">
             <label class="form-label">取引先名</label>
-            <%= text_field_tag 'search[company_name]', params.dig(:search, :company_name), class: 'form-control' %>
+            <div class="position-relative">
+              <%= text_field_tag 'search[company_name]', params.dig(:search, :company_name),
+                  id: "invoice_company_name_search",
+                  class: 'form-control',
+                  autocomplete: "off" %>
+              <div id="invoice_company_name_suggestions" class="autocomplete-results position-absolute w-100 bg-white border rounded shadow-lg d-none"></div>
+            </div>
           </div>
 
           <div class="col-md-2 me-3">
@@ -41,7 +43,7 @@
                 options_for_select([
                   ['選択してください', ''],
                   ['電子請求', 'electronic'],
-                  ['郵送', 'mail']
+                  ['郵送', 'postal']
                 ], params.dig(:search, :delivery_method)),
                 class: 'form-select' %>
           </div>
@@ -104,6 +106,25 @@
             </div>
           </div>
 
+          <!-- 3行目：入金状況 -->
+          <div class="col-md-4 clear-left">
+            <label class="form-label">入金状況</label>
+            <div class="row g-2">
+              <% Invoice::PAYMENT_STATUSES.values.each do |status| %>
+                <div class="col-auto me-2">
+                  <div class="form-check">
+                    <%= check_box_tag 'search[payment_statuses][]',
+                        status,
+                        params.dig(:search, :payment_statuses)&.include?(status),
+                        id: "payment_status_#{status}",
+                        class: 'form-check-input' %>
+                    <label class="form-check-label" for="<%= "payment_status_#{status}" %>"><%= status %></label>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
           <!-- 検索ボタン -->
           <div class="col-12 mt-4 clear-left">
             <button type="submit" class="btn btn-primary">
@@ -118,11 +139,18 @@
     </div>
   </div>
 
+  <!-- 一括操作ボタン -->
+  <div class="mb-3">
+    <button type="button" class="btn btn-primary" id="bulk-request-approval-btn" disabled data-bulk-request-approval-path="<%= bulk_request_approval_invoices_path %>">
+      <i class="bi bi-check-circle"></i> 選択した請求書を承認申請
+    </button>
+  </div>
+
   <table class="table">
     <thead>
       <tr>
         <th>
-          <input type="checkbox" id="select-all" class="order-checkbox">
+          <input type="checkbox" id="select-all" class="form-check-input">
         </th>
         <th>請求書番号</th>
         <th>取引先</th>
@@ -140,10 +168,11 @@
       <% @invoices.each do |invoice| %>
         <tr>
           <td>
-            <input type="checkbox"
-                   class="order-checkbox invoice-checkbox"
-                   value="<%= invoice.id %>"
-                   <%= 'disabled' unless ['未申請', '差し戻し'].include?(invoice.approval_status) %>>
+            <% if invoice.approval_status == Invoice::APPROVAL_STATUSES[:rejected] %>
+              <input type="checkbox" name="invoice_ids[]" value="<%= invoice.id %>" class="form-check-input invoice-checkbox">
+            <% else %>
+              <input type="checkbox" disabled class="form-check-input" title="差し戻しステータスの請求書のみ選択可能です">
+            <% end %>
           </td>
           <td><%= link_to invoice.invoice_number, invoice_path(invoice) %></td>
           <td><%= invoice.customer.company_name %></td>
@@ -151,24 +180,27 @@
           <td><%= l invoice.due_date if invoice.due_date %></td>
           <td><%= number_to_currency(invoice.total_amount) %></td>
           <td>
-            <% if invoice.customer.electronic? %>
-              <span class="badge bg-info">電子請求</span>
-            <% else %>
-              <span class="badge bg-secondary">郵送</span>
-            <% end %>
+            <%= render 'shared/invoice_delivery_method_badge', customer: invoice.customer %>
           </td>
-          <td><span class="<%= invoice.approval_status_badge_class %>"><%= invoice.approval_status %></span></td>
-          <td><span class="<%= invoice.payment_status_badge_class %>"><%= invoice.payment_status %></span></td>
+          <td><%= render 'shared/approval_status_badge', invoice: invoice %></td>
+          <td><%= render 'shared/payment_status_badge', object: invoice %></td>
           <td>
-            <%= link_to '詳細', invoice, class: 'btn btn-sm btn-info' %>
-            <%= link_to 'PDF', pdf_invoice_path(invoice, format: :pdf), class: 'btn btn-sm btn-secondary', target: '_blank' %>
-            <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#receiptModal<%= invoice.id %>">
-              領収書
-            </button>
-            <%= link_to '編集', edit_invoice_path(invoice), class: 'btn btn-sm btn-primary' %>
-            <%= form_with(url: invoice_path(invoice), method: :delete, class: 'd-inline') do |f| %>
-              <%= f.submit '削除', class: 'btn btn-sm btn-danger',
-                           onclick: "return confirm('本当に削除しますか？');" %>
+            <%= render 'shared/detail_button', path: invoice_path(invoice) %>
+            <% if invoice.approval_status == Invoice::APPROVAL_STATUSES[:approved] %>
+              <%= link_to '編集', edit_invoice_path(invoice), class: 'btn btn-sm btn-primary edit-approved-invoice',
+                          data: { invoice_id: invoice.id, approval_status: invoice.approval_status } %>
+            <% else %>
+              <%= link_to '編集', edit_invoice_path(invoice), class: 'btn btn-sm btn-primary' %>
+            <% end %>
+            <%= render 'shared/invoice_pdf_button', invoice: invoice, text: 'PDF' %>
+            <%= render 'shared/invoice_receipt_button', invoice: invoice, text: '領収書' %>
+            <% confirm_msg = t('confirms.destroy', default: '本当に削除しますか？') %>
+            <%= button_to invoice_path(invoice),
+                            method: :delete,
+                            form: { data: { turbo_confirm: confirm_msg },
+                                    class: 'd-inline' },
+                            class: 'btn btn-sm btn-danger' do %>
+              <%= t('buttons.destroy', default: '削除') %>
             <% end %>
           </td>
         </tr>
@@ -183,112 +215,9 @@
 
 <!-- 領収書発行モーダル（各請求書用） -->
 <% @invoices.each do |invoice| %>
-  <div class="modal fade" id="receiptModal<%= invoice.id %>" tabindex="-1" aria-labelledby="receiptModalLabel<%= invoice.id %>" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="receiptModalLabel<%= invoice.id %>">領収書発行</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <%= form_with url: receipt_invoice_path(invoice, format: :pdf), method: :get, local: true, target: '_blank' do |form| %>
-            <div class="mb-3">
-              <label for="issue_date_<%= invoice.id %>" class="form-label">発行日</label>
-              <%= form.date_field :issue_date, value: Date.current, class: 'form-control', required: true, id: "issue_date_#{invoice.id}" %>
-            </div>
-            <div class="mb-3">
-              <p><strong>請求書番号:</strong> <%= invoice.invoice_number %></p>
-              <p><strong>顧客名:</strong> <%= invoice.customer.company_name %></p>
-              <% if invoice.customer.customer_code.present? %>
-                <p><strong>顧客コード:</strong> <%= invoice.customer.customer_code %></p>
-              <% end %>
-              <p><strong>領収金額:</strong> <%= number_to_currency(invoice.total_amount) %></p>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-              <%= form.submit '領収書PDF発行', class: 'btn btn-warning' %>
-            </div>
-          <% end %>
-        </div>
-      </div>
-    </div>
-  </div>
+  <%= render 'shared/invoice_receipt_modal', invoice: invoice %>
 <% end %>
 
-<%# JavaScriptを更新 %>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const selectAll = document.getElementById('select-all');
-  const invoiceCheckboxes = document.querySelectorAll('.invoice-checkbox:not([disabled])');
-  const bulkApproveButton = document.getElementById('bulk-approve-button');
-
-  // 全選択チェックボックスの制御
-  selectAll.addEventListener('change', function() {
-    invoiceCheckboxes.forEach(checkbox => {
-      checkbox.checked = this.checked;
-    });
-    updateBulkApproveButton();
-  });
-
-  // 個別チェックボックスの制御
-  invoiceCheckboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', function() {
-      updateBulkApproveButton();
-      updateSelectAllCheckbox();
-    });
-  });
-
-  // 承認申請ボタンの有効/無効を制御
-  function updateBulkApproveButton() {
-    const checkedCount = document.querySelectorAll('.invoice-checkbox:checked').length;
-    bulkApproveButton.disabled = checkedCount === 0;
-  }
-
-  // 全選択チェックボックスの状態を更新
-  function updateSelectAllCheckbox() {
-    const allChecked = Array.from(invoiceCheckboxes).every(checkbox => checkbox.checked);
-    selectAll.checked = allChecked;
-  }
-
-  // 承認申請ボタンのクリックイベントを追加
-  bulkApproveButton.addEventListener('click', function() {
-    const checkedBoxes = document.querySelectorAll('.invoice-checkbox:checked');
-    if (checkedBoxes.length === 0) return;
-
-    const invoiceIds = Array.from(checkedBoxes).map(cb => cb.value).join(',');
-
-    if (confirm('選択した請求書を承認申請します。よろしいですか？')) {
-      // フォームを動的に作成して送信
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = '/invoice_approvals/bulk_create';
-
-      // CSRF Token
-      const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-      const csrfInput = document.createElement('input');
-      csrfInput.type = 'hidden';
-      csrfInput.name = 'authenticity_token';
-      csrfInput.value = csrfToken;
-
-      // 請求書IDsのinput
-      const idsInput = document.createElement('input');
-      idsInput.type = 'hidden';
-      idsInput.name = 'invoice_ids';
-      idsInput.value = invoiceIds;
-
-      form.appendChild(csrfInput);
-      form.appendChild(idsInput);
-      document.body.appendChild(form);
-      form.submit();
-    }
-  });
-});
-</script>
 
 <%= javascript_include_tag "/assets/javascripts/search_form.js" %>
-
-<style>
-.clear-left {
-  clear: left;
-}
-</style>
+<%= javascript_include_tag "invoices/index" %>

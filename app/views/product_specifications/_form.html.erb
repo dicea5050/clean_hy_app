@@ -17,10 +17,10 @@
 
   <div class="mb-3">
     <%= f.label :is_active, 'ステータス', class: 'form-label' %>
-    <%= f.select :is_active, 
+    <%= f.select :is_active,
       options_for_select([['有効', true], ['無効', false]], product_specification.is_active),
-      {}, 
-      { class: 'form-select' } 
+      {},
+      { class: 'form-select' }
     %>
   </div>
 

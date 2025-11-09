@@ -24,9 +24,14 @@
 
           <div class="col-md-3 me-3">
             <label class="form-label">取引先名</label>
-            <%= f.text_field :customer_name,
-                value: @search_params&.dig(:customer_name),
-                class: 'form-control' %>
+            <div class="position-relative">
+              <%= f.text_field :customer_name,
+                  id: "customer_name_search",
+                  value: @search_params&.dig(:customer_name),
+                  class: 'form-control',
+                  autocomplete: "off" %>
+              <div id="customer_name_suggestions" class="autocomplete-results position-absolute w-100 bg-white border rounded shadow-lg d-none"></div>
+            </div>
           </div>
 
           <div class="col-md-4 me-3">
@@ -185,6 +190,7 @@
                     data-order-id="<%= order.id %>"
                     data-payment-method="<%= order.payment_method %>"
                     data-actual-delivery-date="<%= order.actual_delivery_date.present? %>"
+                    data-invoiced="<%= order.invoiced? %>"
                     <%= 'disabled' if order.invoiced? %>>
             </td>
             <td><%= order.id %></td>
@@ -196,22 +202,21 @@
             <td><%= number_to_currency(order.order_items.sum { |item| item.subtotal_without_tax }) %></td>
             <td><%= order.payment_method&.name %></td>
             <td>
-              <% if order.invoiced? %>
-                <span style="display: inline-block; padding: 0.25em 0.6em; font-size: 0.75rem; font-weight: 700; line-height: 1; text-align: center; white-space: nowrap; vertical-align: baseline; border-radius: 0.375rem; color: #fff; background-color: #28a745;">発行済</span>
-              <% else %>
-                <span style="display: inline-block; padding: 0.25em 0.6em; font-size: 0.75rem; font-weight: 700; line-height: 1; text-align: center; white-space: nowrap; vertical-align: baseline; border-radius: 0.375rem; color: #fff; background-color: #6c757d;">未発行</span>
-              <% end %>
+              <%= render 'shared/invoice_status_badge', order: order %>
             </td>
             <td>
-              <%= link_to '詳細', order, class: 'btn btn-sm btn-info' %>
-              <%= link_to '編集', edit_order_path(order), class: 'btn btn-sm btn-primary' %>
-              <%= link_to '納品書', delivery_slip_order_path(order, format: :pdf),
-                         class: 'btn btn-sm btn-success delivery-slip-btn',
-                         target: '_blank',
-                         data: { has_delivery_date: order.actual_delivery_date.present? } %>
-              <%= form_with(url: order_path(order), method: :delete, class: 'd-inline') do |f| %>
-                <%= f.submit '削除', class: 'btn btn-sm btn-danger', data: { confirm: '本当に削除しますか？' },
-                            onclick: "return confirm('本当に削除しますか？');" %>
+              <%= link_to '詳細', order_path(order), class: 'btn btn-sm btn-info' %>
+              <%= link_to '編集', edit_order_path(order),
+                         class: 'btn btn-sm btn-primary edit-order-btn',
+                         data: { has_pending_or_approved_invoice: order.has_pending_or_approved_invoice? } %>
+              <%= render 'shared/delivery_slip_button', order: order %>
+              <% confirm_msg = t('confirms.destroy', default: '本当に削除しますか？') %>
+              <%= button_to order_path(order),
+                              method: :delete,
+                              form: { data: { turbo_confirm: confirm_msg },
+                                      class: 'd-inline' },
+                              class: 'btn btn-sm btn-danger' do %>
+                <%= t('buttons.destroy', default: '削除') %>
               <% end %>
             </td>
           </tr>
@@ -226,163 +231,5 @@
   </div>
 </div>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const checkboxes = document.querySelectorAll('.order-checkbox');
-    const createInvoiceBtn = document.getElementById('create-invoice-btn');
-    const selectedOrderIdsInput = document.getElementById('selected-order-ids');
-    const form = document.getElementById('selected-orders-form');
-
-    // 納品書ボタンのクリックイベント
-    const deliverySlipBtns = document.querySelectorAll('.delivery-slip-btn');
-    deliverySlipBtns.forEach(btn => {
-      btn.addEventListener('click', function(event) {
-        const hasDeliveryDate = this.dataset.hasDeliveryDate === 'true';
-
-        if (!hasDeliveryDate) {
-          event.preventDefault();
-          alert('確定納品日を入力してください');
-          return false;
-        }
-      });
-    });
-
-    // 請求書発行ボタンのクリックイベント
-    createInvoiceBtn.addEventListener('click', function(e) {
-      const selectedOrders = Array.from(checkboxes)
-        .filter(cb => cb.checked)
-        .map(cb => ({
-          id: cb.dataset.orderId,
-          customerId: cb.dataset.customerId,
-          paymentMethod: cb.dataset.paymentMethod,
-          hasActualDeliveryDate: cb.dataset.actualDeliveryDate === 'true'
-        }));
-
-      // 確定納品日が未入力の受注がないかチェック
-      const hasUnconfirmedDelivery = selectedOrders.some(order => !order.hasActualDeliveryDate);
-      if (hasUnconfirmedDelivery) {
-        e.preventDefault();
-        alert('納品日が確定していない取引が含まれています');
-        return false;
-      }
-
-      // 支払い方法の一意性をチェック
-      const uniquePaymentMethods = new Set(selectedOrders.map(order => order.paymentMethod));
-
-      if (uniquePaymentMethods.size > 1) {
-        e.preventDefault();
-        alert('複数の支払い方法の取引が選択されているため、発行できません');
-        return false;
-      }
-
-      if (selectedOrders.length > 0) {
-        selectedOrderIdsInput.value = selectedOrders.map(order => order.id).join(',');
-        form.submit();
-      }
-    });
-
-    checkboxes.forEach(checkbox => {
-      checkbox.addEventListener('change', function() {
-        const customerId = this.dataset.customerId;
-        let anyChecked = false;
-        let selectedCustomerId = null;
-        const selectedOrderIds = [];
-
-        // どのチェックボックスがチェックされているか確認
-        checkboxes.forEach(cb => {
-          if (cb.checked) {
-            anyChecked = true;
-            selectedCustomerId = cb.dataset.customerId;
-            selectedOrderIds.push(cb.dataset.orderId);
-          }
-        });
-
-        // チェックボックスがチェックされている場合、異なる取引先のチェックボックスを無効化
-        if (anyChecked) {
-          checkboxes.forEach(cb => {
-            if (cb.dataset.customerId !== selectedCustomerId) {
-              cb.disabled = true;
-            }
-          });
-        } else {
-          // チェックされていない場合、すべてのチェックボックスを有効化
-          checkboxes.forEach(cb => {
-            if (!cb.hasAttribute('disabled') || !cb.disabled) {
-              cb.disabled = false;
-            }
-          });
-        }
-
-        // 選択されている受注があるか確認し、請求書発行ボタンの有効/無効を設定
-        createInvoiceBtn.disabled = !anyChecked;
-
-        // 選択された受注IDを隠しフィールドに設定
-        selectedOrderIdsInput.value = selectedOrderIds.join(',');
-      });
-    });
-  });
-</script>
-
 <%= javascript_include_tag "/assets/javascripts/search_form.js" %>
-
-<style>
-.clear-left {
-  clear: left;
-}
-
-/* ページネーションの番号の文字間隔を広げる - カスタムクラスを使用 */
-.custom-page-link {
-  padding: 0.5rem 0.75rem !important;
-  margin: 0 0.125rem !important;
-  letter-spacing: 0.15em !important;
-  min-width: 2.5rem !important;
-  text-align: center !important;
-  display: inline-block !important;
-  text-decoration: none !important;
-  border: 1px solid #dee2e6 !important;
-  border-radius: 0.375rem !important;
-  color: #0d6efd !important;
-  background-color: #fff !important;
-  font-weight: 500 !important;
-  transition: all 0.2s ease-in-out !important;
-}
-
-.pagination .page-item {
-  margin: 0 0.125rem !important;
-  display: inline-block !important;
-}
-
-/* アクティブなページ番号のスタイル */
-.pagination .page-item.active .custom-page-link {
-  background-color: #0d6efd !important;
-  border-color: #0d6efd !important;
-  color: #fff !important;
-  letter-spacing: 0.15em !important;
-  font-weight: 600 !important;
-}
-
-/* ホバー時のスタイル */
-.custom-page-link:hover {
-  background-color: #e9ecef !important;
-  border-color: #dee2e6 !important;
-  color: #0d6efd !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-}
-
-/* 無効なページリンクのスタイル */
-.pagination .page-item.disabled .custom-page-link {
-  color: #6c757d !important;
-  background-color: #f8f9fa !important;
-  border-color: #dee2e6 !important;
-  cursor: not-allowed !important;
-  opacity: 0.6 !important;
-}
-
-/* ページネーション全体のスタイル */
-.pagination {
-  margin: 0 !important;
-  padding: 0 !important;
-  justify-content: center !important;
-}
-</style>
+<%= javascript_include_tag "orders/index" %>

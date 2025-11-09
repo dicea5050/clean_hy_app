@@ -1,6 +1,6 @@
 class Order < ApplicationRecord
   belongs_to :customer
-  belongs_to :payment_method, optional: true
+  belongs_to :payment_method
   belongs_to :delivery_location, optional: true
   has_many :order_items, dependent: :destroy
   has_many :invoice_orders, dependent: :destroy
@@ -13,6 +13,7 @@ class Order < ApplicationRecord
   validates :order_date, presence: { message: "受注日を入力してください" }
   validates :customer_id, presence: { message: "取引先を選択してください" }
   validates :delivery_location_id, presence: { message: "納品先を選択してください" }
+  validates :payment_method_id, presence: { message: "支払い方法を選択してください" }
   validate :at_least_one_delivery_date_present
   validate :validate_order_items
 
@@ -81,6 +82,12 @@ class Order < ApplicationRecord
   # 紐づけられている請求書を取得するメソッド
   def related_invoices
     invoices.pluck(:invoice_number).join(", ")
+  end
+
+  # 承認待ちまたは承認済みの請求書が関連付けられているかどうかを判断するメソッド
+  def has_pending_or_approved_invoice?
+    return false unless invoiced?
+    invoices.any? { |invoice| invoice.approval_status == Invoice::APPROVAL_STATUSES[:waiting] || invoice.approval_status == Invoice::APPROVAL_STATUSES[:approved] }
   end
 
   def self.search(params)

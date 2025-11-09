@@ -1,16 +1,16 @@
 <div class="container mt-4">
   <div class="card">
-    <div class="card-header">
+    <div class="card-header bg-primary text-white">
       <h2>カテゴリー詳細</h2>
     </div>
     <div class="card-body">
-      <dl class="row">
-        <dt class="col-sm-3">カテゴリーコード:</dt>
-        <dd class="col-sm-9"><%= @product_category.code %></dd>
+      <div class="mb-3">
+        <strong>カテゴリーコード:</strong> <%= @product_category.code %>
+      </div>
 
-        <dt class="col-sm-3">カテゴリー名:</dt>
-        <dd class="col-sm-9"><%= @product_category.name %></dd>
-      </dl>
+      <div class="mb-3">
+        <strong>カテゴリー名:</strong> <%= @product_category.name %>
+      </div>
     </div>
     <div class="card-footer">
       <%= render 'shared/show_action_buttons', edit_path: edit_product_category_path(@product_category), delete_path: product_category_path(@product_category), back_path: product_categories_path %>
