@@ -21,7 +21,9 @@
           </div>
 
           <div class="col-md-3 form-group">
-            <%= f.label :customer_id, "取引先" %>
+            <%= f.label :customer_id do %>
+              取引先<span class="text-danger">*</span>
+            <% end %>
             <div class="autocomplete-container" style="position: relative;">
               <%= f.hidden_field :customer_id %>
               <input type="text" 
@@ -29,24 +31,29 @@
                      id="customer_search_input"
                      placeholder="取引先名または顧客コードを入力"
                      value="<%= @order.customer&.company_name %>"
-                     autocomplete="off">
+                     autocomplete="off"
+                     required>
               <div class="autocomplete-results customer-results" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ccc; border-top: none; max-height: 200px; overflow-y: auto; z-index: 1000;"></div>
             </div>
           </div>
 
           <div class="col-md-3 form-group">
-            <%= f.label :order_date, "受注日" %>
+            <%= f.label :order_date, "受注日" do %>
+              受注日<span class="text-danger">*</span>
+            <% end %>
             <%= f.date_field :order_date, class: "form-control", required: true %>
           </div>
 
           <div class="col-md-3 form-group">
-            <%= f.label :payment_method_id, "支払い方法" %>
+            <%= f.label :payment_method_id do %>
+              支払い方法<span class="text-danger">*</span>
+            <% end %>
             <%= f.collection_select :payment_method_id,
                 @payment_methods,
                 :id,
                 :name,
                 { include_blank: "支払い方法を選択してください" },
-                { class: "form-control" } %>
+                { class: "form-control", required: true } %>
           </div>
         </div>
       </div>
@@ -57,7 +64,9 @@
         <h5 class="card-title">納品情報</h5>
         <div class="row">
           <div class="col-md-4 form-group">
-            <%= f.label :delivery_location_id, "納品先" %>
+            <%= f.label :delivery_location_id do %>
+              納品先<span class="text-danger">*</span>
+            <% end %>
             <%= f.collection_select :delivery_location_id,
                 @delivery_locations || [],
                 :id,
@@ -87,30 +96,30 @@
         <h5 class="card-title">注文明細</h5>
         <table class="table" id="order-items" style="table-layout: fixed;">
           <colgroup>
-            <col style="width: 70px;">
+            <col style="width: 90px;">
             <col style="width: 160px;">
             <col style="width: 60px;">
-            <col style="width: 100px;">
+            <col style="width: 85px;">
             <col style="width: 70px;">
-            <col style="width: 80px;">
-            <col style="width: 70px;">
-            <col style="width: 100px;">
-            <col style="width: 100px;">
-            <col style="width: 80px;">
-            <col style="width: 50px;">
+          <col style="width: 88px;">
+          <col style="width: 64px;">
+          <col style="width: 100px;">
+          <col style="width: 100px;">
+          <col style="width: 162px;">
+          <col style="width: 50px;">
           </colgroup>
           <thead>
             <tr>
-              <th style="width: 70px;">商品コード</th>
+              <th style="width: 90px;">商品コード</th>
               <th style="width: 160px;">商品</th>
               <th style="width: 70px;">規格</th>
-              <th style="width: 100px;">単価</th>
+              <th style="width: 85px;">単価</th>
               <th style="width: 70px;">税率</th>
-              <th style="width: 80px;">数量</th>
-              <th style="width: 70px;">単位</th>
+              <th style="width: 88px;">数量</th>
+              <th style="width: 64px;">単位</th>
               <th style="width: 100px;">税抜金額</th>
               <th style="width: 100px;">税込金額</th>
-              <th style="width: 180px;">備考</th>
+              <th style="width: 162px;">備考</th>
               <th style="width: 50px;"></th>
             </tr>
           </thead>
@@ -328,6 +337,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
           if (unitPriceDisplay && data.product.price) {
             unitPriceDisplay.value = data.product.price;
+            // 商品コード入力時は編集可能にする
+            unitPriceDisplay.removeAttribute('readonly');
           }
           if (unitPriceInput && data.product.price) {
             unitPriceInput.value = data.product.price;

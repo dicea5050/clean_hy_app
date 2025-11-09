@@ -4,7 +4,7 @@ class OrdersController < ApplicationController
   before_action :set_payment_methods, only: [ :new, :edit, :create, :update ]
 
   def index
-    @orders = Order.includes(:customer, :order_items, :payment_method)
+    @orders = Order.includes(:customer, :order_items, :payment_method, :invoices)
                    .order(id: :desc)
                    .search(search_params)
                    .page(params[:page]).per(25)
@@ -229,6 +229,11 @@ class OrdersController < ApplicationController
             return
           end
 
+          if payment_method_id.blank?
+            redirect_to import_csv_orders_path, alert: "支払い方法を選択してください。"
+            return
+          end
+
           if form_order_date.blank?
             redirect_to import_csv_orders_path, alert: "受注日を入力してください。"
             return
@@ -257,7 +262,15 @@ class OrdersController < ApplicationController
           payment_method_id = nil
           if payment_method_name.present?
             payment_method = PaymentMethod.find_by(name: payment_method_name)
-            payment_method_id = payment_method.id if payment_method.present?
+            if payment_method.present?
+              payment_method_id = payment_method.id
+            else
+              error_messages << "支払い方法が見つかりません: #{payment_method_name}"
+              next
+            end
+          else
+            error_messages << "支払い方法が指定されていません"
+            next
           end
 
           # 日付の確認
@@ -474,7 +487,7 @@ class OrdersController < ApplicationController
 
   private
     def set_order
-      @order = Order.includes(:order_items, :customer, :payment_method, :delivery_location).find(params[:id])
+      @order = Order.includes(:order_items, :customer, :payment_method, :delivery_location, :invoices).find(params[:id])
     end
 
     def order_params

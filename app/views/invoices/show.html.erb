@@ -6,13 +6,18 @@
       <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#receiptModal">
         領収書発行
       </button>
-      <%= link_to '編集', edit_invoice_path(@invoice), class: 'btn btn-primary' %>
+      <% if @invoice.approval_status == Invoice::APPROVAL_STATUSES[:approved] %>
+        <%= link_to '編集', edit_invoice_path(@invoice), class: 'btn btn-primary edit-approved-invoice', 
+                    data: { invoice_id: @invoice.id, approval_status: @invoice.approval_status } %>
+      <% else %>
+        <%= link_to '編集', edit_invoice_path(@invoice), class: 'btn btn-primary' %>
+      <% end %>
       <%= link_to '一覧に戻る', invoices_path, class: 'btn btn-secondary' %>
     </div>
   </div>
 
   <div class="card mb-4">
-    <div class="card-header bg-primary text-white">
+    <div class="card-header bg-light">
       <h2 class="card-title">
         <%= @invoice.invoice_number %>
         <span class="<%= @invoice.approval_status_badge_class %> ms-2"><%= @invoice.approval_status %></span>

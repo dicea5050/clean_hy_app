@@ -142,6 +142,9 @@ class InvoicesController < ApplicationController
   end
 
   def update
+    # 更新前の承認ステータスを保存
+    previous_approval_status = @invoice.approval_status
+    
     if @invoice.update(invoice_params)
       # 関連する受注を更新
       @invoice.invoice_orders.destroy_all
@@ -149,6 +152,15 @@ class InvoicesController < ApplicationController
         params[:order_ids].split(",").each do |order_id|
           @invoice.invoice_orders.create(order_id: order_id)
         end
+      end
+
+      # 承認済み請求書が更新された場合、ステータスを「承認待ち」に戻す
+      if previous_approval_status == Invoice::APPROVAL_STATUSES[:approved]
+        @invoice.update(approval_status: Invoice::APPROVAL_STATUSES[:waiting])
+        # 新しい承認申請レコードを作成
+        @invoice.invoice_approvals.create!(
+          status: InvoiceApproval::STATUSES[:pending]
+        )
       end
 
       redirect_to @invoice, notice: "請求書が正常に更新されました。"

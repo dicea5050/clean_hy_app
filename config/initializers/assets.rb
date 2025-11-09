@@ -8,7 +8,7 @@ Rails.application.config.assets.paths << Rails.root.join("app/assets/javascripts
 Rails.application.config.assets.paths << Rails.root.join("node_modules")
 
 # Precompile additional assets.
-Rails.application.config.assets.precompile += %w[ application.js orders.js order_calculations.js search_form.js payment_records.js company_name_search.js ]
+Rails.application.config.assets.precompile += %w[ application.js orders.js order_calculations.js search_form.js payment_records.js company_name_search.js invoice_edit_confirmation.js ]
 
 # Propshaftの設定
 Rails.application.config.assets.paths << Rails.root.join("app/assets/javascripts")

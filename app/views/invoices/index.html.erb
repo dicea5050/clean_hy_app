@@ -175,7 +175,12 @@
             <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#receiptModal<%= invoice.id %>">
               領収書
             </button>
-            <%= link_to '編集', edit_invoice_path(invoice), class: 'btn btn-sm btn-primary' %>
+            <% if invoice.approval_status == Invoice::APPROVAL_STATUSES[:approved] %>
+              <%= link_to '編集', edit_invoice_path(invoice), class: 'btn btn-sm btn-primary edit-approved-invoice', 
+                          data: { invoice_id: invoice.id, approval_status: invoice.approval_status } %>
+            <% else %>
+              <%= link_to '編集', edit_invoice_path(invoice), class: 'btn btn-sm btn-primary' %>
+            <% end %>
             <%= form_with(url: invoice_path(invoice), method: :delete, class: 'd-inline') do |f| %>
               <%= f.submit '削除', class: 'btn btn-sm btn-danger',
                            onclick: "return confirm('本当に削除しますか？');" %>

@@ -10,8 +10,8 @@
   <% end %>
 
   <div class="card mb-4">
-    <div class="card-header bg-primary text-white">
-      <h5 class="card-title mb-0">基本情報</h5>
+    <div class="card-header bg-light">
+      <h2 class="card-title mb-0">基本情報</h2>
     </div>
     <div class="card-body">
       <div class="row mb-3">
@@ -61,8 +61,8 @@
   </div>
 
   <div class="card mb-4">
-    <div class="card-header bg-primary text-white">
-      <h5 class="card-title mb-0">納品情報</h5>
+    <div class="card-header bg-light">
+      <h2 class="card-title mb-0">納品情報</h2>
     </div>
     <div class="card-body">
       <% if @order.delivery_location.present? %>
@@ -109,8 +109,8 @@
   </div>
 
   <div class="card mb-4">
-    <div class="card-header bg-primary text-white">
-      <h5 class="card-title mb-0">注文明細</h5>
+    <div class="card-header bg-light">
+      <h2 class="card-title mb-0">注文明細</h2>
     </div>
     <div class="card-body">
       <table class="table">
@@ -159,7 +159,9 @@
   </div>
 
   <div>
-    <%= link_to '編集', edit_order_path(@order), class: 'btn btn-primary' %>
+    <%= link_to '編集', edit_order_path(@order), 
+               class: 'btn btn-primary edit-order-btn',
+               data: { has_pending_or_approved_invoice: @order.has_pending_or_approved_invoice? } %>
     <%= link_to '一覧に戻る', orders_path, class: 'btn btn-secondary' %>
   </div>
 </div>
