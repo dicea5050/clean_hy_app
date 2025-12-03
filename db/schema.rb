@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_07_095924) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_03_142040) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -89,7 +89,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_07_095924) do
     t.integer "invoice_delivery_method"
     t.string "department"
     t.string "billing_closing_day"
+    t.string "fax_number"
+    t.bigint "payment_method_id"
     t.index ["customer_code"], name: "index_customers_on_customer_code", unique: true
+    t.index ["payment_method_id"], name: "index_customers_on_payment_method_id"
   end
 
   create_table "delivery_locations", force: :cascade do |t|
@@ -252,6 +255,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_07_095924) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "customers", "payment_methods"
   add_foreign_key "delivery_locations", "customers"
   add_foreign_key "invoice_approvals", "invoices"
   add_foreign_key "invoice_orders", "invoices"

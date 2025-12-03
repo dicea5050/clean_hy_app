@@ -11,7 +11,7 @@ class PaymentManagementService
     # 承認済みの請求書を取得
     # 注意: approval_statusは文字列で比較するため、定数を使用
     invoices = Invoice.where(customer: @customer, approval_status: Invoice::APPROVAL_STATUSES[:approved])
-                     .includes(orders: :order_items)
+                     .includes(orders: :order_items, payment_records: :invoice)
                      .order(:invoice_date, :id)
 
     Rails.logger.debug "承認済み請求書数（フィルタリング前）: #{invoices.count}"
@@ -30,7 +30,16 @@ class PaymentManagementService
     end
 
     # 未入金の請求書をフィルタリング
-    unpaid_list = invoices.select { |invoice| invoice.unpaid_amount > 0 }
+    unpaid_list = invoices.select do |invoice|
+      begin
+        unpaid_amount = invoice.unpaid_amount
+        unpaid_amount > 0
+      rescue => e
+        Rails.logger.error "Error calculating unpaid_amount for invoice #{invoice.id}: #{e.message}"
+        Rails.logger.error e.backtrace.join("\n")
+        false
+      end
+    end
 
     Rails.logger.debug "未入金請求書数（フィルタリング後）: #{unpaid_list.count}"
     Rails.logger.debug "=== PaymentManagementService#unpaid_invoices 終了 ==="

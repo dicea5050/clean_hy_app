@@ -20,10 +20,13 @@ class DeliveryLocationsController < ApplicationController
   end
 
   def edit
+    @customers = Customer.all.order(:company_name)
+    @customer_code = @delivery_location.customer&.customer_code
   end
 
   def create
     @delivery_location = DeliveryLocation.new(delivery_location_params)
+    @customers = Customer.all.order(:company_name)
 
     if @delivery_location.save
       redirect_to @delivery_location, notice: "納品先を登録しました。"
@@ -33,6 +36,8 @@ class DeliveryLocationsController < ApplicationController
   end
 
   def update
+    @customers = Customer.all.order(:company_name)
+
     if @delivery_location.update(delivery_location_params)
       redirect_to @delivery_location, notice: "納品先を更新しました。"
     else

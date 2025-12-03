@@ -54,7 +54,7 @@ $(document).ready(function() {
         // 税率が明示的に0でも正しく処理
         var taxRate = data.tax_rate !== undefined ? data.tax_rate : (data.tax_rate_id === 1 ? 10 : 8);
         taxRateInput.val(taxRate);
-        taxRateDisplay.text(taxRate);
+        taxRateDisplay.text(taxRate + '%');
         console.log("Set tax rate to:", taxRate, "type:", typeof taxRate);
       } else {
         console.log("Tax rate elements not found: input=", taxRateInput.length, "display=", taxRateDisplay.length);

@@ -21,8 +21,8 @@
         <%= form.text_field :customer_code, class: 'form-control form-control-width-100' %>
       </div>
       <div class="flex-fill">
-        <%= form.label :company_name, '社名（屋号）' do %>
-          社名（屋号） <span class="text-danger">*</span>
+        <%= form.label :company_name, '顧客名' do %>
+          顧客名 <span class="text-danger">*</span>
         <% end %>
         <%= form.text_field :company_name, class: 'form-control' %>
       </div>
@@ -47,7 +47,7 @@
   </div>
 
   <div class="form-group form-group-spacing">
-    <div class="d-flex align-items-end gap-3 form-three-columns">
+    <div class="d-flex align-items-end gap-3">
       <div>
         <%= form.label :department, '部署名' %>
         <%= form.text_field :department, class: 'form-control' %>
@@ -59,6 +59,10 @@
       <div>
         <%= form.label :phone_number, '電話番号' %>
         <%= form.text_field :phone_number, class: 'form-control' %>
+      </div>
+      <div>
+        <%= form.label :fax_number, 'FAX番号' %>
+        <%= form.text_field :fax_number, class: 'form-control' %>
       </div>
     </div>
   </div>
@@ -90,13 +94,24 @@
   <div class="form-group form-group-spacing">
     <div class="d-flex align-items-end gap-3">
       <div>
+        <%= form.label :payment_method_id, '支払い方法' do %>
+          支払い方法 <span class="text-danger">*</span>
+        <% end %>
+        <%= form.collection_select :payment_method_id,
+                     PaymentMethod.where(active: true).order(:name),
+                     :id,
+                     :name,
+                     { include_blank: '選択してください' },
+                     { class: 'form-select form-control-width-auto' } %>
+      </div>
+      <div>
         <%= form.label :invoice_delivery_method, '請求書送付方法' do %>
           請求書送付方法 <span class="text-danger">*</span>
         <% end %>
         <%= form.select :invoice_delivery_method,
                      Customer::INVOICE_DELIVERY_METHOD_OPTIONS,
                      { include_blank: '選択してください' },
-                     { class: 'form-control form-control-width-auto', id: 'customer_invoice_delivery_method' } %>
+                     { class: 'form-select form-control-width-auto', id: 'customer_invoice_delivery_method' } %>
       </div>
       <div>
         <%= form.label :billing_closing_day, '請求締日' do %>
@@ -105,7 +120,7 @@
         <%= form.select :billing_closing_day,
                      Customer::BILLING_CLOSING_DAYS,
                      { include_blank: '選択してください' },
-                     { class: 'form-control form-control-width-150' } %>
+                     { class: 'form-select form-control-width-150' } %>
       </div>
     </div>
   </div>

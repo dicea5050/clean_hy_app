@@ -3,6 +3,7 @@ class OrdersController < ApplicationController
   before_action :require_editor, only: [ :new, :create, :edit, :update, :destroy, :import_csv, :process_csv, :delivery_slip ]
   before_action :set_order, only: [ :show, :edit, :update, :destroy ]
   before_action :set_payment_methods, only: [ :new, :edit, :create, :update ]
+  skip_before_action :require_viewer_or_editor_access, only: [ :download_sample_csv ]
 
   def index
     @orders = Order.includes(:customer, :order_items, :payment_method, :invoices)
@@ -13,6 +14,8 @@ class OrdersController < ApplicationController
     @search_params = search_params
     # 重複を除去してユニークなPaymentMethodのみを取得
     @payment_methods = PaymentMethod.select("DISTINCT ON (name) id, name").order(:name, :id)
+    # select2用に顧客一覧を取得
+    @customers = Customer.order(:company_name)
   end
 
   def show
@@ -327,6 +330,12 @@ class OrdersController < ApplicationController
         tax_rate = row["税率"].present? ? row["税率"].to_f : (product.tax_rate&.rate || 10.0)
         unit_price = row["単価"].present? ? row["単価"].to_f : product.price
 
+        # 1受注あたり2明細までの制限チェック
+        if orders_data[order_key][:order_items].length >= 2
+          error_messages << "#{row_count}行目: 1受注あたり2明細まで登録できます。3つ目以降の明細は登録後に手動で追加してください。"
+          next
+        end
+
         # 受注項目を追加
         orders_data[order_key][:order_items] << {
           product_id: product.id,
@@ -348,6 +357,18 @@ class OrdersController < ApplicationController
                                                  "・必須項目（商品コード/商品名、数量）が入力されているか\n"\
                                                  "・取引先情報が正しいか\n"\
                                                  "・商品情報が正しいか"
+        return
+      end
+
+      # 各受注の明細数が2つ以下であることを確認
+      orders_data.each do |key, data|
+        if data[:order_items].length > 2
+          error_messages << "受注キー #{key}: 1受注あたり2明細まで登録できます。現在の明細数: #{data[:order_items].length}"
+        end
+      end
+
+      if error_messages.present?
+        redirect_to import_csv_orders_path, alert: "エラーが発生しました:\n#{error_messages.join("\n")}"
         return
       end
 
@@ -398,15 +419,25 @@ class OrdersController < ApplicationController
     render partial: "order_item_fields", locals: { f: ActionView::Helpers::FormBuilder.new("order[order_items_attributes][TIME_PLACEHOLDER]", @order_item, view_context, {}) }, layout: false
   end
 
-  # 顧客コードから顧客情報を取得するAPI
+  # 顧客コードまたは顧客IDから顧客情報を取得するAPI
   def find_customer_by_code
-    customer = Customer.find_by(customer_code: params[:code])
+    customer = nil
+    
+    # 顧客IDが指定されている場合はIDで検索
+    if params[:customer_id].present?
+      customer = Customer.find_by(id: params[:customer_id])
+    # 顧客コードが指定されている場合はコードで検索
+    elsif params[:code].present?
+      customer = Customer.find_by(customer_code: params[:code])
+    end
+    
     if customer
       render json: {
         success: true,
         customer: {
           id: customer.id,
           company_name: customer.company_name,
+          payment_method_id: customer.payment_method_id,
           delivery_locations: customer.delivery_locations.order(is_main_office: :desc, name: :asc).map do |location|
             { id: location.id, name: location.name }
           end
@@ -484,6 +515,32 @@ class OrdersController < ApplicationController
     else
       render json: { success: true, products: [] }
     end
+  end
+
+  # サンプルCSVファイルをダウンロード（UTF-8 BOM付き）
+  def download_sample_csv
+    require "csv"
+
+    # CSVデータを生成
+    csv_data = CSV.generate(force_quotes: true) do |csv|
+      # ヘッダー行
+      csv << ["取引先コード", "取引先名", "支払方法", "受注日", "予定納品日", "確定納品日", "商品コード", "商品名", "数量", "単価", "税率", "単位", "備考"]
+      # データ行（1受注に2明細の例）
+      csv << ["C001", "株式会社A", "銀行振込", "2023-05-01", "2023-05-10", "", "P001", "商品A", "2", "1000", "10", "個", "サンプル備考1"]
+      csv << ["C001", "株式会社A", "銀行振込", "2023-05-01", "2023-05-10", "", "P002", "商品B", "3", "2000", "8", "箱", "サンプル備考2"]
+      # 別の受注の例
+      csv << ["C002", "株式会社B", "代金引換", "2023-05-02", "2023-05-15", "", "P003", "商品C", "1", "3000", "10", "セット", "サンプル備考3"]
+    end
+
+    # UTF-8 BOMを追加
+    bom = "\xEF\xBB\xBF"
+    csv_with_bom = bom + csv_data
+
+    # レスポンスを設定
+    send_data csv_with_bom,
+              filename: "sample_orders_full.csv",
+              type: "text/csv; charset=utf-8",
+              disposition: "attachment"
   end
 
   private

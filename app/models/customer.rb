@@ -1,4 +1,5 @@
 class Customer < ApplicationRecord
+  belongs_to :payment_method, optional: true
   has_many :orders, dependent: :destroy
   has_many :delivery_locations, dependent: :destroy
   has_secure_password validations: false # バリデーションは無効化して必須項目にしない
@@ -39,6 +40,7 @@ class Customer < ApplicationRecord
   validates :postal_code, presence: true
   validates :address, presence: true
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
+  validates :payment_method_id, presence: true
   validates :invoice_delivery_method, presence: true
   validates :billing_closing_day, presence: true, inclusion: { in: BILLING_CLOSING_DAYS.map(&:last) }
   # パスワードは任意項目

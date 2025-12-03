@@ -32,6 +32,10 @@ Rails.application.routes.draw do
   get "customers/company_name_search", to: "customers#company_name_search"
 
   resources :customers do
+    collection do
+      get :import_csv
+      post :process_csv
+    end
     member do
       get :delivery_locations
     end
@@ -55,6 +59,7 @@ Rails.application.routes.draw do
       get :find_product_by_code
       get :search_customers
       get :search_products
+      get :download_sample_csv
     end
 
     member do
@@ -79,6 +84,7 @@ Rails.application.routes.draw do
       get :unpaid_invoices
       get :paid_invoices
       get :payment_history
+      get :find_customer_by_code
     end
   end
 

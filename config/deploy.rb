@@ -25,6 +25,9 @@ append :linked_dirs, "log", "tmp/pids", "tmp/cache", "tmp/sockets", "public/syst
 # Keep 5 releases
 set :keep_releases, 5
 
+# Bundler settings (reduce jobs to avoid OOM on low-memory servers)
+set :bundle_jobs, 1
+
 # Puma settings
 set :puma_threads, [ 4, 16 ]
 set :puma_workers, 2

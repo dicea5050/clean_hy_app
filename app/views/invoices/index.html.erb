@@ -8,28 +8,29 @@
   <!-- 検索フォーム -->
   <div class="card mb-4">
     <div class="card-header bg-light">
-      <button class="btn btn-link btn-sm text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="true" aria-controls="searchCollapse">
+      <button class="btn btn-link btn-sm text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="false" aria-controls="searchCollapse">
         <i class="bi bi-search"></i> 検索条件
       </button>
     </div>
-    <div class="collapse show" id="searchCollapse">
+    <div class="collapse" id="searchCollapse">
       <div class="card-body">
         <%= form_with url: invoices_path, method: :get, local: true, id: 'search-form', class: 'row g-3' do %>
-          <!-- 1行目：顧客コード、取引先名、請求書番号、請求書送付方法 -->
+          <!-- 1行目：顧客コード、顧客名、請求書番号、請求書送付方法 -->
           <div class="col-md-2 me-3">
             <label class="form-label">顧客コード</label>
             <%= text_field_tag 'search[customer_code]', params.dig(:search, :customer_code), class: 'form-control' %>
           </div>
 
           <div class="col-md-3 me-3">
-            <label class="form-label">取引先名</label>
-            <div class="position-relative">
-              <%= text_field_tag 'search[company_name]', params.dig(:search, :company_name),
-                  id: "invoice_company_name_search",
-                  class: 'form-control',
-                  autocomplete: "off" %>
-              <div id="invoice_company_name_suggestions" class="autocomplete-results position-absolute w-100 bg-white border rounded shadow-lg d-none"></div>
-            </div>
+            <label class="form-label">顧客名</label>
+            <select id="invoice_company_name_search" name="search[company_name]" class="form-select">
+              <option value="">選択してください</option>
+              <% @customers.each do |customer| %>
+                <option value="<%= customer.company_name %>" data-customer-code="<%= customer.customer_code %>" data-customer-id="<%= customer.id %>" <%= 'selected' if params.dig(:search, :company_name) == customer.company_name %>>
+                  <%= customer.company_name %>
+                </option>
+              <% end %>
+            </select>
           </div>
 
           <div class="col-md-2 me-3">
@@ -153,7 +154,7 @@
           <input type="checkbox" id="select-all" class="form-check-input">
         </th>
         <th>請求書番号</th>
-        <th>取引先</th>
+        <th>顧客名</th>
         <th>請求日</th>
         <th>支払期限</th>
         <th>請求金額</th>

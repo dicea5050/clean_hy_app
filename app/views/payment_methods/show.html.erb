@@ -1,36 +1,43 @@
 <div class="container mt-4">
-  <div class="card">
+  <div class="card shadow mb-4">
     <div class="card-header bg-primary text-white">
-      <h1>支払方法の詳細</h1>
+      <h2 class="mb-0">支払方法の詳細</h2>
     </div>
     <div class="card-body">
-      <div class="mb-3">
-        <strong>ID:</strong> <%= @payment_method.id %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">ID</div>
+        <div class="col-md-9"><%= @payment_method.id %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>名前:</strong> <%= @payment_method.name %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">名前</div>
+        <div class="col-md-9"><%= @payment_method.name %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>説明:</strong> <%= @payment_method.description %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">説明</div>
+        <div class="col-md-9"><%= @payment_method.description %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>ステータス:</strong>
-        <% if @payment_method.active? %>
-          <span class="badge badge-success">有効</span>
-        <% else %>
-          <span class="badge badge-secondary">無効</span>
-        <% end %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">ステータス</div>
+        <div class="col-md-9">
+          <% if @payment_method.active? %>
+            <span class="badge bg-success">有効</span>
+          <% else %>
+            <span class="badge bg-secondary">無効</span>
+          <% end %>
+        </div>
       </div>
 
-      <div class="mb-3">
-        <strong>作成日時:</strong> <%= @payment_method.created_at.strftime('%Y/%m/%d %H:%M') %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">作成日時</div>
+        <div class="col-md-9"><%= @payment_method.created_at.strftime('%Y/%m/%d %H:%M') %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>更新日時:</strong> <%= @payment_method.updated_at.strftime('%Y/%m/%d %H:%M') %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">更新日時</div>
+        <div class="col-md-9"><%= @payment_method.updated_at.strftime('%Y/%m/%d %H:%M') %></div>
       </div>
     </div>
     <div class="card-footer">

@@ -1,23 +1,27 @@
 <div class="container mt-4">
-  <div class="card">
+  <div class="card shadow mb-4">
     <div class="card-header bg-primary text-white">
-      <h2>税率詳細</h2>
+      <h2 class="mb-0">税率詳細</h2>
     </div>
     <div class="card-body">
-      <div class="mb-3">
-        <strong>税率名:</strong> <%= @tax_rate.name %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">税率名</div>
+        <div class="col-md-9"><%= @tax_rate.name %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>税率(%):</strong> <%= @tax_rate.rate %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">税率(%)</div>
+        <div class="col-md-9"><%= @tax_rate.rate %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>適用開始日:</strong> <%= @tax_rate.start_date.strftime('%Y/%m/%d') %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">適用開始日</div>
+        <div class="col-md-9"><%= @tax_rate.start_date.strftime('%Y/%m/%d') %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>適用終了日:</strong> <%= @tax_rate.end_date&.strftime('%Y/%m/%d') %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">適用終了日</div>
+        <div class="col-md-9"><%= @tax_rate.end_date&.strftime('%Y/%m/%d') %></div>
       </div>
     </div>
     <div class="card-footer">

@@ -5,6 +5,8 @@ class InvoicesController < ApplicationController
 
   def index
     @q = Invoice.includes(:customer).order(created_at: :desc)
+    # select2用に顧客一覧を取得
+    @customers = Customer.order(:company_name)
 
     # 検索パラメータが存在する場合に検索
     if params[:search].present?

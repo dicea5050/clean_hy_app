@@ -1,15 +1,17 @@
 <div class="container mt-4">
-  <div class="card">
+  <div class="card shadow mb-4">
     <div class="card-header bg-primary text-white">
-      <h2>カテゴリー詳細</h2>
+      <h2 class="mb-0">カテゴリー詳細</h2>
     </div>
     <div class="card-body">
-      <div class="mb-3">
-        <strong>カテゴリーコード:</strong> <%= @product_category.code %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">カテゴリーコード</div>
+        <div class="col-md-9"><%= @product_category.code %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>カテゴリー名:</strong> <%= @product_category.name %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">カテゴリー名</div>
+        <div class="col-md-9"><%= @product_category.name %></div>
       </div>
     </div>
     <div class="card-footer">

@@ -369,6 +369,7 @@ GEM
     ruby2_keywords (0.0.5)
     rubyzip (3.2.2)
     securerandom (0.4.1)
+    select2-rails (4.0.13)
     selenium-webdriver (4.38.0)
       base64 (~> 0.2)
       logger (~> 1.4)
@@ -476,6 +477,7 @@ DEPENDENCIES
   rails (~> 8.0.2)
   rspec-rails
   rubocop-rails-omakase
+  select2-rails
   selenium-webdriver
   solid_cable
   solid_cache
