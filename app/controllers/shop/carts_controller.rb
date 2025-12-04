@@ -1,5 +1,6 @@
 class Shop::CartsController < ApplicationController
   layout "shop"
+  before_action :authenticate_customer!
 
   def show
     @cart = current_cart
@@ -55,6 +56,45 @@ class Shop::CartsController < ApplicationController
   def destroy
     session[:cart] = nil
     redirect_to shop_products_path, notice: "カートを空にしました"
+  end
+
+  def update_item
+    @cart = current_cart
+    product_id = params[:product_id]
+    quantity = params[:quantity].to_i
+
+    product = Product.find(product_id)
+    
+    if quantity > 0
+      if product.in_stock?(quantity)
+        if @cart.update_item_quantity(product_id, quantity)
+          session[:cart] = @cart.serialize
+          flash[:notice] = "数量を更新しました"
+        else
+          flash[:alert] = "商品が見つかりませんでした"
+        end
+      else
+        flash[:alert] = "商品の在庫が不足しています"
+      end
+    else
+      flash[:alert] = "数量は1以上である必要があります"
+    end
+
+    redirect_to shop_cart_path
+  end
+
+  def remove_item
+    @cart = current_cart
+    product_id = params[:product_id]
+
+    if @cart.remove_item(product_id)
+      session[:cart] = @cart.serialize
+      flash[:notice] = "商品をカートから削除しました"
+    else
+      flash[:alert] = "商品が見つかりませんでした"
+    end
+
+    redirect_to shop_cart_path
   end
 
   private

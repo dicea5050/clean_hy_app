@@ -5,7 +5,7 @@ class TaxRatesController < ApplicationController
   before_action :set_tax_rate, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @tax_rates = TaxRate.all.order(start_date: :desc)
+    @tax_rates = TaxRate.all.order(start_date: :desc).page(params[:page]).per(30)
   end
 
   def show

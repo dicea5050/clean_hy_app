@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>チリ袋注文ショップ</title>
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+
+  <%= stylesheet_link_tag 'application', media: 'all' %>
+  <script type="module" src="<%= asset_path 'application.js' %>"></script>
+</head>
+<body class="shop-login-layout">
+  <main class="container">
+    <%= yield %>
+  </main>
+</body>
+</html>
+

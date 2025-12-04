@@ -17,6 +17,30 @@ class Cart
     end
   end
 
+  def update_item_quantity(product_id, quantity)
+    item = @items.find { |i| i.product_id == product_id.to_i }
+    if item
+      if quantity > 0
+        item.quantity = quantity
+      else
+        @items.delete(item)
+      end
+      true
+    else
+      false
+    end
+  end
+
+  def remove_item(product_id)
+    item = @items.find { |i| i.product_id == product_id.to_i }
+    if item
+      @items.delete(item)
+      true
+    else
+      false
+    end
+  end
+
   def total_price
     @items.sum { |item| item.subtotal }
   end

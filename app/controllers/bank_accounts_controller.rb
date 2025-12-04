@@ -3,7 +3,7 @@ class BankAccountsController < ApplicationController
   before_action :set_bank_account, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @bank_accounts = BankAccount.all
+    @bank_accounts = BankAccount.all.page(params[:page]).per(30)
   end
 
   def show

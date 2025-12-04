@@ -3,7 +3,7 @@ class CompanyInformationsController < ApplicationController
   before_action :set_company_information, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @company_informations = CompanyInformation.all
+    @company_informations = CompanyInformation.all.page(params[:page]).per(30)
   end
 
   def show

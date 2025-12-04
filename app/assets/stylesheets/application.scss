@@ -1,6 +1,9 @@
 // Bootstrapのメインスタイルを読み込み
 @use "bootstrap/scss/bootstrap";
 
+// ショップ専用のスタイルを読み込み
+@import "shop";
+
 // カスタムスタイルをここに記述
 
 // ヘッダーナビゲーション用のカスタムスタイル
@@ -375,4 +378,29 @@ h4, .h4 {
 // コンテナの最大幅
 .container-max-width-800 {
   max-width: 800px;
+}
+
+// 日付表示用：通常のフォントを使いつつ、数字のみ等幅にする
+.date-monospace {
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+}
+
+// マスター系一覧ページのテーブルレイアウト修正
+// table-responsive内のテーブルを100%幅にして右側の余白をなくす
+.table-responsive {
+  table {
+    width: 100% !important;
+    min-width: 100% !important;
+    margin-bottom: 0;
+    table-layout: auto;
+  }
+}
+
+// card-body内のテーブルも100%幅にする（table-responsiveで囲まれていない場合）
+.card-body {
+  > .table {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
 }

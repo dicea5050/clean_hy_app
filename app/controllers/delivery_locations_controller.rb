@@ -3,7 +3,7 @@ class DeliveryLocationsController < ApplicationController
   before_action :set_delivery_location, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @delivery_locations = DeliveryLocation.all
+    @delivery_locations = DeliveryLocation.all.page(params[:page]).per(30)
   end
 
   def show

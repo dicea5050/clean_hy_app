@@ -147,62 +147,80 @@
     </button>
   </div>
 
-  <table class="table">
+  <table class="table" style="table-layout: fixed; width: 100%;">
     <thead>
       <tr>
-        <th>
+        <th style="width: 40px;" class="text-center">
           <input type="checkbox" id="select-all" class="form-check-input">
         </th>
-        <th>請求書番号</th>
-        <th>顧客名</th>
-        <th>請求日</th>
-        <th>支払期限</th>
-        <th>請求金額</th>
-        <th>送付方法</th>
-        <th>承認状態</th>
-        <th>入金状況</th>
-        <th>操作</th>
+        <th style="width: 120px;" class="text-center">請求書番号</th>
+        <th style="width: 220px;" class="text-center">顧客名</th>
+        <th style="width: 95px;" class="text-center">請求日</th>
+        <th style="width: 95px;" class="text-center">支払期限</th>
+        <th style="width: 120px;" class="text-center">請求金額</th>
+        <th style="width: 85px;" class="text-center">送付方法</th>
+        <th style="width: 85px;" class="text-center">承認状態</th>
+        <th style="width: 90px;" class="text-center">入金状況</th>
+        <th style="width: 180px;" class="text-center">操作</th>
       </tr>
     </thead>
 
     <tbody>
       <% @invoices.each do |invoice| %>
         <tr>
-          <td>
+          <td class="text-center">
             <% if invoice.approval_status == Invoice::APPROVAL_STATUSES[:rejected] %>
               <input type="checkbox" name="invoice_ids[]" value="<%= invoice.id %>" class="form-check-input invoice-checkbox">
             <% else %>
               <input type="checkbox" disabled class="form-check-input" title="差し戻しステータスの請求書のみ選択可能です">
             <% end %>
           </td>
-          <td><%= link_to invoice.invoice_number, invoice_path(invoice) %></td>
-          <td><%= invoice.customer.company_name %></td>
-          <td><%= l invoice.invoice_date %></td>
-          <td><%= l invoice.due_date if invoice.due_date %></td>
-          <td><%= number_to_currency(invoice.total_amount) %></td>
-          <td>
+          <td><small><%= link_to invoice.invoice_number, invoice_path(invoice) %></small></td>
+          <td><small><%= invoice.customer.company_name %></small></td>
+          <td class="text-end date-monospace"><small><%= l invoice.invoice_date %></small></td>
+          <td class="text-end date-monospace"><small><%= l invoice.due_date if invoice.due_date %></small></td>
+          <td class="text-end"><small><%= number_to_currency(invoice.total_amount) %></small></td>
+          <td class="text-center">
             <%= render 'shared/invoice_delivery_method_badge', customer: invoice.customer %>
           </td>
-          <td><%= render 'shared/approval_status_badge', invoice: invoice %></td>
-          <td><%= render 'shared/payment_status_badge', object: invoice %></td>
+          <td class="text-center"><%= render 'shared/approval_status_badge', invoice: invoice %></td>
+          <td class="text-center"><%= render 'shared/payment_status_badge', object: invoice %></td>
           <td>
-            <%= render 'shared/detail_button', path: invoice_path(invoice) %>
-            <% if invoice.approval_status == Invoice::APPROVAL_STATUSES[:approved] %>
-              <%= link_to '編集', edit_invoice_path(invoice), class: 'btn btn-sm btn-primary edit-approved-invoice',
-                          data: { invoice_id: invoice.id, approval_status: invoice.approval_status } %>
-            <% else %>
-              <%= link_to '編集', edit_invoice_path(invoice), class: 'btn btn-sm btn-primary' %>
-            <% end %>
-            <%= render 'shared/invoice_pdf_button', invoice: invoice, text: 'PDF' %>
-            <%= render 'shared/invoice_receipt_button', invoice: invoice, text: '領収書' %>
-            <% confirm_msg = t('confirms.destroy', default: '本当に削除しますか？') %>
-            <%= button_to invoice_path(invoice),
-                            method: :delete,
-                            form: { data: { turbo_confirm: confirm_msg },
-                                    class: 'd-inline' },
-                            class: 'btn btn-sm btn-danger' do %>
-              <%= t('buttons.destroy', default: '削除') %>
-            <% end %>
+            <div class="d-flex gap-1">
+              <%= link_to invoice_path(invoice), class: 'btn btn-sm btn-info', title: '詳細' do %>
+                <i class="bi bi-eye"></i>
+              <% end %>
+              <% if invoice.approval_status == Invoice::APPROVAL_STATUSES[:approved] %>
+                <%= link_to edit_invoice_path(invoice),
+                            class: 'btn btn-sm btn-primary edit-approved-invoice',
+                            title: '編集',
+                            data: { invoice_id: invoice.id, approval_status: invoice.approval_status } do %>
+                  <i class="bi bi-pencil"></i>
+                <% end %>
+              <% else %>
+                <%= link_to edit_invoice_path(invoice), class: 'btn btn-sm btn-primary', title: '編集' do %>
+                  <i class="bi bi-pencil"></i>
+                <% end %>
+              <% end %>
+              <%= link_to pdf_invoice_path(invoice, format: :pdf),
+                          class: 'btn btn-sm btn-success',
+                          title: 'PDF',
+                          target: '_blank' do %>
+                <i class="bi bi-file-earmark-pdf"></i>
+              <% end %>
+              <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#receiptModal<%= invoice.id %>" title="領収書">
+                <i class="bi bi-receipt"></i>
+              </button>
+              <% confirm_msg = t('confirms.destroy', default: '本当に削除しますか？') %>
+              <%= button_to invoice_path(invoice),
+                              method: :delete,
+                              form: { data: { turbo_confirm: confirm_msg },
+                                      class: 'd-inline' },
+                              class: 'btn btn-sm btn-danger',
+                              title: '削除' do %>
+                <i class="bi bi-trash"></i>
+              <% end %>
+            </div>
           </td>
         </tr>
       <% end %>

@@ -17,9 +17,9 @@ class Order < ApplicationRecord
   validate :at_least_one_delivery_date_present
   validate :validate_order_items
 
-  # 予定納品日または確定納品日のいずれか一方が必須
+  # 予定納品日または確定納品日のいずれか一方が必須（ショップ注文の場合は必須ではない）
   def at_least_one_delivery_date_present
-    if expected_delivery_date.blank? && actual_delivery_date.blank?
+    if expected_delivery_date.blank? && actual_delivery_date.blank? && !is_shop_order?
       errors.add(:base, "予定納品日または確定納品日のいずれかを入力してください")
     end
   end
@@ -41,7 +41,8 @@ class Order < ApplicationRecord
         errors.add(:base, "商品#{index + 1}: 商品を選択してください")
       end
 
-      if item.product_specification_id.blank?
+      # ショップ注文の場合は規格を必須にしない
+      if item.product_specification_id.blank? && !is_shop_order?
         errors.add(:base, "商品#{index + 1}: 規格を選択してください")
       end
 

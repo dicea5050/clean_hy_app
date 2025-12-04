@@ -185,23 +185,84 @@ $(document).ready(function() {
 
   console.log("Product selects setup complete");
 
-  // 配送先選択時の詳細表示
-  $(document).on('change', '#delivery-location-select', function() {
-    var locationId = $(this).val();
-
+  // 配送先情報を取得して表示する関数
+  function loadDeliveryLocationAddress(locationId) {
+    var addressElement = $('#delivery-location-address');
+    
     if (!locationId) {
-      // 選択がない場合は詳細を非表示
+      addressElement.hide();
       $('#delivery-location-details').hide();
       return;
     }
 
-    // 配送先情報を取得
-    $.getJSON("/delivery_locations/" + locationId + ".json", function(data) {
-      // 詳細情報を表示
-      $('#delivery-address').html('<strong>住所:</strong> 〒' + data.postal_code + ' ' + data.address);
-      $('#delivery-contact').html('<strong>連絡先:</strong> ' + data.contact_person + ' (' + data.phone + ')');
-      $('#delivery-location-details').show();
+    // 配送先情報を取得（shop側のエンドポイントを優先、フォールバックで管理者側を使用）
+    var jsonUrl = "/shop/delivery_locations/" + locationId + ".json";
+    $.ajax({
+      url: jsonUrl,
+      type: 'GET',
+      dataType: 'json',
+      success: function(data) {
+        // 住所を右側に表示
+        var addressText = '';
+        if (data.postal_code) {
+          addressText += '〒' + data.postal_code + ' ';
+        }
+        if (data.address) {
+          addressText += data.address;
+        }
+        addressElement.text(addressText).show();
+        
+        // 既存の詳細表示（他のページで使用されている可能性があるため残す）
+        if ($('#delivery-address').length) {
+          $('#delivery-address').html('<strong>住所:</strong> 〒' + data.postal_code + ' ' + data.address);
+          $('#delivery-contact').html('<strong>連絡先:</strong> ' + data.contact_person + ' (' + data.phone + ')');
+          $('#delivery-location-details').show();
+        }
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.log('Shop endpoint failed, trying admin endpoint:', textStatus, errorThrown);
+        // shop側のエンドポイントが失敗した場合は管理者側を試す
+        $.ajax({
+          url: "/delivery_locations/" + locationId + ".json",
+          type: 'GET',
+          dataType: 'json',
+          success: function(data) {
+            var addressText = '';
+            if (data.postal_code) {
+              addressText += '〒' + data.postal_code + ' ';
+            }
+            if (data.address) {
+              addressText += data.address;
+            }
+            addressElement.text(addressText).show();
+            
+            if ($('#delivery-address').length) {
+              $('#delivery-address').html('<strong>住所:</strong> 〒' + data.postal_code + ' ' + data.address);
+              $('#delivery-contact').html('<strong>連絡先:</strong> ' + data.contact_person + ' (' + data.phone + ')');
+              $('#delivery-location-details').show();
+            }
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            console.error('Both endpoints failed:', textStatus, errorThrown, jqXHR);
+            addressElement.hide();
+          }
+        });
+      }
     });
+  }
+
+  // 配送先選択時の詳細表示
+  $(document).on('change', '#delivery-location-select', function() {
+    var locationId = $(this).val();
+    loadDeliveryLocationAddress(locationId);
+  });
+
+  // ページ読み込み時に既に選択されている値がある場合は住所を表示
+  $(document).ready(function() {
+    var initialLocationId = $('#delivery-location-select').val();
+    if (initialLocationId) {
+      loadDeliveryLocationAddress(initialLocationId);
+    }
   });
 
   // 入金管理の取引先選択処理はStimulusコントローラー（payment_management_controller.js）で実装されています

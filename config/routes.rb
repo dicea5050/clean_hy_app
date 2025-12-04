@@ -91,9 +91,16 @@ Rails.application.routes.draw do
   # ショップ機能用のルート
   namespace :shop do
     resources :products, only: [ :index, :show ]
-    resource :cart, only: [ :show, :update, :destroy ]
+    resource :cart, only: [ :show, :update, :destroy ] do
+      collection do
+        patch :update_item
+        delete :remove_item
+      end
+    end
     resources :orders, only: [ :new, :create ]
     get "orders/complete", to: "orders#complete", as: "order_complete"
+    get "mypage", to: "mypage#show", as: "mypage"
+    resources :delivery_locations, only: [ :new, :create, :show ]
 
     # カスタマーログイン関連
     get "login", to: "sessions#new", as: "login"
@@ -105,7 +112,7 @@ Rails.application.routes.draw do
   get "/shop", to: "shop/products#index"
 
   # ルートパスの設定
-  root to: "administrators#login"
+  root to: "home#index"
 
   resources :invoice_approvals, only: [ :index ] do
     collection do
@@ -118,4 +125,12 @@ Rails.application.routes.draw do
       post :reject
     end
   end
+
+  # 404エラーハンドリング：存在しないルートへのアクセス（最後に配置）
+  # Railsの内部パスとアセットパスは除外
+  match "*path", to: "application#not_found", via: :all, constraints: lambda { |request|
+    !request.path.start_with?("/rails") &&
+    !request.path.start_with?("/assets") &&
+    !request.path.start_with?("/packs")
+  }
 end

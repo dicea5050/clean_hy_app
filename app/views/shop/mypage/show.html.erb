@@ -1,0 +1,92 @@
+<div class="container mt-4">
+  <h1 class="mb-4"><%= @customer.company_name %> 様マイページ</h1>
+
+  <div class="card shadow mb-4">
+    <div class="card-header bg-primary text-white">
+      <h2 class="mb-0">注文履歴</h2>
+    </div>
+    <div class="card-body">
+      <% if @orders.any? %>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>注文ID</th>
+                <th>注文日</th>
+                <th>納品予定日</th>
+                <th>確定納品日</th>
+                <th>合計金額（税抜）</th>
+                <th>合計金額（税込）</th>
+                <th>支払い方法</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @orders.each do |order| %>
+                <tr>
+                  <td><%= order.id %></td>
+                  <td><%= l order.order_date %></td>
+                  <td><%= order.expected_delivery_date.present? ? l(order.expected_delivery_date) : '未設定' %></td>
+                  <td><%= order.actual_delivery_date.present? ? l(order.actual_delivery_date) : '未確定' %></td>
+                  <td><%= number_to_currency(order.order_items.sum { |item| item.subtotal_without_tax }) %></td>
+                  <td><%= number_to_currency(order.order_items.sum { |item| item.subtotal }) %></td>
+                  <td><%= order.payment_method&.name || '未設定' %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+        <div class="d-flex justify-content-center mt-4">
+          <%= paginate @orders %>
+        </div>
+      <% else %>
+        <p class="text-center text-muted">注文履歴がありません</p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card shadow mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h2 class="mb-0">納品先情報</h2>
+      <%= link_to '納品先を追加', new_shop_delivery_location_path, class: 'btn btn-light btn-sm' %>
+    </div>
+    <div class="card-body">
+      <% if @delivery_locations.any? %>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>納品先名</th>
+                <th>郵便番号</th>
+                <th>住所</th>
+                <th>電話番号</th>
+                <th>担当者名</th>
+                <th>種別</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @delivery_locations.each do |location| %>
+                <tr>
+                  <td><%= location.name %></td>
+                  <td><%= location.postal_code.present? ? location.postal_code : '未設定' %></td>
+                  <td><%= location.address.present? ? location.address : '未設定' %></td>
+                  <td><%= location.phone.present? ? location.phone : '未設定' %></td>
+                  <td><%= location.contact_person.present? ? location.contact_person : '未設定' %></td>
+                  <td>
+                    <% if location.is_main_office? %>
+                      <span class="badge bg-primary">本社</span>
+                    <% else %>
+                      <span class="badge bg-secondary">その他</span>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <p class="text-center text-muted">納品先情報がありません</p>
+      <% end %>
+    </div>
+  </div>
+</div>
+

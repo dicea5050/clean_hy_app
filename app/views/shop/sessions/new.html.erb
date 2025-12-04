@@ -1,23 +1,24 @@
-<h1>会員ログイン</h1>
+<div class="login-form-wrapper">
+  <h1>事業者向けチリ袋注文サイト</h1>
 
-<div class="mb-4">
-  <p>会員ログインIDとパスワードを入力してください。</p>
-  <p>パスワードが発行されていない場合は、担当者にお問い合わせください。</p>
+  <div class="mb-4">
+    <p>チリ袋のネット注文サイトのご利用には、当社にて事業所登録が必要です。</p>
+    <p>登録希望の事業者の方は、当社までご連絡ください。</p>
+  </div>
+
+  <%= form_with(model: @customer, url: shop_login_path, local: true, class: 'login-form') do |f| %>
+    <div class="form-group">
+      <%= f.label :email, 'メールアドレス' %>
+      <%= f.email_field :email, class: 'form-control' %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :password, 'パスワード' %>
+      <%= f.password_field :password, class: 'form-control' %>
+    </div>
+
+    <div class="form-actions">
+      <%= f.submit 'ログイン', class: 'btn btn-primary' %>
+    </div>
+  <% end %>
 </div>
-
-<%= form_with(model: @customer, url: shop_login_path, local: true) do |f| %>
-  <div class="form-group">
-    <%= f.label :customer_code, 'ログインID' %>
-    <%= f.text_field :customer_code, class: 'form-control' %>
-  </div>
-
-  <div class="form-group">
-    <%= f.label :password, 'パスワード' %>
-    <%= f.password_field :password, class: 'form-control' %>
-  </div>
-
-  <div class="form-actions mt-3">
-    <%= f.submit 'ログイン', class: 'btn btn-primary' %>
-    <%= link_to 'カートに戻る', shop_cart_path, class: 'btn btn-outline-secondary' %>
-  </div>
-<% end %>

@@ -2,6 +2,7 @@ class CustomersController < ApplicationController
   before_action :require_login, except: [ :company_name_search ]
   before_action :require_editor_limited_access, except: [ :company_name_search ]
   before_action :require_editor, only: [ :new, :create, :update, :destroy, :import_csv, :process_csv ]
+  before_action :block_shop_user_access
   before_action :set_customer, only: [ :show, :edit, :update, :destroy ]
 
   def index
@@ -317,6 +318,13 @@ class CustomersController < ApplicationController
   end
 
   private
+
+  # shop-user権限の顧客からのアクセスをブロック
+  def block_shop_user_access
+    if customer_signed_in? && !administrator_signed_in?
+      redirect_to shop_products_path, alert: "このページにアクセスする権限がありません"
+    end
+  end
 
   def set_customer
     @customer = Customer.find(params[:id])

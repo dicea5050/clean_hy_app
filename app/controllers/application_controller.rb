@@ -4,7 +4,23 @@ class ApplicationController < ActionController::Base
 
   protect_from_forgery with: :null_session
 
-  helper_method :current_administrator, :administrator_signed_in?, :current_customer, :customer_signed_in?
+  # 404エラーハンドリング：存在しないアクションへのアクセス
+  rescue_from AbstractController::ActionNotFound, with: :not_found
+
+  # shop-user権限チェック：shopコントローラー以外へのアクセスを制限
+  # shop/sessions、home、administrators#loginは公開ページなので除外
+  before_action :require_shop_user_access, unless: -> {
+    controller_path.start_with?("shop/") ||
+    controller_path == "home" ||
+    (controller_path == "administrators" && action_name == "login")
+  }
+
+  helper_method :current_administrator, :administrator_signed_in?, :current_customer, :customer_signed_in?, :shop_user?
+
+  # 404エラーハンドリング：存在しないページへのアクセス
+  def not_found
+    render file: Rails.root.join("public", "404.html"), status: :not_found, layout: false
+  end
 
   private
 
@@ -111,6 +127,22 @@ class ApplicationController < ActionController::Base
   def authenticate_customer!
     unless customer_signed_in?
       redirect_to shop_login_path, alert: "ログインしてください"
+    end
+  end
+
+  # shop-user権限チェック（shopにログインしている顧客はshop-user権限を持つ）
+  def shop_user?
+    customer_signed_in?
+  end
+
+  # shop-user権限が必要なアクションを保護（shopコントローラー以外へのアクセスを制限）
+  def require_shop_user_access
+    # 管理者がログインしている場合は制限しない
+    return if administrator_signed_in?
+
+    # shopコントローラー以外へのアクセスは、shop-user権限では許可しない
+    if customer_signed_in?
+      redirect_to shop_products_path, alert: "このページにアクセスする権限がありません"
     end
   end
 end

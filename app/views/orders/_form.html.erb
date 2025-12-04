@@ -14,6 +14,11 @@
     <div class="card mb-4">
       <div class="card-body">
         <h5 class="card-title">基本情報</h5>
+        <% if @order.persisted? && @order.is_shop_order? %>
+          <div class="alert alert-info mb-3">
+            <i class="bi bi-info-circle"></i> この注文はネットショップから登録されました。
+          </div>
+        <% end %>
         <div class="row">
           <div class="col-md-3 form-group">
             <%= f.label :customer_code, "顧客コード" %>
