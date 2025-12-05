@@ -35,9 +35,7 @@
             </tbody>
           </table>
         </div>
-        <div class="d-flex justify-content-center mt-4">
-          <%= paginate @orders %>
-        </div>
+        <%= render 'shared/pagination', collection: @orders %>
       <% else %>
         <p class="text-center text-muted">注文履歴がありません</p>
       <% end %>

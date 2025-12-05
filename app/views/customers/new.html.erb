@@ -1,10 +1,1 @@
-<div class="container mt-4">
-  <div class="card">
-    <div class="card-header bg-primary text-white">
-      <h2>新規顧客登録</h2>
-    </div>
-    <div class="card-body">
-      <%= render 'form', customer: @customer %>
-    </div>
-  </div>
-</div>
+<%= render 'shared/master_form_card', title: '新規顧客登録', form_partial: 'form', form_object: { customer: @customer } %>

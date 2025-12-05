@@ -227,9 +227,7 @@
     </tbody>
   </table>
 
-  <div class="d-flex justify-content-center">
-    <%= paginate @invoices %>
-  </div>
+  <%= render 'shared/pagination', collection: @invoices %>
 </div>
 
 <!-- 領収書発行モーダル（各請求書用） -->

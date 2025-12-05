@@ -1,0 +1,11 @@
+<div class="container mt-4">
+  <div class="card <%= 'shadow' if local_assigns[:shadow] %>">
+    <div class="card-header bg-primary text-white">
+      <h1 class="<%= 'mb-0' if local_assigns[:mb_zero] %>"><%= title %></h1>
+    </div>
+    <div class="card-body">
+      <%= render form_partial, **form_object %>
+    </div>
+  </div>
+</div>
+

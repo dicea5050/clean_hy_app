@@ -1,10 +1,1 @@
-<div class="container mt-4">
-  <div class="card shadow">
-    <div class="card-header bg-primary text-white">
-      <h2 class="mb-0">銀行口座編集</h2>
-    </div>
-    <div class="card-body">
-      <%= render 'form', bank_account: @bank_account %>
-    </div>
-  </div>
-</div>
+<%= render 'shared/master_form_card', title: '銀行口座編集', form_partial: 'form', form_object: { bank_account: @bank_account }, shadow: true, mb_zero: true %>

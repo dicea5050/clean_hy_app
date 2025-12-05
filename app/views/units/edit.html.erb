@@ -1,10 +1,1 @@
-<div class="container mt-4">
-  <div class="card">
-    <div class="card-header bg-primary text-white">
-      <h2>単位の編集</h2>
-    </div>
-    <div class="card-body">
-      <%= render 'form', unit: @unit %>
-    </div>
-  </div>
-</div>
+<%= render 'shared/master_form_card', title: '単位の編集', form_partial: 'form', form_object: { unit: @unit } %>

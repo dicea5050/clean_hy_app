@@ -67,9 +67,7 @@
     </div>
   <% end %>
 
-  <div class="d-flex justify-content-center">
-    <%= paginate @invoice_approvals %>
-  </div>
+  <%= render 'shared/pagination', collection: @invoice_approvals %>
 </div>
 
 <!-- 個別差し戻しモーダル -->

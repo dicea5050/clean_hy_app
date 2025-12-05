@@ -1,10 +1,1 @@
-<div class="container mt-4">
-  <div class="card shadow">
-    <div class="card-header bg-primary text-white">
-      <h2 class="mb-0">納品先登録</h2>
-    </div>
-    <div class="card-body">
-      <%= render 'form', delivery_location: @delivery_location %>
-    </div>
-  </div>
-</div>
+<%= render 'shared/master_form_card', title: '納品先登録', form_partial: 'form', form_object: { delivery_location: @delivery_location }, shadow: true, mb_zero: true %>

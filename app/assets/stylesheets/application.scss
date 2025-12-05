@@ -80,9 +80,13 @@ h2 .badge, .h2 .badge {
   border-bottom: none !important;
 }
 
-// h2、h3、h4のフォントサイズを10%小さくする
+// h1、h2のフォントサイズを70%に縮小
+h1, .h1 {
+  font-size: 1.75rem !important; // デフォルト2.5remの70%
+}
+
 h2, .h2 {
-  font-size: 1.8rem !important; // デフォルト2remの90%
+  font-size: 1.26rem !important; // 現在の1.8remの70%
 }
 
 h3, .h3 {
@@ -391,16 +395,145 @@ h4, .h4 {
 .table-responsive {
   table {
     width: 100% !important;
-    min-width: 100% !important;
     margin-bottom: 0;
     table-layout: auto;
   }
 }
 
-// card-body内のテーブルも100%幅にする（table-responsiveで囲まれていない場合）
+// 受注一覧ページのテーブル：カラム幅を固定
+.table.orders-index-table {
+  table-layout: fixed !important;
+  width: 100% !important;
+  min-width: 1215px !important; // 全カラムの合計幅
+
+  thead th:nth-child(1),
+  tbody td:nth-child(1) {
+    width: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+  }
+
+  thead th:nth-child(2),
+  tbody td:nth-child(2) {
+    width: 135px !important;
+    min-width: 135px !important;
+    max-width: 135px !important;
+  }
+
+  thead th:nth-child(3),
+  tbody td:nth-child(3) {
+    width: 220px !important;
+    min-width: 220px !important;
+    max-width: 220px !important;
+  }
+
+  thead th:nth-child(4),
+  tbody td:nth-child(4) {
+    width: 95px !important;
+    min-width: 95px !important;
+    max-width: 95px !important;
+  }
+
+  thead th:nth-child(5),
+  tbody td:nth-child(5) {
+    width: 95px !important;
+    min-width: 95px !important;
+    max-width: 95px !important;
+  }
+
+  thead th:nth-child(6),
+  tbody td:nth-child(6) {
+    width: 95px !important;
+    min-width: 95px !important;
+    max-width: 95px !important;
+  }
+
+  thead th:nth-child(7),
+  tbody td:nth-child(7) {
+    width: 90px !important;
+    min-width: 90px !important;
+    max-width: 90px !important;
+  }
+
+  thead th:nth-child(8),
+  tbody td:nth-child(8) {
+    width: 130px !important;
+    min-width: 130px !important;
+    max-width: 130px !important;
+  }
+
+  thead th:nth-child(9),
+  tbody td:nth-child(9) {
+    width: 80px !important;
+    min-width: 80px !important;
+    max-width: 80px !important;
+  }
+
+  thead th:nth-child(10),
+  tbody td:nth-child(10) {
+    width: 80px !important;
+    min-width: 80px !important;
+    max-width: 80px !important;
+  }
+
+  thead th:nth-child(11),
+  tbody td:nth-child(11) {
+    width: 160px !important;
+    min-width: 160px !important;
+    max-width: 160px !important;
+  }
+
+  // 見出しの改行を防ぐ
+  thead th {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}
+
+// マスター系一覧ページのテーブル：改行を防ぎスクロールにする（共通設定）
+// card-body内のテーブルで横スクロールを有効化
 .card-body {
-  > .table {
+  overflow-x: auto;
+  
+  // マスター系テーブルと請求書一覧テーブルの共通設定
+  table[class*="-index-table"],
+  table.table {
+    // 見出しとセルの改行を防ぐ
+    thead th,
+    tbody td {
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+  }
+}
+
+// product_specificationsはcard-body外なので個別に設定
+.table.product-specifications-index-table {
+  thead th,
+  tbody td {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}
+
+// card-body内のテーブルも100%幅にする（table-responsiveで囲まれていない場合）
+// ただし、マスター系テーブル（-index-tableクラス）は除外
+.card-body {
+  > .table:not([class*="-index-table"]) {
     width: 100% !important;
     min-width: 100% !important;
   }
+  
+  // マスター系テーブルは幅を自動計算
+  > .table[class*="-index-table"] {
+    width: auto !important;
+  }
+}
+
+// 各ページの下に50px（3rem）の余白を追加（Bootstrap標準クラス pb-5 相当）
+body {
+  padding-bottom: 3rem; // 48px (16px基準) - Bootstrap標準の pb-5 と同じ
 }

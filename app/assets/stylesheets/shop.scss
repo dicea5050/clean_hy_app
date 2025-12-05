@@ -1,5 +1,14 @@
 // ショップ専用のスタイル
 
+// h1、h2のフォントサイズを70%に縮小
+h1, .h1 {
+  font-size: 1.75rem !important; // デフォルト2.5remの70%
+}
+
+h2, .h2 {
+  font-size: 1.26rem !important; // 現在の1.8remの70%
+}
+
 // ヘッダーのスタイル
 .shop-header {
   background-color: #fff;
@@ -313,4 +322,9 @@
     display: inline-block;
     max-width: 100%;
   }
+}
+
+// 各ページの下に50px（3rem）の余白を追加（Bootstrap標準クラス pb-5 相当）
+body.shop-layout main {
+  padding-bottom: 3rem; // 48px (16px基準) - Bootstrap標準の pb-5 と同じ
 }

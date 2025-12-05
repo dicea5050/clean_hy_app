@@ -4,52 +4,46 @@
     <%= link_to '新規商品登録', new_product_path, class: 'btn btn-primary' %>
   </div>
 
-  <div class="card">
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table table-striped table-hover">
-          <thead class="thead-light">
-            <tr>
-              <th>商品コード</th>
-              <th>商品名</th>
-              <th>カテゴリーコード</th>
-              <th>カテゴリー名</th>
-              <th>単価（税抜）</th>
-              <th>適用税率</th>
-              <th>税率(%)</th>
-              <th>値引き</th>
-              <th colspan="3">操作</th>
-            </tr>
-          </thead>
+  <div class="table-responsive">
+    <table class="table products-index-table" style="table-layout: fixed; width: 100%;">
+      <thead>
+        <tr>
+          <th style="width: 110px;">商品コード</th>
+          <th style="width: 260px;">商品名</th>
+          <th style="width: 120px;">事業部コード</th>
+          <th style="width: 200px;">事業部名</th>
+          <th style="width: 110px;">単価（税抜）</th>
+          <th style="width: 120px;">適用税率</th>
+          <th style="width: 80px;">税率(%)</th>
+          <th style="width: 80px;">値引き</th>
+          <th style="width: 120px;">操作</th>
+        </tr>
+      </thead>
 
-          <tbody>
-            <% @products.each do |product| %>
-              <tr>
-                <td><%= product.product_code %></td>
-                <td><%= product.name %></td>
-                <td><%= product.product_category&.code %></td>
-                <td><%= product.product_category&.name %></td>
-                <td><%= number_to_currency(product.price, unit: '¥', format: '%u%n') if product.price.present? %></td>
-                <td><%= product.tax_rate.name %></td>
-                <td><%= product.tax_rate.rate %></td>
-                <td><%= product.is_discount_target ? '対象' : '-' %></td>
-                <td>
-                  <%= render 'shared/index_action_buttons',
-                              show_path: product_path(product),
-                              edit_path: edit_product_path(product),
-                              delete_path: product_path(product) %>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    </div>
+      <tbody>
+        <% @products.each do |product| %>
+          <tr>
+            <td><small><%= product.product_code %></small></td>
+            <td><small><%= product.name %></small></td>
+            <td><small><%= product.product_category&.code %></small></td>
+            <td><small><%= product.product_category&.name %></small></td>
+            <td><small><%= number_to_currency(product.price, unit: '¥', format: '%u%n') if product.price.present? %></small></td>
+            <td><small><%= product.tax_rate.name %></small></td>
+            <td><small><%= product.tax_rate.rate %></small></td>
+            <td><small><%= product.is_discount_target ? '対象' : '-' %></small></td>
+            <td>
+              <%= render 'shared/index_action_buttons',
+                          show_path: product_path(product),
+                          edit_path: edit_product_path(product),
+                          delete_path: product_path(product) %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
   </div>
 
-  <div class="d-flex justify-content-center mt-3">
-    <%= paginate @products %>
-  </div>
+  <%= render 'shared/pagination', collection: @products %>
 
   <%= render 'shared/masters_back_button' %>
 </div>

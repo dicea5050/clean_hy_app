@@ -11844,6 +11844,14 @@ textarea.form-control-lg {
     display: none !important;
   }
 }
+h1, .h1 {
+  font-size: 1.75rem !important;
+}
+
+h2, .h2 {
+  font-size: 1.26rem !important;
+}
+
 .shop-header {
   background-color: #fff;
   border-bottom: 1px solid #dee2e6;
@@ -12120,6 +12128,10 @@ textarea.form-control-lg {
   max-width: 100%;
 }
 
+body.shop-layout main {
+  padding-bottom: 3rem;
+}
+
 .navbar {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -12189,8 +12201,12 @@ h2 .badge, .h2 .badge {
   border-bottom: none !important;
 }
 
+h1, .h1 {
+  font-size: 1.75rem !important;
+}
+
 h2, .h2 {
-  font-size: 1.8rem !important;
+  font-size: 1.26rem !important;
 }
 
 h3, .h3 {
@@ -12491,12 +12507,114 @@ h4, .h4 {
 
 .table-responsive table {
   width: 100% !important;
-  min-width: 100% !important;
   margin-bottom: 0;
   table-layout: auto;
 }
 
-.card-body > .table {
+.table.orders-index-table {
+  table-layout: fixed !important;
+  width: 100% !important;
+  min-width: 1215px !important;
+}
+.table.orders-index-table thead th:nth-child(1),
+.table.orders-index-table tbody td:nth-child(1) {
+  width: 40px !important;
+  min-width: 40px !important;
+  max-width: 40px !important;
+}
+.table.orders-index-table thead th:nth-child(2),
+.table.orders-index-table tbody td:nth-child(2) {
+  width: 135px !important;
+  min-width: 135px !important;
+  max-width: 135px !important;
+}
+.table.orders-index-table thead th:nth-child(3),
+.table.orders-index-table tbody td:nth-child(3) {
+  width: 220px !important;
+  min-width: 220px !important;
+  max-width: 220px !important;
+}
+.table.orders-index-table thead th:nth-child(4),
+.table.orders-index-table tbody td:nth-child(4) {
+  width: 95px !important;
+  min-width: 95px !important;
+  max-width: 95px !important;
+}
+.table.orders-index-table thead th:nth-child(5),
+.table.orders-index-table tbody td:nth-child(5) {
+  width: 95px !important;
+  min-width: 95px !important;
+  max-width: 95px !important;
+}
+.table.orders-index-table thead th:nth-child(6),
+.table.orders-index-table tbody td:nth-child(6) {
+  width: 95px !important;
+  min-width: 95px !important;
+  max-width: 95px !important;
+}
+.table.orders-index-table thead th:nth-child(7),
+.table.orders-index-table tbody td:nth-child(7) {
+  width: 90px !important;
+  min-width: 90px !important;
+  max-width: 90px !important;
+}
+.table.orders-index-table thead th:nth-child(8),
+.table.orders-index-table tbody td:nth-child(8) {
+  width: 130px !important;
+  min-width: 130px !important;
+  max-width: 130px !important;
+}
+.table.orders-index-table thead th:nth-child(9),
+.table.orders-index-table tbody td:nth-child(9) {
+  width: 80px !important;
+  min-width: 80px !important;
+  max-width: 80px !important;
+}
+.table.orders-index-table thead th:nth-child(10),
+.table.orders-index-table tbody td:nth-child(10) {
+  width: 80px !important;
+  min-width: 80px !important;
+  max-width: 80px !important;
+}
+.table.orders-index-table thead th:nth-child(11),
+.table.orders-index-table tbody td:nth-child(11) {
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
+}
+.table.orders-index-table thead th {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.card-body {
+  overflow-x: auto;
+}
+.card-body table[class*=-index-table] thead th,
+.card-body table[class*=-index-table] tbody td,
+.card-body table.table thead th,
+.card-body table.table tbody td {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.table.product-specifications-index-table thead th,
+.table.product-specifications-index-table tbody td {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.card-body > .table:not([class*=-index-table]) {
   width: 100% !important;
   min-width: 100% !important;
+}
+.card-body > .table[class*=-index-table] {
+  width: auto !important;
+}
+
+body {
+  padding-bottom: 3rem;
 }

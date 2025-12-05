@@ -19,7 +19,7 @@
 
   <div class="card mb-4">
     <div class="card-header bg-light">
-      <h2 class="card-title">
+      <h2 class="card-title mb-0">
         <%= @invoice.invoice_number %>
         <%= render 'shared/approval_status_badge', invoice: @invoice, margin_class: 'ms-2' %>
         <%= render 'shared/payment_status_badge', object: @invoice, margin_class: 'ms-2' %>
@@ -91,7 +91,7 @@
       <% if @invoice.notes.present? %>
         <div class="row mt-3">
           <div class="col-12">
-            <h5>備考:</h5>
+            <h3>備考</h3>
             <p><%= simple_format @invoice.notes %></p>
           </div>
         </div>
@@ -101,7 +101,7 @@
 
   <%= render 'rejection_reason' %>
 
-  <h3>対象受注</h3>
+  <h2>対象受注</h2>
   <table class="table table-striped">
     <thead>
       <tr>
@@ -138,7 +138,7 @@
   <!-- 入金履歴セクション -->
   <div class="card mb-4">
     <div class="card-header bg-light d-flex justify-content-between align-items-center">
-      <h3 class="card-title mb-0">入金履歴</h3>
+      <h2 class="card-title mb-0">入金履歴</h2>
       <%= link_to '入金登録', payment_management_index_path, class: 'btn btn-sm btn-primary' %>
     </div>
     <div class="card-body">

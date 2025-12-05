@@ -1,10 +1,1 @@
-<div class="container mt-4">
-  <div class="card">
-    <div class="card-header bg-primary text-white">
-      <h2>新規管理者登録</h2>
-    </div>
-    <div class="card-body">
-      <%= render 'form', administrator: @administrator %>
-    </div>
-  </div>
-</div>
+<%= render 'shared/master_form_card', title: '新規管理者登録', form_partial: 'form', form_object: { administrator: @administrator } %>
