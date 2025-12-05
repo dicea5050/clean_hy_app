@@ -1,6 +1,8 @@
 class Product < ApplicationRecord
   belongs_to :tax_rate
   belongs_to :product_category
+  has_many :budgets, dependent: :destroy
+  has_many :product_aggregation_groups, dependent: :destroy
 
   validates :product_code, presence: true, uniqueness: true
   validates :name, presence: true

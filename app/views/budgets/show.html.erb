@@ -1,0 +1,31 @@
+<div class="container mt-4">
+  <h1>予算詳細</h1>
+
+  <div class="card mt-4">
+    <div class="card-body">
+      <dl class="row">
+        <dt class="col-sm-3">年度</dt>
+        <dd class="col-sm-9"><%= @budget.fiscal_year %>年度</dd>
+
+        <dt class="col-sm-3">事業部</dt>
+        <dd class="col-sm-9"><%= @budget.product_category.name %> (<%= @budget.product_category.code %>)</dd>
+
+        <dt class="col-sm-3">商品</dt>
+        <dd class="col-sm-9"><%= @budget.product ? "#{@budget.product.name} (#{@budget.product.product_code})" : '事業部全体' %></dd>
+
+        <dt class="col-sm-3">集計グループ</dt>
+        <dd class="col-sm-9"><%= @budget.aggregation_group_name.presence || '個別' %></dd>
+
+        <dt class="col-sm-3">予算額</dt>
+        <dd class="col-sm-9"><%= number_to_currency(@budget.budget_amount, unit: '¥', format: '%u%n') %></dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <%= render 'shared/show_action_buttons',
+                edit_path: edit_budget_path(@budget),
+                back_path: budgets_path(fiscal_year: @budget.fiscal_year) %>
+  </div>
+</div>
+

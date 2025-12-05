@@ -164,20 +164,20 @@
     </div>
 
     <div class="table-responsive">
-      <table class="table orders-index-table">
+      <table class="table orders-index-table" style="table-layout: fixed; width: 100%;">
         <thead>
           <tr>
-            <th class="text-center"></th>
-            <th class="text-center">受注番号</th>
-            <th class="text-center">顧客名</th>
-            <th class="text-center">受注日</th>
-            <th class="text-center">希望納品日</th>
-            <th class="text-center">確定納品日</th>
-            <th class="text-center">受注金額</th>
-            <th class="text-center">支払い方法</th>
-            <th class="text-center">請求書</th>
-            <th class="text-center">注文元</th>
-            <th class="text-center">操作</th>
+            <th class="text-center" style="width: 30px;"></th>
+            <th class="text-center" style="width: 130px;">受注番号</th>
+            <th class="text-center" style="width: 220px;">顧客名</th>
+            <th class="text-center" style="width: 70px;">注文元</th>
+            <th class="text-center" style="width: 110px;">受注日</th>
+            <th class="text-center" style="width: 110px;">希望納品日</th>
+            <th class="text-center" style="width: 110px;">確定納品日</th>
+            <th class="text-center" style="width: 110px;">受注金額</th>
+            <th class="text-center" style="width: 140px;">支払い方法</th>
+            <th class="text-center" style="width: 70px;">請求書</th>
+            <th class="text-center" style="width: 160px;">操作</th>
           </tr>
         </thead>
 
@@ -196,6 +196,13 @@
               </td>
               <td><small><%= link_to order.order_number, order_path(order) %></small></td>
               <td><small><%= order.customer.company_name %></small></td>
+              <td>
+                <% if order.is_shop_order? %>
+                  <span class="badge bg-success">shop</span>
+                <% else %>
+                  <span class="badge bg-secondary">自社</span>
+                <% end %>
+              </td>
               <td class="text-end date-monospace"><small><%= l order.order_date %></small></td>
               <td class="text-end date-monospace"><small><%= l order.expected_delivery_date if order.expected_delivery_date %></small></td>
               <td class="text-end date-monospace"><small><%= l order.actual_delivery_date if order.actual_delivery_date %></small></td>
@@ -203,13 +210,6 @@
               <td><small><%= order.payment_method&.name %></small></td>
               <td>
                 <%= render 'shared/invoice_status_badge', order: order %>
-              </td>
-              <td>
-                <% if order.is_shop_order? %>
-                  <span class="badge bg-success">shop</span>
-                <% else %>
-                  <span class="badge bg-secondary">自社</span>
-                <% end %>
               </td>
               <td>
                 <div class="d-flex gap-1">

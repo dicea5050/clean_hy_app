@@ -14,11 +14,11 @@
 
   <div class="form-group form-group-spacing">
     <div class="d-flex align-items-end gap-3">
-      <div>
+      <div style="width: 120px;">
         <%= form.label :customer_code, '顧客コード' do %>
           顧客コード <span class="text-danger">*</span>
         <% end %>
-        <%= form.text_field :customer_code, class: 'form-control form-control-width-100' %>
+        <%= form.text_field :customer_code, class: 'form-control' %>
       </div>
       <div class="flex-fill">
         <%= form.label :company_name, '顧客名' do %>
@@ -26,28 +26,6 @@
         <% end %>
         <%= form.text_field :company_name, class: 'form-control' %>
       </div>
-    </div>
-  </div>
-
-  <div class="form-group form-group-spacing">
-    <div class="d-flex align-items-end gap-3">
-      <div>
-        <%= form.label :postal_code, '郵便番号' do %>
-          郵便番号 <span class="text-danger">*</span>
-        <% end %>
-        <%= form.text_field :postal_code, class: 'form-control p-postal-code form-control-width-100' %>
-      </div>
-      <div class="flex-fill">
-        <%= form.label :address, '住所' do %>
-          住所 <span class="text-danger">*</span>
-        <% end %>
-        <%= form.text_field :address, class: 'form-control p-region p-locality p-street-address' %>
-      </div>
-    </div>
-  </div>
-
-  <div class="form-group form-group-spacing">
-    <div class="d-flex align-items-end gap-3">
       <div>
         <%= form.label :department, '部署名' %>
         <%= form.text_field :department, class: 'form-control' %>
@@ -56,6 +34,23 @@
         <%= form.label :contact_name, '担当者名' %>
         <%= form.text_field :contact_name, class: 'form-control' %>
       </div>
+    </div>
+  </div>
+
+  <div class="form-group form-group-spacing">
+    <div class="d-flex align-items-end gap-3">
+      <div style="width: 120px;">
+        <%= form.label :postal_code, '郵便番号' do %>
+          郵便番号 <span class="text-danger">*</span>
+        <% end %>
+        <%= form.text_field :postal_code, class: 'form-control p-postal-code' %>
+      </div>
+      <div class="flex-fill">
+        <%= form.label :address, '住所' do %>
+          住所 <span class="text-danger">*</span>
+        <% end %>
+        <%= form.text_field :address, class: 'form-control p-region p-locality p-street-address' %>
+      </div>
       <div>
         <%= form.label :phone_number, '電話番号' %>
         <%= form.text_field :phone_number, class: 'form-control' %>
@@ -63,30 +58,6 @@
       <div>
         <%= form.label :fax_number, 'FAX番号' %>
         <%= form.text_field :fax_number, class: 'form-control' %>
-      </div>
-    </div>
-  </div>
-
-  <div class="form-group form-group-spacing">
-    <div class="d-flex align-items-start gap-3 form-three-columns">
-      <div>
-        <%= form.label :email, 'メールアドレス' do %>
-          メールアドレス <span id="email_required_mark" class="text-danger d-none">*</span>
-        <% end %>
-        <%= form.email_field :email, class: 'form-control', id: 'customer_email' %>
-      </div>
-      <div>
-        <%= form.label :password, 'パスワード' %>
-        <%= form.password_field :password, class: 'form-control' %>
-        <% if customer.persisted? && customer.password_set? %>
-          <small class="form-text text-muted">パスワードが設定済みです。変更する場合のみ入力してください。</small>
-        <% else %>
-          <small class="form-text text-muted">ネットショップ用のパスワードが未設定です。ネットショップでの袋購入をする場合は設定してください。</small>
-        <% end %>
-      </div>
-      <div>
-        <%= form.label :password_confirmation, 'パスワード（確認）' %>
-        <%= form.password_field :password_confirmation, class: 'form-control' %>
       </div>
     </div>
   </div>
@@ -125,7 +96,48 @@
     </div>
   </div>
 
+  <div class="form-group form-group-spacing">
+    <div class="d-flex align-items-start gap-3 form-three-columns">
+      <div>
+        <%= form.label :email, 'メールアドレス' do %>
+          メールアドレス <span id="email_required_mark" class="text-danger d-none">*</span>
+        <% end %>
+        <%= form.email_field :email, class: 'form-control', id: 'customer_email' %>
+      </div>
+      <div>
+        <%= form.label :password, 'パスワード' %>
+        <div class="position-relative">
+          <%= form.password_field :password, class: 'form-control', id: 'customer_password', minlength: 6 %>
+          <button type="button" class="btn btn-sm btn-link position-absolute end-0 top-50 translate-middle-y pe-2" style="z-index: 10; text-decoration: none;" onclick="togglePasswordVisibility('customer_password', 'customer_password_toggle')" id="customer_password_toggle">
+            <span class="password-toggle-icon">👁️</span>
+          </button>
+        </div>
+      </div>
+      <div>
+        <%= form.label :password_confirmation, 'パスワード（確認）' %>
+        <div class="position-relative">
+          <%= form.password_field :password_confirmation, class: 'form-control', id: 'customer_password_confirmation', minlength: 6 %>
+          <button type="button" class="btn btn-sm btn-link position-absolute end-0 top-50 translate-middle-y pe-2" style="z-index: 10; text-decoration: none;" onclick="togglePasswordVisibility('customer_password_confirmation', 'customer_password_confirmation_toggle')" id="customer_password_confirmation_toggle">
+            <span class="password-toggle-icon">👁️</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="d-flex gap-3" style="margin-top: 0.25rem;">
+      <div style="width: 30%;"></div>
+      <div style="flex: 1;">
+        <% if customer.persisted? && customer.password_set? %>
+          <small class="form-text text-danger">パスワードが設定済みです。変更する場合のみ入力してください。半角英数字と記号のみ使用可能です（全角文字は使用できません）。</small>
+        <% else %>
+          <small class="form-text text-muted">ネットショップ用のパスワードが未設定です。ネットショップでの袋購入をする場合は設定してください。6文字以上、半角英数字と記号のみ使用可能です（全角文字は使用できません）。</small>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
   <div class="form-group mt-4">
     <%= render 'shared/form_actions', form: form, back_path: customers_path %>
   </div>
 <% end %>
+
+<%= javascript_include_tag "customers" %>

@@ -35,6 +35,32 @@ class CustomersController < ApplicationController
   def create
     @customer = Customer.new(customer_params)
 
+    # 半角文字のみを許可（!から~まで、スペース(0x20)は除外）
+    # 全角英数字、全角カタカナ、全角ひらがな、全角漢字などはすべて検出
+    if params[:customer][:password].present?
+      password = params[:customer][:password]
+      
+      # 半角スペースを検出
+      if password.include?(' ')
+        @customer.errors.add(:password, "パスワードに半角スペースは使用できません。半角英数字と記号のみ使用してください。")
+        render :new
+        return
+      end
+      
+      unless password.match?(/\A[\x21-\x7E]+\z/)
+        @customer.errors.add(:password, "パスワードに全角文字は使用できません。半角英数字と記号のみ使用してください。")
+        render :new
+        return
+      end
+      
+      # 追加チェック: 全角英数字を明示的に検出（より確実な検出のため）
+      if password.match?(/[\uFF01-\uFF5E\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/)
+        @customer.errors.add(:password, "パスワードに全角文字は使用できません。半角英数字と記号のみ使用してください。")
+        render :new
+        return
+      end
+    end
+
     if @customer.save
       redirect_to customers_path, notice: "顧客が正常に作成されました。"
     else
@@ -46,6 +72,30 @@ class CustomersController < ApplicationController
     # パスワードが空欄の場合、パラメータから削除して更新しない
     if params[:customer][:password].blank?
       params[:customer].delete(:password)
+    else
+      # 半角文字のみを許可（!から~まで、スペース(0x20)は除外）
+      # 全角英数字、全角カタカナ、全角ひらがな、全角漢字などはすべて検出
+      password = params[:customer][:password]
+      
+      # 半角スペースを検出
+      if password.include?(' ')
+        @customer.errors.add(:password, "パスワードに半角スペースは使用できません。半角英数字と記号のみ使用してください。")
+        render :edit
+        return
+      end
+      
+      unless password.match?(/\A[\x21-\x7E]+\z/)
+        @customer.errors.add(:password, "パスワードに全角文字は使用できません。半角英数字と記号のみ使用してください。")
+        render :edit
+        return
+      end
+      
+      # 追加チェック: 全角英数字を明示的に検出（より確実な検出のため）
+      if password.match?(/[\uFF01-\uFF5E\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/)
+        @customer.errors.add(:password, "パスワードに全角文字は使用できません。半角英数字と記号のみ使用してください。")
+        render :edit
+        return
+      end
     end
 
     if @customer.update(customer_params)

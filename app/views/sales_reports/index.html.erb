@@ -1,0 +1,168 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>売上集計</h1>
+  </div>
+
+  <div class="mb-3">
+    <div class="d-flex align-items-center gap-3 flex-wrap">
+      <%= form_with url: sales_reports_path, method: :get, local: true, class: 'd-flex align-items-center gap-3' do |form| %>
+        <div class="d-flex align-items-center gap-2">
+          <%= form.label :fiscal_year, '年度', class: 'mb-0' %>
+          <%= form.number_field :fiscal_year, value: @fiscal_year, min: 2000, max: 3000, class: 'form-control', style: 'width: 120px;' %>
+        </div>
+        <%= form.submit '表示', class: 'btn btn-secondary' %>
+      <% end %>
+      
+      <div class="ms-auto d-flex gap-2">
+        <%= link_to export_pdf_sales_reports_path(fiscal_year: @fiscal_year), class: 'btn btn-primary', target: '_blank' do %>
+          PDFダウンロード
+        <% end %>
+        <%= link_to export_csv_sales_reports_path(fiscal_year: @fiscal_year), class: 'btn btn-success' do %>
+          CSVダウンロード
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered sales-report-table" style="font-size: 0.85rem;">
+      <thead class="table-light">
+        <tr>
+          <th rowspan="2" style="width: 50px; vertical-align: middle;">No.</th>
+          <th rowspan="2" style="width: 200px; vertical-align: middle;">商品名</th>
+          <th rowspan="2" style="width: 150px; vertical-align: middle;">予算</th>
+          <th colspan="12" class="text-center">月別売上</th>
+          <th rowspan="2" style="width: 120px; vertical-align: middle;">小計</th>
+          <th rowspan="2" style="width: 120px; vertical-align: middle;">予算残高</th>
+        </tr>
+        <tr>
+          <th style="width: 100px;">5月</th>
+          <th style="width: 100px;">6月</th>
+          <th style="width: 100px;">7月</th>
+          <th style="width: 100px;">8月</th>
+          <th style="width: 100px;">9月</th>
+          <th style="width: 100px;">10月</th>
+          <th style="width: 100px;">11月</th>
+          <th style="width: 100px;">12月</th>
+          <th style="width: 100px;">1月</th>
+          <th style="width: 100px;">2月</th>
+          <th style="width: 100px;">3月</th>
+          <th style="width: 100px;">4月</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @categories.each do |category| %>
+          <% category_total_budget = 0 %>
+          <% category_monthly_sales = Array.new(12, 0) %>
+          <% category_total_sales = 0 %>
+          <% grouped_items = @grouped_data[category.id] || [] %>
+
+          <!-- 事業部ヘッダー -->
+          <tr class="table-info">
+            <td colspan="17" style="font-weight: bold;">
+              <%= category.name %>（<%= category.code %>）
+            </td>
+          </tr>
+
+          <!-- グループごとの行 -->
+          <% grouped_items.each do |item| %>
+            <% if item[:type] == :category %>
+              <% # 事業部全体の予算（表示しない、合計にのみ使用） %>
+              <% category_total_budget = item[:budget_amount] %>
+            <% elsif item[:type] == :group %>
+              <% # グループ表示 %>
+              <% group_name = item[:group_name] %>
+              <% budget_amount = item[:budget_amount] %>
+              <% monthly_sales = item[:monthly_sales] %>
+              <% total_sales = item[:total_sales] %>
+              <% budget_balance = budget_amount - total_sales %>
+              <% product_names = item[:products].map { |p| "#{p.name}（#{p.product_code}）" }.join('、') %>
+
+              <% category_total_sales += total_sales %>
+              <% (1..12).each do |month| %>
+                <% category_monthly_sales[month - 1] += monthly_sales[month - 1] %>
+              <% end %>
+
+              <tr>
+                <td><%= item[:group_code] || '-' %></td>
+                <td><strong><%= group_name %></strong>（<%= product_names %>）</td>
+                <td class="text-end"><%= number_to_currency(budget_amount, unit: '', format: '%n') %></td>
+                <% (1..12).each do |month| %>
+                  <td class="text-end"><%= number_to_currency(monthly_sales[month - 1], unit: '', format: '%n') %></td>
+                <% end %>
+                <td class="text-end"><%= number_to_currency(total_sales, unit: '', format: '%n') %></td>
+                <td class="text-end <%= budget_balance < 0 ? 'text-danger' : '' %>">
+                  <%= number_to_currency(budget_balance, unit: '', format: '%n') %>
+                </td>
+              </tr>
+            <% end %>
+          <% end %>
+
+          <!-- 事業部合計 -->
+          <% category_budget_balance = category_total_budget - category_total_sales %>
+          <tr class="table-secondary">
+            <td class="fw-bold"></td>
+            <td class="fw-bold">合計</td>
+            <td class="text-end fw-bold"><%= number_to_currency(category_total_budget, unit: '', format: '%n') %></td>
+            <% (1..12).each do |month| %>
+              <td class="text-end fw-bold"><%= number_to_currency(category_monthly_sales[month - 1], unit: '', format: '%n') %></td>
+            <% end %>
+            <td class="text-end fw-bold"><%= number_to_currency(category_total_sales, unit: '', format: '%n') %></td>
+            <td class="text-end fw-bold <%= category_budget_balance < 0 ? 'text-danger' : '' %>">
+              <%= number_to_currency(category_budget_balance, unit: '', format: '%n') %>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="17" style="height: 10px;"></td>
+          </tr>
+        <% end %>
+
+        <!-- 総合計 -->
+        <% grand_total_budget = 0 %>
+        <% grand_monthly_sales = Array.new(12, 0) %>
+        <% grand_total_sales = 0 %>
+
+        <% @categories.each do |category| %>
+          <% grouped_items = @grouped_data[category.id] || [] %>
+          <% category_monthly_sales = Array.new(12, 0) %>
+
+          <% grouped_items.each do |item| %>
+            <% if item[:type] == :category %>
+              <% grand_total_budget += item[:budget_amount] %>
+            <% elsif item[:type] == :group %>
+              <% (1..12).each do |month| %>
+                <% month_sales = item[:monthly_sales][month - 1] || 0 %>
+                <% category_monthly_sales[month - 1] += month_sales %>
+                <% grand_monthly_sales[month - 1] += month_sales %>
+              <% end %>
+            <% end %>
+          <% end %>
+
+          <% grand_total_sales += category_monthly_sales.sum %>
+        <% end %>
+
+        <% grand_budget_balance = grand_total_budget - grand_total_sales %>
+
+        <tr class="table-warning">
+          <td colspan="17" style="font-weight: bold; text-align: center;">総合計</td>
+        </tr>
+        <tr class="table-warning">
+          <td class="fw-bold"></td>
+          <td class="fw-bold">総合計</td>
+          <td class="text-end fw-bold"><%= number_to_currency(grand_total_budget, unit: '', format: '%n') %></td>
+          <% (1..12).each do |month| %>
+            <td class="text-end fw-bold"><%= number_to_currency(grand_monthly_sales[month - 1], unit: '', format: '%n') %></td>
+          <% end %>
+          <td class="text-end fw-bold"><%= number_to_currency(grand_total_sales, unit: '', format: '%n') %></td>
+          <td class="text-end fw-bold <%= grand_budget_balance < 0 ? 'text-danger' : '' %>">
+            <%= number_to_currency(grand_budget_balance, unit: '', format: '%n') %>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <%= render 'shared/masters_back_button' %>
+</div>
+

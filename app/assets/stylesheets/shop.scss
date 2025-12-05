@@ -1,12 +1,20 @@
 // ショップ専用のスタイル
 
-// h1、h2のフォントサイズを70%に縮小
+// h1、h2のフォントサイズを70%に縮小（application.scssと統一）
 h1, .h1 {
   font-size: 1.75rem !important; // デフォルト2.5remの70%
 }
 
 h2, .h2 {
   font-size: 1.26rem !important; // 現在の1.8remの70%
+}
+
+h3, .h3 {
+  font-size: 1.575rem !important; // デフォルト1.75remの90%
+}
+
+h4, .h4 {
+  font-size: 1.215rem !important; // デフォルト1.5remの81%（90%のさらに90%）
 }
 
 // ヘッダーのスタイル
@@ -243,6 +251,14 @@ h2, .h2 {
   min-height: 100vh;
   padding-top: 10px;
   padding-bottom: 50px;
+}
+
+// フラッシュメッセージ用のコンテナは中央配置を無効化
+.shop-login-layout .flash-message-container {
+  display: block;
+  min-height: auto;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .login-form-wrapper {

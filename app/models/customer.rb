@@ -44,6 +44,35 @@ class Customer < ApplicationRecord
   validates :invoice_delivery_method, presence: true
   validates :billing_closing_day, presence: true, inclusion: { in: BILLING_CLOSING_DAYS.map(&:last) }
   # パスワードは任意項目
+  # パスワードが設定される場合のみ、最小長さと文字種を検証
+  validates :password, length: { minimum: 6 }, if: -> { password.present? }
+  validate :password_format, if: -> { password.present? }
+
+  def password_format
+    return if password.blank?
+
+    # 半角スペースを検出
+    if password.include?(' ')
+      errors.add(:password, "パスワードに半角スペースは使用できません。半角英数字と記号のみ使用してください。")
+      return
+    end
+
+    # 半角文字のみを許可（!から~まで、スペース(0x20)は除外）
+    # 全角英数字、全角カタカナ、全角ひらがな、全角漢字などはすべて検出
+    unless password.match?(/\A[\x21-\x7E]+\z/)
+      errors.add(:password, "パスワードに全角文字は使用できません。半角英数字と記号のみ使用してください。")
+      return
+    end
+
+    # 追加チェック: 全角英数字を明示的に検出（より確実な検出のため）
+    # 全角英字: U+FF21-FF3A (Ａ-Ｚ), U+FF41-FF5A (ａ-ｚ)
+    # 全角数字: U+FF10-FF19 (０-９)
+    # 全角記号: U+FF01-FF5E
+    # 全角カタカナ、ひらがな、漢字なども検出
+    if password.match?(/[\uFF01-\uFF5E\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/)
+      errors.add(:password, "パスワードに全角文字は使用できません。半角英数字と記号のみ使用してください。")
+    end
+  end
 
   # 電子請求の場合のみメールアドレスを必須にする
   validate :email_required_for_electronic_invoice

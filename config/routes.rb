@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get "product_aggregation_groups/index"
+  get "product_aggregation_groups/update_all"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -26,6 +28,23 @@ Rails.application.routes.draw do
   # 各種マスター
   resources :tax_rates
   resources :products
+  resources :budgets, only: [:index, :new, :create] do
+    collection do
+      get :edit
+      patch :update
+    end
+  end
+  resources :sales_reports, only: [:index] do
+    collection do
+      get :export_pdf
+      get :export_csv
+    end
+  end
+  resources :product_aggregation_groups, only: [:index] do
+    collection do
+      post :update_all
+    end
+  end
 
   # 顧客関連のルート（個別ルートを先に定義）
   get "customers/search", to: "customers#search"
@@ -100,6 +119,7 @@ Rails.application.routes.draw do
     resources :orders, only: [ :new, :create ]
     get "orders/complete", to: "orders#complete", as: "order_complete"
     get "mypage", to: "mypage#show", as: "mypage"
+    patch "mypage/update_password", to: "mypage#update_password", as: "mypage_update_password"
     resources :delivery_locations, only: [ :new, :create, :show ]
 
     # カスタマーログイン関連

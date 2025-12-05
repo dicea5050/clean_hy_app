@@ -52,6 +52,7 @@ class ApplicationController < ActionController::Base
     if administrator_signed_in? && current_administrator.editor_limited?
       allowed_controller_paths = %w[
         bank_accounts
+        budgets
         company_informations
         customers
         delivery_locations
@@ -63,6 +64,7 @@ class ApplicationController < ActionController::Base
         product_categories
         product_specifications
         products
+        sales_reports
         tax_rates
         units
       ]
