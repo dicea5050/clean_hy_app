@@ -69,11 +69,7 @@
       <div class="row mb-3">
         <div class="col-md-3 fw-bold">パスワード設定状況</div>
         <div class="col-md-9">
-          <% if @customer.password_set? %>
-            <span class="badge bg-success">パスワード設定済み</span>
-          <% else %>
-            <span class="badge bg-warning">パスワード未設定</span>
-          <% end %>
+          <span class="<%= password_set_status_badge_class(@customer.password_set?) %>"><%= password_set_status_badge_text(@customer.password_set?) %></span>
         </div>
       </div>
 
@@ -101,11 +97,7 @@
                   <td><%= location.phone %></td>
                   <td><%= location.contact_person %></td>
                   <td>
-                    <% if location.is_main_office? %>
-                      <span class="badge bg-primary">本社</span>
-                    <% else %>
-                      <span class="badge bg-secondary">支店</span>
-                    <% end %>
+                    <span class="<%= delivery_location_type_badge_class(location.is_main_office?) %>"><%= delivery_location_type_badge_text(location.is_main_office?) %></span>
                   </td>
                   <td>
                     <%= link_to '編集', edit_delivery_location_path(location), class: 'btn btn-sm btn-info' %>

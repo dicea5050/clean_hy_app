@@ -97,10 +97,6 @@ class Customer < ApplicationRecord
     electronic? ? "電子請求" : "郵送"
   end
 
-  # 請求書送付方法に応じたバッジのクラスを返す
-  def invoice_delivery_method_badge_class
-    electronic? ? "badge bg-info" : "badge bg-invoiced"
-  end
 
   # 請求締日の表示用メソッド
   def billing_closing_day_display

@@ -1,3 +1,3 @@
 <% margin_class = local_assigns.fetch(:margin_class, '') %>
-<span class="<%= object.payment_status_badge_class %> <%= margin_class %>"><%= object.payment_status %></span>
+<span class="<%= payment_status_badge_class(object.payment_status) %> <%= margin_class %>"><%= object.payment_status %></span>
 

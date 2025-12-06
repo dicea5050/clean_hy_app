@@ -56,6 +56,14 @@
 
   <div class="form-group form-group-spacing">
     <div style="width: 400px;">
+      <%= form.label :email, 'メールアドレス（請求書送信用）', class: 'form-label' %>
+      <%= form.email_field :email, class: 'form-control', placeholder: 'example@example.com' %>
+      <div class="form-text mt-1">請求書メール送信時の送信元メールアドレスとして使用されます</div>
+    </div>
+  </div>
+
+  <div class="form-group form-group-spacing">
+    <div style="width: 400px;">
       <%= form.label :company_seal, '社印画像', class: 'form-label' %>
       <%= form.file_field :company_seal, class: 'form-control' %>
 

@@ -30,6 +30,11 @@
       </div>
 
       <div class="row mb-3">
+        <div class="col-md-3 fw-bold">メールアドレス（請求書送信用）</div>
+        <div class="col-md-9"><%= @company_information.email.present? ? @company_information.email : '未設定' %></div>
+      </div>
+
+      <div class="row mb-3">
         <div class="col-md-3 fw-bold">適格請求書番号</div>
         <div class="col-md-9"><%= @company_information.invoice_registration_number %></div>
       </div>

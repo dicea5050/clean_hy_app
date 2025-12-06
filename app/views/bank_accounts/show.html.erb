@@ -32,11 +32,9 @@
       <div class="row mb-3">
         <div class="col-md-3 fw-bold">無効フラグ</div>
         <div class="col-md-9">
-          <% if @bank_account.disabled? %>
-            <span class="badge bg-secondary">無効（新規発行には表示しない）</span>
-          <% else %>
-            <span class="badge bg-success">有効</span>
-          <% end %>
+          <span class="<%= bank_account_status_badge_class(@bank_account.disabled) %>">
+            <%= @bank_account.disabled ? "無効（新規発行には表示しない）" : "有効" %>
+          </span>
         </div>
       </div>
     </div>

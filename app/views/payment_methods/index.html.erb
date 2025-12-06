@@ -20,11 +20,7 @@
             <td><small><%= payment_method.name %></small></td>
             <td><small><%= payment_method.description %></small></td>
             <td>
-              <% if payment_method.active? %>
-                <span class="text-dark">有効</span>
-              <% else %>
-                <span class="text-dark">無効</span>
-              <% end %>
+              <span class="<%= active_status_badge_class(payment_method.active) %>"><%= active_status_badge_text(payment_method.active) %></span>
             </td>
             <td>
               <%= render 'shared/index_action_buttons',

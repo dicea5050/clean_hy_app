@@ -58,6 +58,9 @@ gem "kaminari"
 gem "prawn"
 gem "prawn-table"
 
+# ZIPファイル生成用のgem
+gem "rubyzip"
+
 # 社印画像表示用
 gem "image_processing", "~> 1.2"
 gem "mini_magick"

@@ -3,16 +3,23 @@ require "prawn/table"
 
 class ReceiptPdf < Prawn::Document
   def initialize(invoice, company_info, issue_date = nil)
-    super(page_size: "A4", margin: 30)
+    super(page_size: "A4", margin: 30, embed_fonts: true)
     @invoice = invoice
     @company_info = company_info
     @issue_date = issue_date || Date.current
 
-    font_families.update("IPAGothic" => {
-      normal: "#{Rails.root}/app/assets/fonts/ipaexg.ttf",
-      bold: "#{Rails.root}/app/assets/fonts/ipaexg.ttf"
-    })
-    font "IPAGothic"
+    font_path = Rails.root.join("app", "assets", "fonts", "ipaexg.ttf")
+    if File.exist?(font_path)
+      # フォントを完全に埋め込むために、subset: falseを指定
+      font_families.update("IPAGothic" => {
+        normal: { file: font_path.to_s, subset: false },
+        bold: { file: font_path.to_s, subset: false }
+      })
+      font "IPAGothic"
+    else
+      Rails.logger.warn "フォントファイルが見つかりません: #{font_path}"
+      font "Helvetica"
+    end
 
     # お客様お渡し用
     receipt_section("お客様お渡し用")

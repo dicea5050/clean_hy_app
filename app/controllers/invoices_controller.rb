@@ -1,10 +1,10 @@
 class InvoicesController < ApplicationController
   before_action :require_viewer_or_editor_access
-  before_action :require_editor, only: [ :new, :create, :edit, :update, :destroy, :bulk_request_approval, :pdf, :receipt ]
-  before_action :set_invoice, only: [ :show, :edit, :update, :destroy ]
+  before_action :require_editor, only: [ :new, :create, :edit, :update, :destroy, :bulk_request_approval, :pdf, :receipt, :send_email, :bulk_send_email, :bulk_download_pdf, :mark_printed ]
+  before_action :set_invoice, only: [ :show, :edit, :update, :destroy, :send_email, :mark_printed ]
 
   def index
-    @q = Invoice.includes(:customer).order(created_at: :desc)
+    @q = Invoice.includes(:customer, :invoice_deliveries).order(created_at: :desc)
     # select2用に顧客一覧を取得
     @customers = Customer.order(:company_name)
 
@@ -101,6 +101,8 @@ class InvoicesController < ApplicationController
     @carryover_amount = @invoice.customer_id.present? ? Invoice.carryover_amount_for_customer(@invoice.customer_id, exclude_invoice_id: @invoice.id) : 0
     # この請求書に関連する入金履歴を取得（入金日降順）
     @payment_records = @invoice.payment_records.order(payment_date: :desc, created_at: :desc)
+    # 送付履歴を取得（送付日時降順）
+    @invoice_deliveries = @invoice.invoice_deliveries.includes(:sender).order(sent_at: :desc, created_at: :desc)
   end
 
   def new
@@ -306,6 +308,225 @@ class InvoicesController < ApplicationController
           type: "application/pdf",
           disposition: "inline"
       end
+    end
+  end
+
+  # 個別メール送信
+  def send_email
+    unless @invoice.approval_status == Invoice::APPROVAL_STATUSES[:approved]
+      redirect_to invoices_path, alert: "承認済みの請求書のみメール送信できます。"
+      return
+    end
+
+    unless @invoice.customer.electronic?
+      redirect_to invoices_path, alert: "電子請求の請求書のみメール送信できます。"
+      return
+    end
+
+    # 有効なテンプレートをチェック
+    unless EmailTemplate.active.exists?
+      redirect_to invoices_path, alert: "メールテンプレートを有効化してください"
+      return
+    end
+
+    is_resend = params[:is_resend] == "true" || @invoice.email_sent?
+    resend_reason = params[:resend_reason]
+
+    begin
+      # 送付記録を先に作成（pending状態）
+      delivery = InvoiceDelivery.create!(
+        invoice: @invoice,
+        delivery_method: InvoiceDelivery::DELIVERY_METHODS[:email],
+        delivery_status: InvoiceDelivery::DELIVERY_STATUSES[:pending],
+        sent_at: Time.current,
+        sent_by: current_administrator.id,
+        is_resend: is_resend,
+        notes: is_resend ? "再送信: #{resend_reason}" : nil
+      )
+
+      # メール送信（非同期）- カスタムヘッダーにdelivery_idを追加
+      InvoiceDeliveryMailer.with(delivery_id: delivery.id)
+                           .send_invoice(@invoice, current_administrator, is_resend: is_resend)
+                           .deliver_later
+
+      message = is_resend ? "請求書 #{@invoice.invoice_number} を再送信しました。" : "請求書 #{@invoice.invoice_number} をメール送信しました。"
+      redirect_to invoices_path, notice: message
+    rescue => e
+      Rails.logger.error "メール送信エラー: #{e.message}"
+      Rails.logger.error "エラークラス: #{e.class}"
+      Rails.logger.error "バックトレース:"
+      Rails.logger.error e.backtrace.join("\n")
+      error_message = "メール送信に失敗しました。"
+      if e.message.include?("メールテンプレートを有効化してください")
+        error_message = e.message
+      elsif Rails.env.development?
+        error_message += " エラー: #{e.message}"
+      end
+      redirect_to invoices_path, alert: error_message
+    end
+  end
+
+  # 一括メール送信
+  def bulk_send_email
+    invoice_ids = params[:invoice_ids]&.split(",")
+
+    if invoice_ids.blank?
+      redirect_to invoices_path, alert: "請求書が選択されていません。"
+      return
+    end
+
+    # 有効なテンプレートをチェック
+    unless EmailTemplate.active.exists?
+      redirect_to invoices_path, alert: "メールテンプレートを有効化してください"
+      return
+    end
+
+    invoices = Invoice.where(id: invoice_ids)
+                      .includes(:customer, :invoice_deliveries)
+                      .where(approval_status: Invoice::APPROVAL_STATUSES[:approved])
+
+    # 電子請求の請求書をフィルタリング（未送付または再送信）
+    sendable_invoices = invoices.select do |invoice|
+      invoice.customer.electronic?
+    end
+
+    if sendable_invoices.empty?
+      redirect_to invoices_path, alert: "メール送信可能な請求書がありません。"
+      return
+    end
+
+    success_count = 0
+    error_count = 0
+    error_messages = []
+
+    is_resend = params[:is_resend] == "true"
+    resend_reason = params[:resend_reason]
+
+    sendable_invoices.each do |invoice|
+      begin
+        # 送付記録を先に作成（pending状態）
+        delivery = InvoiceDelivery.create!(
+          invoice: invoice,
+          delivery_method: InvoiceDelivery::DELIVERY_METHODS[:email],
+          delivery_status: InvoiceDelivery::DELIVERY_STATUSES[:pending],
+          sent_at: Time.current,
+          sent_by: current_administrator.id,
+          is_resend: is_resend || invoice.email_sent?,
+          notes: (is_resend || invoice.email_sent?) ? "一括再送信: #{resend_reason}" : nil
+        )
+
+        # メール送信（非同期）- カスタムヘッダーにdelivery_idを追加
+        InvoiceDeliveryMailer.with(delivery_id: delivery.id)
+                             .send_invoice(invoice, current_administrator, is_resend: is_resend || invoice.email_sent?)
+                             .deliver_later
+
+        success_count += 1
+      rescue => e
+        error_count += 1
+        error_message = e.message
+        error_messages << error_message if error_message.present?
+        Rails.logger.error "メール送信エラー (Invoice #{invoice.id}): #{e.message}"
+        Rails.logger.error "エラークラス: #{e.class}"
+        Rails.logger.error "バックトレース:"
+        Rails.logger.error e.backtrace.join("\n")
+      end
+    end
+
+    if success_count > 0
+      notice = "#{success_count}件の請求書をメール送信しました。"
+      notice += " (#{error_count}件失敗)" if error_count > 0
+      redirect_to invoices_path, notice: notice
+    else
+      alert_message = "メール送信に失敗しました。"
+      if error_messages.any?
+        alert_message += " #{error_messages.uniq.join(' ')}"
+      end
+      redirect_to invoices_path, alert: alert_message
+    end
+  end
+
+  # 一括PDFダウンロード（ZIP）
+  def bulk_download_pdf
+    invoice_ids = params[:invoice_ids]&.split(",")
+
+    if invoice_ids.blank?
+      redirect_to invoices_path, alert: "請求書が選択されていません。"
+      return
+    end
+
+    invoices = Invoice.where(id: invoice_ids)
+                      .includes(:customer, orders: :order_items)
+    company_info = CompanyInformation.first
+
+    require 'zip'
+    require 'tempfile'
+    require 'stringio'
+
+    zip_file = Tempfile.new(['invoices', '.zip'])
+
+    begin
+      Zip::OutputStream.open(zip_file.path) do |zip|
+        invoices.each do |invoice|
+          pdf = InvoicePdf.new(invoice, company_info, reissue: false)
+          pdf_data = pdf.render
+          zip.put_next_entry("請求書_#{invoice.invoice_number}.pdf")
+          zip.write(pdf_data)
+
+          # 郵送の場合はダウンロード記録を作成
+          if invoice.customer.postal?
+            delivery = InvoiceDelivery.find_or_initialize_by(
+              invoice: invoice,
+              delivery_method: InvoiceDelivery::DELIVERY_METHODS[:postal]
+            )
+            delivery.delivery_status = InvoiceDelivery::DELIVERY_STATUSES[:downloaded]
+            delivery.sent_at = Time.current
+            delivery.sent_by = current_administrator.id
+            delivery.save!
+
+            # 承認状態を「DL済み」に更新
+            invoice.update!(approval_status: Invoice::APPROVAL_STATUSES[:downloaded])
+          end
+        end
+      end
+
+      send_file zip_file.path,
+        filename: "請求書一括_#{Time.current.strftime('%Y%m%d_%H%M%S')}.zip",
+        type: 'application/zip',
+        disposition: 'attachment'
+    rescue => e
+      Rails.logger.error "PDF一括ダウンロードエラー: #{e.message}"
+      redirect_to invoices_path, alert: "PDFダウンロードに失敗しました: #{e.message}"
+    ensure
+      # 一時ファイルは自動削除される
+    end
+  end
+
+  # 郵送の印刷済みマーク
+  def mark_printed
+    unless @invoice.approval_status == Invoice::APPROVAL_STATUSES[:approved]
+      redirect_to invoice_path(@invoice), alert: "承認済みの請求書のみ印刷済みマークできます。"
+      return
+    end
+
+    unless @invoice.customer.postal?
+      redirect_to invoice_path(@invoice), alert: "郵送の請求書のみ印刷済みマークできます。"
+      return
+    end
+
+    begin
+      delivery = InvoiceDelivery.find_or_initialize_by(
+        invoice: @invoice,
+        delivery_method: InvoiceDelivery::DELIVERY_METHODS[:postal]
+      )
+      delivery.delivery_status = InvoiceDelivery::DELIVERY_STATUSES[:printed]
+      delivery.sent_at = Time.current
+      delivery.sent_by = current_administrator.id
+      delivery.save!
+
+      redirect_to invoice_path(@invoice), notice: "請求書 #{@invoice.invoice_number} を印刷済みとしてマークしました。"
+    rescue => e
+      Rails.logger.error "印刷済みマークエラー: #{e.message}"
+      redirect_to invoice_path(@invoice), alert: "印刷済みマークに失敗しました: #{e.message}"
     end
   end
 

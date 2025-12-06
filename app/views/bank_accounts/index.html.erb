@@ -27,11 +27,7 @@
             <td><small><%= bank_account.account_number %></small></td>
             <td><small><%= bank_account.account_holder %></small></td>
             <td>
-              <% if bank_account.disabled? %>
-                <span class="badge bg-secondary">無効</span>
-              <% else %>
-                <span class="badge bg-success">有効</span>
-              <% end %>
+              <span class="<%= bank_account_status_badge_class(bank_account.disabled) %>"><%= bank_account_status_badge_text(bank_account.disabled) %></span>
             </td>
             <td>
               <%= render 'shared/index_action_buttons',

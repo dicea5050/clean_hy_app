@@ -1,0 +1,222 @@
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>承認済み請求書一覧（送付作業）</h1>
+    <div>
+      <%= link_to invoice_approvals_path, class: 'btn btn-outline-secondary' do %>
+        <i class="bi bi-arrow-left"></i> 承認待ち一覧へ
+      <% end %>
+    </div>
+  </div>
+
+  <!-- フィルター -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="d-flex gap-2 align-items-center">
+        <label class="form-label mb-0"><strong>送付方法でフィルター:</strong></label>
+        <%= link_to approved_index_invoice_approvals_path, 
+                    class: "btn btn-sm #{params[:delivery_method].blank? ? 'btn-primary' : 'btn-outline-primary'}" do %>
+          全て
+        <% end %>
+        <%= link_to approved_index_invoice_approvals_path(delivery_method: 'electronic'), 
+                    class: "btn btn-sm #{params[:delivery_method] == 'electronic' ? 'btn-primary' : 'btn-outline-primary'}" do %>
+          <i class="bi bi-envelope"></i> 電子請求
+        <% end %>
+        <%= link_to approved_index_invoice_approvals_path(delivery_method: 'postal'), 
+                    class: "btn btn-sm #{params[:delivery_method] == 'postal' ? 'btn-primary' : 'btn-outline-primary'}" do %>
+          <i class="bi bi-file-earmark-pdf"></i> 郵送
+        <% end %>
+        <div class="ms-auto text-muted">
+          <small>※送付済みの請求書は一覧から自動的に非表示になります</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <% if @invoices.any? %>
+    <!-- 一括操作ボタン -->
+    <div class="mb-3">
+      <% if params[:delivery_method] == 'electronic' || params[:delivery_method].blank? %>
+        <button type="button" class="btn btn-success me-2" id="bulk-send-email-btn" disabled>
+          <i class="bi bi-envelope"></i> 選択した請求書をメール送信
+        </button>
+      <% end %>
+      <% if params[:delivery_method] == 'postal' || params[:delivery_method].blank? %>
+        <button type="button" class="btn btn-info me-2" id="bulk-download-pdf-btn" disabled>
+          <i class="bi bi-download"></i> 選択した請求書を一括ダウンロード（ZIP）
+        </button>
+      <% end %>
+    </div>
+
+    <table class="table" style="table-layout: fixed; width: 100%;">
+      <thead>
+        <tr>
+          <th style="width: 40px;" class="text-center">
+            <input type="checkbox" id="select-all" class="form-check-input">
+          </th>
+          <th style="width: 120px;" class="text-center">請求書番号</th>
+          <th style="width: 220px;" class="text-center">顧客名</th>
+          <th style="width: 95px;" class="text-center">請求日</th>
+          <th style="width: 95px;" class="text-center">支払期限</th>
+          <th style="width: 120px;" class="text-center">合計金額（税込）</th>
+          <th style="width: 85px;" class="text-center">送付方法</th>
+          <th style="width: 130px;" class="text-center">承認日時</th>
+          <th style="width: 180px;" class="text-center">操作</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @invoices.each do |invoice| %>
+          <tr>
+            <td class="text-center">
+              <input type="checkbox" 
+                     name="invoice_ids[]" 
+                     value="<%= invoice.id %>" 
+                     class="form-check-input invoice-checkbox"
+                     data-delivery-method="<%= invoice.customer.electronic? ? 'electronic' : 'postal' %>">
+            </td>
+            <td><small><%= link_to invoice.invoice_number, invoice_path(invoice) %></small></td>
+            <td><small><%= invoice.customer.company_name %></small></td>
+            <td class="text-end date-monospace"><small><%= l invoice.invoice_date %></small></td>
+            <td class="text-end date-monospace"><small><%= l invoice.due_date if invoice.due_date %></small></td>
+            <td class="text-end"><small><%= number_to_currency(invoice.total_amount) %></small></td>
+            <td class="text-center">
+              <%= render 'shared/invoice_delivery_method_badge', customer: invoice.customer %>
+            </td>
+            <td class="text-end date-monospace">
+              <small>
+                <% latest_approval = invoice.invoice_approvals.where(status: InvoiceApproval::STATUSES[:approved]).order(approved_at: :desc, created_at: :desc).first %>
+                <%= latest_approval&.approved_at ? l(latest_approval.approved_at, format: :month_day_time) : (latest_approval ? l(latest_approval.updated_at, format: :month_day_time) : '-') %>
+              </small>
+            </td>
+            <td>
+              <div class="d-flex gap-1">
+                <%= render 'shared/detail_button', path: invoice_path(invoice) %>
+                <%= render 'shared/invoice_pdf_button', invoice: invoice, text: 'PDF' %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <%= render 'shared/pagination', collection: @invoices %>
+  <% else %>
+    <div class="alert alert-info">
+      送付待ちの承認済み請求書はありません。
+    </div>
+  <% end %>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const bulkSendEmailBtn = document.getElementById('bulk-send-email-btn');
+    const bulkDownloadPdfBtn = document.getElementById('bulk-download-pdf-btn');
+    const selectAllCheckbox = document.getElementById('select-all');
+
+    // 全選択チェックボックス
+    if (selectAllCheckbox) {
+      selectAllCheckbox.addEventListener('change', function() {
+        const enabledCheckboxes = document.querySelectorAll('.invoice-checkbox:not(:disabled)');
+        enabledCheckboxes.forEach(function(checkbox) {
+          checkbox.checked = this.checked;
+        }, this);
+        updateBulkButtonState();
+      });
+    }
+
+    // 個別チェックボックスの変更
+    document.addEventListener('change', function(event) {
+      if (event.target.classList.contains('invoice-checkbox')) {
+        const totalCheckboxes = document.querySelectorAll('.invoice-checkbox:not(:disabled)').length;
+        const checkedCheckboxes = document.querySelectorAll('.invoice-checkbox:checked').length;
+        if (selectAllCheckbox) {
+          selectAllCheckbox.checked = totalCheckboxes > 0 && totalCheckboxes === checkedCheckboxes;
+        }
+        updateBulkButtonState();
+      }
+    });
+
+    // 一括メール送信ボタン
+    if (bulkSendEmailBtn) {
+      bulkSendEmailBtn.addEventListener('click', function() {
+        const selectedCheckboxes = document.querySelectorAll('.invoice-checkbox:checked[data-delivery-method="electronic"]');
+        const selectedIds = Array.from(selectedCheckboxes).map(function(checkbox) {
+          return checkbox.value;
+        });
+
+        if (selectedIds.length === 0) {
+          alert('メール送信可能な請求書を選択してください。');
+          return;
+        }
+
+        if (!confirm('選択した請求書をメール送信しますか？\n送信後、一覧から自動的に非表示になります。')) {
+          return;
+        }
+
+        submitForm('<%= bulk_send_email_invoice_approvals_path %>', selectedIds);
+      });
+    }
+
+    // 一括PDFダウンロードボタン
+    if (bulkDownloadPdfBtn) {
+      bulkDownloadPdfBtn.addEventListener('click', function() {
+        const selectedCheckboxes = document.querySelectorAll('.invoice-checkbox:checked[data-delivery-method="postal"]');
+        const selectedIds = Array.from(selectedCheckboxes).map(function(checkbox) {
+          return checkbox.value;
+        });
+
+        if (selectedIds.length === 0) {
+          alert('ダウンロード可能な請求書を選択してください。');
+          return;
+        }
+
+        if (!confirm('選択した請求書を一括ダウンロードしますか？\nダウンロード後、一覧から自動的に非表示になります。')) {
+          return;
+        }
+
+        submitForm('<%= bulk_download_pdf_invoice_approvals_path %>', selectedIds);
+      });
+    }
+
+    // フォーム送信の共通関数
+    function submitForm(actionPath, invoiceIds) {
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = actionPath;
+
+      const tokenInput = document.createElement('input');
+      tokenInput.type = 'hidden';
+      tokenInput.name = 'authenticity_token';
+      const csrfToken = document.querySelector('meta[name="csrf-token"]');
+      if (csrfToken) {
+        tokenInput.value = csrfToken.getAttribute('content');
+      }
+      form.appendChild(tokenInput);
+
+      const invoiceIdsInput = document.createElement('input');
+      invoiceIdsInput.type = 'hidden';
+      invoiceIdsInput.name = 'invoice_ids';
+      invoiceIdsInput.value = invoiceIds.join(',');
+      form.appendChild(invoiceIdsInput);
+
+      document.body.appendChild(form);
+      form.submit();
+    }
+
+    // ボタンの有効/無効を更新
+    function updateBulkButtonState() {
+      if (bulkSendEmailBtn) {
+        const emailCheckboxes = document.querySelectorAll('.invoice-checkbox:checked[data-delivery-method="electronic"]');
+        bulkSendEmailBtn.disabled = emailCheckboxes.length === 0;
+      }
+
+      if (bulkDownloadPdfBtn) {
+        const postalCheckboxes = document.querySelectorAll('.invoice-checkbox:checked[data-delivery-method="postal"]');
+        bulkDownloadPdfBtn.disabled = postalCheckboxes.length === 0;
+      }
+    }
+
+    // 初期状態を設定
+    updateBulkButtonState();
+  });
+</script>

@@ -1,11 +1,11 @@
 // 請求書一覧ページ用のJavaScript（jQuery不使用）
 
 document.addEventListener('DOMContentLoaded', function() {
-  // 一括承認申請ボタンとパスを取得
+  // 一括操作ボタンとパスを取得
   const bulkRequestApprovalBtn = document.getElementById('bulk-request-approval-btn');
   const bulkRequestApprovalPath = bulkRequestApprovalBtn ? bulkRequestApprovalBtn.dataset.bulkRequestApprovalPath : null;
 
-  // 全選択チェックボックス（差し戻しステータスの請求書のみ選択）
+  // 全選択チェックボックス
   const selectAllCheckbox = document.getElementById('select-all');
   if (selectAllCheckbox) {
     selectAllCheckbox.addEventListener('change', function() {
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // 個別チェックボックスの変更
   document.addEventListener('change', function(event) {
     if (event.target.classList.contains('invoice-checkbox')) {
-      // 全選択チェックボックスの状態を更新（差し戻しステータスの請求書のみをカウント）
+      // 全選択チェックボックスの状態を更新
       const totalCheckboxes = document.querySelectorAll('.invoice-checkbox:not(:disabled)').length;
       const checkedCheckboxes = document.querySelectorAll('.invoice-checkbox:checked').length;
       if (selectAllCheckbox) {
@@ -33,13 +33,13 @@ document.addEventListener('DOMContentLoaded', function() {
   // 一括承認申請ボタンのクリック
   if (bulkRequestApprovalBtn && bulkRequestApprovalPath) {
     bulkRequestApprovalBtn.addEventListener('click', function() {
-      const selectedCheckboxes = document.querySelectorAll('.invoice-checkbox:checked');
+      const selectedCheckboxes = document.querySelectorAll('.invoice-checkbox:checked[data-approval-action="true"]');
       const selectedIds = Array.from(selectedCheckboxes).map(function(checkbox) {
         return checkbox.value;
       });
 
       if (selectedIds.length === 0) {
-        alert('請求書を選択してください。');
+        alert('承認申請可能な請求書を選択してください。');
         return;
       }
 
@@ -74,10 +74,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // ボタンの有効/無効を更新
   function updateBulkButtonState() {
-    const checkedCheckboxes = document.querySelectorAll('.invoice-checkbox:checked');
-    const hasChecked = checkedCheckboxes.length > 0;
+    // 承認申請用チェックボックス
+    const approvalCheckboxes = document.querySelectorAll('.invoice-checkbox:checked[data-approval-action="true"]');
     if (bulkRequestApprovalBtn) {
-      bulkRequestApprovalBtn.disabled = !hasChecked;
+      bulkRequestApprovalBtn.disabled = approvalCheckboxes.length === 0;
     }
   }
 
@@ -101,4 +101,3 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
-

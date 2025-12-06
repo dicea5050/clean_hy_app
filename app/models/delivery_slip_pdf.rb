@@ -3,15 +3,22 @@ require "prawn/table"
 
 class DeliverySlipPdf < Prawn::Document
   def initialize(order, company_info)
-    super(page_size: "A4", margin: 50)
+    super(page_size: "A4", margin: 50, embed_fonts: true)
     @order = order
     @company_info = company_info
 
-    font_families.update("IPAGothic" => {
-      normal: "#{Rails.root}/app/assets/fonts/ipaexg.ttf",
-      bold: "#{Rails.root}/app/assets/fonts/ipaexg.ttf"
-    })
-    font "IPAGothic"
+    font_path = Rails.root.join("app", "assets", "fonts", "ipaexg.ttf")
+    if File.exist?(font_path)
+      # フォントを完全に埋め込むために、subset: falseを指定
+      font_families.update("IPAGothic" => {
+        normal: { file: font_path.to_s, subset: false },
+        bold: { file: font_path.to_s, subset: false }
+      })
+      font "IPAGothic"
+    else
+      Rails.logger.warn "フォントファイルが見つかりません: #{font_path}"
+      font "Helvetica"
+    end
 
     # ページを上下に分割して同じ内容を表示
     # 上半分：お客様用

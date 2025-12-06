@@ -197,11 +197,7 @@
               <td><small><%= link_to order.order_number, order_path(order) %></small></td>
               <td><small><%= order.customer.company_name %></small></td>
               <td>
-                <% if order.is_shop_order? %>
-                  <span class="badge bg-success">shop</span>
-                <% else %>
-                  <span class="badge bg-secondary">自社</span>
-                <% end %>
+                <span class="<%= order_source_badge_class(order.is_shop_order?) %>"><%= order_source_badge_text(order.is_shop_order?) %></span>
               </td>
               <td class="text-end date-monospace"><small><%= l order.order_date %></small></td>
               <td class="text-end date-monospace"><small><%= l order.expected_delivery_date if order.expected_delivery_date %></small></td>

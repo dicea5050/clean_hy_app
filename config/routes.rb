@@ -90,12 +90,22 @@ Rails.application.routes.draw do
   resources :invoices do
     collection do
       post :bulk_request_approval
+      post :bulk_send_email
+      post :bulk_download_pdf
     end
     member do
       get :pdf
       get :receipt
+      post :send_email
+      post :mark_printed
     end
   end
+
+  # メールテンプレート管理
+  resources :email_templates
+
+  # SESイベント通知（SNS Webhook）
+  post "ses_events/webhook", to: "ses_events#webhook"
 
   # 入金管理機能
   resources :payment_management, only: [ :index, :create, :edit, :update, :destroy ] do
@@ -136,9 +146,12 @@ Rails.application.routes.draw do
 
   resources :invoice_approvals, only: [ :index ] do
     collection do
+      get :approved_index
       post :bulk_create
       post :bulk_approve
       post :bulk_reject
+      post :bulk_send_email
+      post :bulk_download_pdf
     end
     member do
       post :approve

@@ -1,0 +1,73 @@
+<%= form_with model: @email_template, local: true do |form| %>
+  <% if @email_template.errors.any? %>
+    <div class="alert alert-danger">
+      <h5>エラーが発生しました：</h5>
+      <ul class="mb-0">
+        <% @email_template.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="mb-3">
+        <%= form.label :name, 'テンプレート名', class: 'form-label' %>
+        <span class="text-danger">*</span>
+        <%= form.text_field :name, class: 'form-control', required: true %>
+        <small class="form-text text-muted">例: invoice_delivery</small>
+      </div>
+
+      <div class="mb-3">
+        <%= form.label :is_active, 'ステータス', class: 'form-label' %>
+        <div class="form-check">
+          <% if !@email_template.can_activate? && !@email_template.is_active? %>
+            <%= form.check_box :is_active, class: 'form-check-input', disabled: true %>
+            <%= form.label :is_active, '有効', class: 'form-check-label' %>
+            <div class="alert alert-warning mt-2 mb-0">
+              <small>有効化するには、現在有効になっているテンプレートの有効化を先に解除してください</small>
+            </div>
+          <% else %>
+            <%= form.check_box :is_active, class: 'form-check-input' %>
+            <%= form.label :is_active, '有効', class: 'form-check-label' %>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <%= form.label :subject, '件名', class: 'form-label' %>
+        <span class="text-danger">*</span>
+        <%= form.text_area :subject, class: 'form-control', rows: 2, required: true %>
+        <small class="form-text text-muted">テンプレート変数を使用できます（例: {{customer_name}}, {{invoice_number}}）</small>
+      </div>
+
+      <div class="mb-3">
+        <%= form.label :body, '本文', class: 'form-label' %>
+        <span class="text-danger">*</span>
+        <%= form.text_area :body, class: 'form-control', rows: 15, required: true %>
+        <small class="form-text text-muted">テンプレート変数を使用できます（例: {{customer_name}}, {{invoice_number}}）</small>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">利用可能な変数</label>
+        <div class="card bg-info bg-opacity-10 p-3">
+          <ul class="mb-0">
+            <li><code>{{customer_name}}</code> - 顧客名</li>
+            <li><code>{{invoice_number}}</code> - 請求書番号</li>
+            <li><code>{{invoice_date}}</code> - 請求日</li>
+            <li><code>{{due_date}}</code> - 支払期限</li>
+            <li><code>{{total_amount}}</code> - 請求金額</li>
+            <li><code>{{company_name}}</code> - 自社名</li>
+            <li><code>{{company_phone}}</code> - 自社電話番号</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <%= form.submit '保存', class: 'btn btn-primary' %>
+        <%= link_to 'キャンセル', email_templates_path, class: 'btn btn-outline-secondary' %>
+      </div>
+    </div>
+  </div>
+<% end %>

@@ -19,9 +19,7 @@
           <tr>
             <td><small><%= specification.name %></small></td>
             <td>
-              <span class="badge <%= specification.is_active ? 'bg-success' : 'bg-danger' %>">
-                <%= specification.is_active ? '有効' : '無効' %>
-              </span>
+              <span class="<%= active_status_badge_class(specification.is_active) %>"><%= active_status_badge_text(specification.is_active) %></span>
             </td>
             <td>
               <%= render 'shared/index_action_buttons',

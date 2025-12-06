@@ -22,11 +22,7 @@
       <div class="row mb-3">
         <div class="col-md-3 fw-bold">ステータス</div>
         <div class="col-md-9">
-          <% if @payment_method.active? %>
-            <span class="badge bg-success">有効</span>
-          <% else %>
-            <span class="badge bg-secondary">無効</span>
-          <% end %>
+          <span class="<%= active_status_badge_class(@payment_method.active) %>"><%= active_status_badge_text(@payment_method.active) %></span>
         </div>
       </div>
 

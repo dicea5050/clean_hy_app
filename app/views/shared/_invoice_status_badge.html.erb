@@ -1,8 +1,8 @@
 <% if order.invoiced? %>
   <%= link_to invoice_path(order.invoices.first), class: "text-decoration-none" do %>
-    <span class="badge badge-success">発行済</span>
+    <span class="<%= invoice_status_badge_class(order.invoiced?) %>"><%= invoice_status_badge_text(order.invoiced?) %></span>
   <% end %>
 <% else %>
-  <span class="badge badge-secondary">未発行</span>
+  <span class="<%= invoice_status_badge_class(order.invoiced?) %>"><%= invoice_status_badge_text(order.invoiced?) %></span>
 <% end %>
 

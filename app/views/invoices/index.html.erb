@@ -159,7 +159,7 @@
         <th style="width: 95px;" class="text-center">支払期限</th>
         <th style="width: 120px;" class="text-center">請求金額</th>
         <th style="width: 85px;" class="text-center">送付方法</th>
-        <th style="width: 85px;" class="text-center">承認状態</th>
+        <th style="width: 85px;" class="text-center">請求状態</th>
         <th style="width: 90px;" class="text-center">入金状況</th>
         <th style="width: 180px;" class="text-center">操作</th>
       </tr>
@@ -170,7 +170,11 @@
         <tr>
           <td class="text-center">
             <% if invoice.approval_status == Invoice::APPROVAL_STATUSES[:rejected] %>
-              <input type="checkbox" name="invoice_ids[]" value="<%= invoice.id %>" class="form-check-input invoice-checkbox">
+              <input type="checkbox" 
+                     name="invoice_ids[]" 
+                     value="<%= invoice.id %>" 
+                     class="form-check-input invoice-checkbox"
+                     data-approval-action="true">
             <% else %>
               <input type="checkbox" disabled class="form-check-input" title="差し戻しステータスの請求書のみ選択可能です">
             <% end %>

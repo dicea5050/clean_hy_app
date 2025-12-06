@@ -6,11 +6,7 @@
       <strong>受注番号：</strong><%= @order.order_number %>
       <span class="d-inline-block ms-3">
         <strong>注文元：</strong>
-        <% if @order.is_shop_order? %>
-          <span class="badge bg-success">ネットショップ</span>
-        <% else %>
-          <span class="badge bg-secondary">管理画面</span>
-        <% end %>
+        <span class="<%= order_source_badge_class(@order.is_shop_order?) %>"><%= @order.is_shop_order? ? "ネットショップ" : "管理画面" %></span>
       </span>
       <% if @order.invoiced? %>
         <span class="d-inline-block ms-3">

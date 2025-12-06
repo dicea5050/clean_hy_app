@@ -3,16 +3,23 @@ require "prawn/table"
 
 class SalesReportPdf < Prawn::Document
   def initialize(fiscal_year, categories, grouped_data)
-    super(page_size: "A4", margin: 30, page_layout: :landscape)
+    super(page_size: "A4", margin: 30, page_layout: :landscape, embed_fonts: true)
     @fiscal_year = fiscal_year
     @categories = categories
     @grouped_data = grouped_data
 
-    font_families.update("IPAGothic" => {
-      normal: "#{Rails.root}/app/assets/fonts/ipaexg.ttf",
-      bold: "#{Rails.root}/app/assets/fonts/ipaexg.ttf"
-    })
-    font "IPAGothic"
+    font_path = Rails.root.join("app", "assets", "fonts", "ipaexg.ttf")
+    if File.exist?(font_path)
+      # フォントを完全に埋め込むために、subset: falseを指定
+      font_families.update("IPAGothic" => {
+        normal: { file: font_path.to_s, subset: false },
+        bold: { file: font_path.to_s, subset: false }
+      })
+      font "IPAGothic"
+    else
+      Rails.logger.warn "フォントファイルが見つかりません: #{font_path}"
+      font "Helvetica"
+    end
 
     header
     sales_table

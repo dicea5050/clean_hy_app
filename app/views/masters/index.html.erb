@@ -137,6 +137,19 @@
     <li class="list-group-item">
       <div class="d-flex justify-content-between align-items-center">
         <div>
+          <h5 class="mb-1">メールテンプレートマスター</h5>
+          <p class="mb-0 text-muted">請求書メール送信時のテンプレートを管理します。</p>
+        </div>
+        <div class="btn-group">
+          <%= link_to '一覧', email_templates_path, class: 'btn btn-primary' %>
+          <%= link_to '新規', new_email_template_path, class: 'btn btn-outline-primary' %>
+        </div>
+      </div>
+    </li>
+
+    <li class="list-group-item">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
           <h5 class="mb-1">予算管理</h5>
           <p class="mb-0 text-muted">年度別・事業部別・グループ別の予算を管理します。</p>
         </div>

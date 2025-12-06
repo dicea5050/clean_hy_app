@@ -135,6 +135,105 @@
     </tbody>
   </table>
 
+  <!-- 送付履歴セクション -->
+  <div class="card mb-4">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+      <h2 class="card-title mb-0">送付履歴</h2>
+      <% if @invoice.approval_status == Invoice::APPROVAL_STATUSES[:approved] %>
+        <% if @invoice.customer.electronic? %>
+          <% if @invoice.email_pending? %>
+            <%= button_to send_email_invoice_path(@invoice),
+                          method: :post,
+                          class: 'btn btn-sm btn-success',
+                          form: { data: { turbo_confirm: "請求書 #{@invoice.invoice_number} をメール送信しますか？" },
+                                  class: 'd-inline' } do %>
+              <i class="bi bi-envelope"></i> メール送信
+            <% end %>
+          <% elsif @invoice.email_sent? %>
+            <button type="button" 
+                    class="btn btn-sm btn-warning" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#resendModal"
+                    title="再送信">
+              <i class="bi bi-envelope-arrow-up"></i> 再送信
+            </button>
+          <% end %>
+        <% elsif @invoice.customer.postal? %>
+          <% if !@invoice.pdf_downloaded? %>
+            <%= button_to mark_printed_invoice_path(@invoice),
+                          method: :post,
+                          class: 'btn btn-sm btn-primary',
+                          form: { data: { turbo_confirm: "請求書 #{@invoice.invoice_number} を印刷済みとしてマークしますか？" },
+                                  class: 'd-inline' } do %>
+              <i class="bi bi-printer"></i> 印刷済みマーク
+            <% end %>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+    <div class="card-body">
+      <% if @invoice.invoice_deliveries.any? %>
+        <div class="table-responsive">
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>送付日時</th>
+                <th>送付方法</th>
+                <th>ステータス</th>
+                <th>送付者</th>
+                <th>再送信</th>
+                <th>備考</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @invoice.invoice_deliveries.recent.each do |delivery| %>
+                <tr>
+                  <td><%= delivery.sent_at ? l(delivery.sent_at, format: :long) : '-' %></td>
+                  <td>
+                    <% if delivery.delivery_method == InvoiceDelivery::DELIVERY_METHODS[:email] %>
+                      <span class="badge bg-info">電子請求</span>
+                    <% else %>
+                      <span class="badge bg-secondary">郵送</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <% case delivery.delivery_status
+                       when InvoiceDelivery::DELIVERY_STATUSES[:sent] %>
+                      <span class="badge bg-success">送付済み</span>
+                    <% when InvoiceDelivery::DELIVERY_STATUSES[:downloaded] %>
+                      <span class="badge bg-info">ダウンロード済み</span>
+                    <% when InvoiceDelivery::DELIVERY_STATUSES[:printed] %>
+                      <span class="badge bg-primary">印刷済み</span>
+                    <% else %>
+                      <span class="badge bg-warning">未送付</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <% if delivery.sender %>
+                      <%= delivery.sender.email %>
+                    <% else %>
+                      -
+                    <% end %>
+                  </td>
+                  <td>
+                    <% if delivery.is_resend? %>
+                      <span class="badge bg-warning">再送信</span>
+                    <% else %>
+                      <span class="text-muted">初回</span>
+                    <% end %>
+                  </td>
+                  <td><%= delivery.notes.presence || '-' %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <p class="text-muted text-center py-4">送付履歴はありません</p>
+      <% end %>
+    </div>
+  </div>
+
   <!-- 入金履歴セクション -->
   <div class="card mb-4">
     <div class="card-header bg-light d-flex justify-content-between align-items-center">
@@ -201,3 +300,35 @@
 
 <!-- 領収書発行モーダル -->
 <%= render 'shared/invoice_receipt_modal', invoice: @invoice, modal_id: 'receiptModal' %>
+
+<!-- 再送信モーダル -->
+<% if @invoice.email_sent? %>
+  <div class="modal fade" id="resendModal" tabindex="-1" aria-labelledby="resendModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="resendModalLabel">メール再送信</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <%= form_with url: send_email_invoice_path(@invoice), method: :post, local: true do |form| %>
+          <%= hidden_field_tag :is_resend, true %>
+          <div class="modal-body">
+            <div class="mb-3">
+              <p><strong>請求書番号:</strong> <%= @invoice.invoice_number %></p>
+              <p><strong>取引先:</strong> <%= @invoice.customer.company_name %></p>
+              <p class="text-muted">この請求書は既にメール送信済みです。再送信しますか？</p>
+            </div>
+            <div class="mb-3">
+              <label for="resend_reason" class="form-label">再送信理由（任意）</label>
+              <%= text_area_tag :resend_reason, '', class: 'form-control', id: "resend_reason", rows: 3, placeholder: '再送信理由を入力してください' %>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+            <%= form.submit '再送信', class: 'btn btn-warning' %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

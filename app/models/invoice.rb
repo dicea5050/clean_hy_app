@@ -3,6 +3,7 @@ class Invoice < ApplicationRecord
   has_many :invoice_orders, dependent: :destroy
   has_many :orders, through: :invoice_orders
   has_many :invoice_approvals, dependent: :destroy
+  has_many :invoice_deliveries, dependent: :destroy
   # 充当記録のみを取得（invoice_idが存在するpayment_records）
   has_many :payment_records, -> { where.not(invoice_id: nil) }, class_name: "PaymentRecord", foreign_key: "invoice_id", dependent: :destroy
 
@@ -10,7 +11,10 @@ class Invoice < ApplicationRecord
   APPROVAL_STATUSES = {
     waiting: "承認待ち",
     approved: "承認済み",
-    rejected: "差し戻し"
+    rejected: "差し戻し",
+    sent: "送付済み",
+    downloaded: "DL済み",
+    error: "エラー"
   }.freeze
 
   # 入金状況の定義
@@ -111,20 +115,6 @@ class Invoice < ApplicationRecord
     unpaid_amount
   end
 
-  # 承認状態に応じたバッジのクラスを返すヘルパーメソッド
-  def approval_status_badge_class
-    case approval_status
-    when "承認待ち"
-      "badge bg-warning"
-    when "承認済み"
-      "badge bg-success"
-    when "差し戻し"
-      "badge bg-danger"
-    else
-      "badge bg-secondary"
-    end
-  end
-
   # 入金状況ステータス
   def payment_status
     if total_paid_amount == 0
@@ -133,18 +123,6 @@ class Invoice < ApplicationRecord
       PAYMENT_STATUSES[:paid]
     else
       PAYMENT_STATUSES[:partial]
-    end
-  end
-
-  # 入金状況に応じたバッジのクラスを返すヘルパーメソッド
-  def payment_status_badge_class
-    case payment_status
-    when "未入金"
-      "badge bg-danger"
-    when "入金済"
-      "badge bg-success"
-    when "一部未入金"
-      "badge bg-warning"
     end
   end
 
@@ -177,5 +155,47 @@ class Invoice < ApplicationRecord
                        .order(updated_at: :desc)
                        .first
     latest_rejection&.notes
+  end
+
+  # 送付関連のメソッド
+  # 電子請求のメール送信済みかどうか
+  def email_sent?
+    invoice_deliveries.email_deliveries.sent.exists?
+  end
+
+  # 電子請求の未送付かどうか
+  def email_pending?
+    customer.electronic? && 
+    approval_status == APPROVAL_STATUSES[:approved] && 
+    !email_sent?
+  end
+
+  # 郵送のPDFダウンロード済みかどうか
+  def pdf_downloaded?
+    invoice_deliveries.postal_deliveries.where(delivery_status: [InvoiceDelivery::DELIVERY_STATUSES[:downloaded], InvoiceDelivery::DELIVERY_STATUSES[:printed]]).exists?
+  end
+
+  # 最新の送付記録を取得
+  def latest_delivery
+    invoice_deliveries.recent.first
+  end
+
+  # 送付ステータスの表示用テキスト
+  def delivery_status_display
+    return "未送付" if email_pending? || (customer.postal? && approval_status == APPROVAL_STATUSES[:approved] && !pdf_downloaded?)
+    
+    latest = latest_delivery
+    return "未送付" unless latest
+
+    case latest.delivery_status
+    when InvoiceDelivery::DELIVERY_STATUSES[:sent]
+      "メール送信済み (#{latest.sent_at&.strftime('%Y/%m/%d %H:%M')})"
+    when InvoiceDelivery::DELIVERY_STATUSES[:downloaded]
+      "PDFダウンロード済み (#{latest.sent_at&.strftime('%Y/%m/%d %H:%M')})"
+    when InvoiceDelivery::DELIVERY_STATUSES[:printed]
+      "印刷済み (#{latest.sent_at&.strftime('%Y/%m/%d %H:%M')})"
+    else
+      "未送付"
+    end
   end
 end

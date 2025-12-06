@@ -483,6 +483,7 @@ DEPENDENCIES
   rails (~> 8.0.2)
   rspec-rails
   rubocop-rails-omakase
+  rubyzip
   select2-rails
   selenium-webdriver
   solid_cable

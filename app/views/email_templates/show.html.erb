@@ -1,0 +1,72 @@
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>メールテンプレート詳細</h1>
+    <div>
+      <%= link_to edit_email_template_path(@email_template), class: 'btn btn-primary' do %>
+        <i class="bi bi-pencil"></i> 編集
+      <% end %>
+      <%= link_to email_templates_path, class: 'btn btn-outline-secondary' do %>
+        <i class="bi bi-arrow-left"></i> 一覧に戻る
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="mb-3">
+        <label class="form-label"><strong>テンプレート名</strong></label>
+        <p class="form-control-static"><%= @email_template.name %></p>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label"><strong>ステータス</strong></label>
+        <p class="form-control-static">
+          <% if @email_template.is_active? %>
+            <span class="badge bg-success">有効</span>
+          <% else %>
+            <span class="badge bg-secondary">無効</span>
+          <% end %>
+        </p>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label"><strong>件名</strong></label>
+        <div class="card bg-light p-3">
+          <pre class="mb-0"><%= @email_template.subject %></pre>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label"><strong>本文</strong></label>
+        <div class="card bg-light p-3">
+          <pre class="mb-0" style="white-space: pre-wrap;"><%= @email_template.body %></pre>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label"><strong>利用可能な変数</strong></label>
+        <div class="card bg-info bg-opacity-10 p-3">
+          <ul class="mb-0">
+            <li><code>{{customer_name}}</code> - 顧客名</li>
+            <li><code>{{invoice_number}}</code> - 請求書番号</li>
+            <li><code>{{invoice_date}}</code> - 請求日</li>
+            <li><code>{{due_date}}</code> - 支払期限</li>
+            <li><code>{{total_amount}}</code> - 請求金額</li>
+            <li><code>{{company_name}}</code> - 自社名</li>
+            <li><code>{{company_phone}}</code> - 自社電話番号</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label"><strong>作成日時</strong></label>
+        <p class="form-control-static"><%= l @email_template.created_at, format: :long %></p>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label"><strong>更新日時</strong></label>
+        <p class="form-control-static"><%= l @email_template.updated_at, format: :long %></p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,27 @@
+<% if @template_body.present? %>
+<%= @template_body %>
+<% else %>
+<%= @customer.company_name %> 御中
+
+平素よりお世話になっております。
+<%= @company_info&.name || '' %>でございます。
+
+この度は、以下の請求書をお送りいたします。
+
+【請求書情報】
+請求書番号：<%= @invoice.invoice_number %>
+請求日：<%= @invoice.invoice_date.strftime("%Y年%m月%d日") %>
+<% if @invoice.due_date.present? %>
+支払期限：<%= @invoice.due_date.strftime("%Y年%m月%d日") %>
+<% end %>
+請求金額：<%= number_to_currency(@invoice.total_amount) %>
+
+請求書PDFを本メールに添付しておりますので、ご確認ください。
+
+ご不明な点がございましたら、お気軽にお問い合わせください。
+
+<%= @company_info&.name || '' %>
+<% if @company_info&.phone_number.present? %>
+TEL: <%= @company_info.phone_number %>
+<% end %>
+<% end %>

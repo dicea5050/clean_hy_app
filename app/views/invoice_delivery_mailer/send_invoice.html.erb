@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+      body {
+        font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .header {
+        border-bottom: 2px solid #0066cc;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+      .content {
+        margin: 20px 0;
+      }
+      .invoice-info {
+        background-color: #f5f5f5;
+        padding: 15px;
+        border-left: 4px solid #0066cc;
+        margin: 20px 0;
+      }
+      .invoice-info p {
+        margin: 5px 0;
+      }
+      .footer {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #ddd;
+        font-size: 0.9em;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h2><%= @customer.company_name %> 御中</h2>
+    </div>
+
+    <div class="content">
+      <% if @template_body.present? %>
+        <%= simple_format(@template_body) %>
+      <% else %>
+        <p>平素よりお世話になっております。<br>
+        <%= @company_info&.name || '' %>でございます。</p>
+
+        <p>この度は、以下の請求書をお送りいたします。</p>
+
+        <div class="invoice-info">
+          <h3>【請求書情報】</h3>
+          <p><strong>請求書番号：</strong><%= @invoice.invoice_number %></p>
+          <p><strong>請求日：</strong><%= @invoice.invoice_date.strftime("%Y年%m月%d日") %></p>
+          <% if @invoice.due_date.present? %>
+          <p><strong>支払期限：</strong><%= @invoice.due_date.strftime("%Y年%m月%d日") %></p>
+          <% end %>
+          <p><strong>請求金額：</strong><%= number_to_currency(@invoice.total_amount) %></p>
+        </div>
+
+        <p>請求書PDFを本メールに添付しておりますので、ご確認ください。</p>
+
+        <p>ご不明な点がございましたら、お気軽にお問い合わせください。</p>
+      <% end %>
+    </div>
+
+    <div class="footer">
+      <p><strong><%= @company_info&.name || '' %></strong></p>
+      <% if @company_info&.phone_number.present? %>
+      <p>TEL: <%= @company_info.phone_number %></p>
+      <% end %>
+    </div>
+  </body>
+</html>

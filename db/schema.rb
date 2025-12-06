@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_05_080956) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_06_124727) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -85,6 +85,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_05_080956) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "representative_name"
+    t.string "email"
     t.index ["name"], name: "index_company_informations_on_name"
   end
 
@@ -122,6 +123,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_05_080956) do
     t.index ["customer_id"], name: "index_delivery_locations_on_customer_id"
   end
 
+  create_table "email_templates", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "subject", null: false
+    t.text "body", null: false
+    t.boolean "is_active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["is_active"], name: "index_email_templates_on_is_active"
+    t.index ["name"], name: "index_email_templates_on_name", unique: true
+  end
+
   create_table "invoice_approvals", force: :cascade do |t|
     t.bigint "invoice_id", null: false
     t.string "status", null: false
@@ -134,6 +146,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_05_080956) do
     t.index ["approver_type", "approver_id"], name: "index_invoice_approvals_on_approver"
     t.index ["invoice_id", "status"], name: "index_invoice_approvals_on_invoice_id_and_status"
     t.index ["invoice_id"], name: "index_invoice_approvals_on_invoice_id"
+  end
+
+  create_table "invoice_deliveries", force: :cascade do |t|
+    t.bigint "invoice_id", null: false
+    t.string "delivery_method"
+    t.string "delivery_status"
+    t.datetime "sent_at"
+    t.integer "sent_by"
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "is_resend", default: false, null: false
+    t.string "ses_message_id"
+    t.string "ses_event_type"
+    t.datetime "ses_event_timestamp"
+    t.text "ses_error_message"
+    t.index ["invoice_id"], name: "index_invoice_deliveries_on_invoice_id"
   end
 
   create_table "invoice_orders", force: :cascade do |t|
@@ -288,6 +317,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_05_080956) do
   add_foreign_key "customers", "payment_methods"
   add_foreign_key "delivery_locations", "customers"
   add_foreign_key "invoice_approvals", "invoices"
+  add_foreign_key "invoice_deliveries", "invoices"
   add_foreign_key "invoice_orders", "invoices"
   add_foreign_key "invoice_orders", "orders"
   add_foreign_key "invoices", "customers"
