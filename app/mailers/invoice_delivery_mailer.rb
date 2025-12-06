@@ -37,7 +37,7 @@ class InvoiceDeliveryMailer < ApplicationMailer
       to: @customer.email,
       subject: subject,
       headers: {
-        'X-Invoice-Delivery-ID' => @delivery_id.to_s
+        "X-Invoice-Delivery-ID" => @delivery_id.to_s
       }
     )
   end

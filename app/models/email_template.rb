@@ -79,7 +79,7 @@ class EmailTemplate < ApplicationRecord
       if value.present?
         result.gsub!(pattern, '\1')
       else
-        result.gsub!(pattern, '')
+        result.gsub!(pattern, "")
       end
     end
     # 次に変数を置換

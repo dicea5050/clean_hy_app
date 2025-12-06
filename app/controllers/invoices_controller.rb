@@ -458,11 +458,11 @@ class InvoicesController < ApplicationController
                       .includes(:customer, orders: :order_items)
     company_info = CompanyInformation.first
 
-    require 'zip'
-    require 'tempfile'
-    require 'stringio'
+    require "zip"
+    require "tempfile"
+    require "stringio"
 
-    zip_file = Tempfile.new(['invoices', '.zip'])
+    zip_file = Tempfile.new([ "invoices", ".zip" ])
 
     begin
       Zip::OutputStream.open(zip_file.path) do |zip|
@@ -491,8 +491,8 @@ class InvoicesController < ApplicationController
 
       send_file zip_file.path,
         filename: "請求書一括_#{Time.current.strftime('%Y%m%d_%H%M%S')}.zip",
-        type: 'application/zip',
-        disposition: 'attachment'
+        type: "application/zip",
+        disposition: "attachment"
     rescue => e
       Rails.logger.error "PDF一括ダウンロードエラー: #{e.message}"
       redirect_to invoices_path, alert: "PDFダウンロードに失敗しました: #{e.message}"

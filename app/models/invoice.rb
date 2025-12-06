@@ -165,14 +165,14 @@ class Invoice < ApplicationRecord
 
   # 電子請求の未送付かどうか
   def email_pending?
-    customer.electronic? && 
-    approval_status == APPROVAL_STATUSES[:approved] && 
+    customer.electronic? &&
+    approval_status == APPROVAL_STATUSES[:approved] &&
     !email_sent?
   end
 
   # 郵送のPDFダウンロード済みかどうか
   def pdf_downloaded?
-    invoice_deliveries.postal_deliveries.where(delivery_status: [InvoiceDelivery::DELIVERY_STATUSES[:downloaded], InvoiceDelivery::DELIVERY_STATUSES[:printed]]).exists?
+    invoice_deliveries.postal_deliveries.where(delivery_status: [ InvoiceDelivery::DELIVERY_STATUSES[:downloaded], InvoiceDelivery::DELIVERY_STATUSES[:printed] ]).exists?
   end
 
   # 最新の送付記録を取得
@@ -183,7 +183,7 @@ class Invoice < ApplicationRecord
   # 送付ステータスの表示用テキスト
   def delivery_status_display
     return "未送付" if email_pending? || (customer.postal? && approval_status == APPROVAL_STATUSES[:approved] && !pdf_downloaded?)
-    
+
     latest = latest_delivery
     return "未送付" unless latest
 

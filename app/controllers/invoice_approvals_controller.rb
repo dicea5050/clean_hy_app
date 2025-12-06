@@ -435,11 +435,11 @@ class InvoiceApprovalsController < ApplicationController
                       .where(approval_status: Invoice::APPROVAL_STATUSES[:approved])
     company_info = CompanyInformation.first
 
-    require 'zip'
-    require 'tempfile'
-    require 'stringio'
+    require "zip"
+    require "tempfile"
+    require "stringio"
 
-    zip_file = Tempfile.new(['invoices', '.zip'])
+    zip_file = Tempfile.new([ "invoices", ".zip" ])
 
     begin
       Zip::OutputStream.open(zip_file.path) do |zip|
@@ -469,8 +469,8 @@ class InvoiceApprovalsController < ApplicationController
 
       send_file zip_file.path,
         filename: "請求書一括_#{Time.current.strftime('%Y%m%d_%H%M%S')}.zip",
-        type: 'application/zip',
-        disposition: 'attachment'
+        type: "application/zip",
+        disposition: "attachment"
     rescue => e
       Rails.logger.error "PDF一括ダウンロードエラー: #{e.message}"
       redirect_to approved_index_invoice_approvals_path(delivery_method: params[:delivery_method]), alert: "PDFダウンロードに失敗しました: #{e.message}"
