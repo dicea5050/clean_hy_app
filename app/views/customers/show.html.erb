@@ -1,60 +1,83 @@
 <div class="container mt-4">
-  <div class="card">
+  <div class="card shadow mb-4">
     <div class="card-header bg-primary text-white">
-      <h2>顧客詳細</h2>
+      <h1 class="mb-0">顧客詳細</h1>
     </div>
     <div class="card-body">
-      <div class="mb-3">
-        <strong>顧客コード:</strong> <%= @customer.customer_code %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">顧客コード</div>
+        <div class="col-md-9"><%= @customer.customer_code %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>社名（屋号）:</strong> <%= @customer.company_name %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">社名（屋号）</div>
+        <div class="col-md-9"><%= @customer.company_name %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>郵便番号:</strong> <%= @customer.postal_code %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">郵便番号</div>
+        <div class="col-md-9"><%= @customer.postal_code %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>住所:</strong> <%= @customer.address %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">住所</div>
+        <div class="col-md-9"><%= @customer.address %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>部署名:</strong> <%= @customer.department %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">部署名</div>
+        <div class="col-md-9"><%= @customer.department.present? ? @customer.department : '未設定' %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>担当者名:</strong> <%= @customer.contact_name %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">担当者名</div>
+        <div class="col-md-9"><%= @customer.contact_name.present? ? @customer.contact_name : '未設定' %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>電話番号:</strong> <%= @customer.phone_number %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">電話番号</div>
+        <div class="col-md-9"><%= @customer.phone_number.present? ? @customer.phone_number : '未設定' %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>請求書送付方法:</strong>
-        <%= render 'shared/invoice_delivery_method_badge', customer: @customer %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">FAX番号</div>
+        <div class="col-md-9"><%= @customer.fax_number.present? ? @customer.fax_number : '未設定' %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>請求締日:</strong> <%= @customer.billing_closing_day_display %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">支払い方法</div>
+        <div class="col-md-9"><%= @customer.payment_method&.name || '未設定' %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>メールアドレス:</strong> <%= @customer.email %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">請求書送付方法</div>
+        <div class="col-md-9">
+          <%= render 'shared/invoice_delivery_method_badge', customer: @customer %>
+        </div>
       </div>
 
-      <div class="mb-3">
-        <strong>パスワード設定状況:</strong>
-        <% if @customer.password_set? %>
-          <span class="badge bg-success">パスワード設定済み</span>
-        <% else %>
-          <span class="badge bg-warning">パスワード未設定</span>
-        <% end %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">請求締日</div>
+        <div class="col-md-9"><%= @customer.billing_closing_day_display %></div>
       </div>
 
-      <h4 class="mt-4 mb-3">納品先一覧</h4>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">メールアドレス</div>
+        <div class="col-md-9"><%= @customer.email.present? ? @customer.email : '未設定' %></div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">パスワード設定状況</div>
+        <div class="col-md-9">
+          <% if @customer.password_set? %>
+            <span class="badge bg-success">パスワード設定済み</span>
+          <% else %>
+            <span class="badge bg-warning">パスワード未設定</span>
+          <% end %>
+        </div>
+      </div>
+
+      <h2 class="mt-4 mb-3">納品先一覧</h2>
       <div class="table-responsive">
         <table class="table table-striped">
           <thead>

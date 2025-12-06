@@ -12,10 +12,19 @@ class Shop::OrdersController < ApplicationController
     @order.customer_id = current_customer.id
     # 注文日を本日に設定
     @order.order_date = Date.today
+    # 顧客マスターの支払い方法をデフォルト値として設定（注文のみに使用、顧客マスターは変更しない）
+    @order.payment_method_id = current_customer.payment_method_id if current_customer.payment_method_id.present?
   end
 
   def create
     @cart = current_cart
+
+    # カートが空の場合はエラー
+    if @cart.items.empty?
+      redirect_to shop_cart_path, alert: "カートが空です。商品を追加してください。"
+      return
+    end
+
     @order = Order.new
 
     # 現在のログインユーザーを顧客として設定
@@ -23,38 +32,52 @@ class Shop::OrdersController < ApplicationController
     # 注文日を本日に設定
     @order.order_date = Date.today
     # 希望お届け日を納品予定日として設定
-    @order.expected_delivery_date = params[:order][:desired_delivery_date]
+    @order.expected_delivery_date = params[:order][:desired_delivery_date] if params[:order][:desired_delivery_date].present?
     # 支払い方法を設定
     @order.payment_method_id = params[:order][:payment_method_id]
     # 配送先を設定
     @order.delivery_location_id = params[:order][:delivery_location_id]
+    # ネットショップからの注文であることを示すフラグを設定
+    @order.is_shop_order = true
 
-    if @order.save
-      # カートの内容を注文に変換し、在庫を減らす
-      ActiveRecord::Base.transaction do
+    # トランザクション内で注文と注文明細を同時に作成
+    ActiveRecord::Base.transaction do
+      # 注文明細を作成
+      @cart.items.each do |item|
+        @order.order_items.build(
+          product_id: item.product_id,
+          quantity: item.quantity,
+          unit_price: item.product.price,
+          tax_rate: item.product.tax_rate.try(:rate) || 10
+        )
+      end
+
+      # 注文を保存（バリデーションも実行される）
+      if @order.save
+        # 在庫を減らす（在庫がnilの場合は減らさない）
         @cart.items.each do |item|
-          @order.order_items.create(
-            product_id: item.product_id,
-            quantity: item.quantity,
-            unit_price: item.product.price,
-            tax_rate: item.product.tax_rate.try(:rate) || 10
-          )
-
-          # 在庫を減らす（在庫がnilの場合は減らさない）
           product = item.product
           if product.stock.present?
             product.update!(stock: product.stock - item.quantity)
           end
         end
+
+        # カートを空にする
+        session[:cart] = nil
+
+        # 完了ページへリダイレクト
+        redirect_to shop_order_complete_path
+      else
+        # エラーが発生した場合はロールバック（トランザクション内なので自動的にロールバックされる）
+        raise ActiveRecord::Rollback
       end
+    end
 
-      # カートを空にする
-      session[:cart] = nil
-
-      # 完了ページへリダイレクト
-      redirect_to shop_order_complete_path
-    else
-      render :new
+    # エラーが発生した場合はnewアクションを再表示
+    if @order.errors.any?
+      set_payment_methods
+      set_delivery_locations
+      render :new, status: :unprocessable_entity
     end
   end
 

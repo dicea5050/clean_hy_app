@@ -135,9 +135,9 @@
       orderTotalWithTax: orderTotalWithTax
     });
 
-    // 合計を表示（マイナスの場合はマイナス記号を付加）
-    $('#order-total-without-tax').text((orderTotalWithoutTax < 0 ? '-' : '') + Math.abs(orderTotalWithoutTax).toLocaleString());
-    $('#order-total-with-tax').text((orderTotalWithTax < 0 ? '-' : '') + Math.abs(orderTotalWithTax).toLocaleString());
+    // 合計を表示（マイナスの場合はマイナス記号を付加、「円」を含める）
+    $('#order-total-without-tax').text((orderTotalWithoutTax < 0 ? '-' : '') + Math.abs(orderTotalWithoutTax).toLocaleString() + '円');
+    $('#order-total-with-tax').text((orderTotalWithTax < 0 ? '-' : '') + Math.abs(orderTotalWithTax).toLocaleString() + '円');
   }
 
   // ページ読み込み時に各行の計算と合計を実行する初期化関数
@@ -182,6 +182,24 @@
       hiddenField.val(displayField.val());
       console.log("Manual price entered:", displayField.val(), "-> hidden field updated");
       calculateLineTotal(row);
+    });
+
+    // 単価入力欄で数値のみを許可
+    $(document).on('keypress', '.unit-price-display', function(e) {
+      // 数字、バックスペース、Delete、Tab、Enter、矢印キー、小数点を許可
+      var char = String.fromCharCode(e.which);
+      if (!/[0-9]/.test(char) && !(e.which === 8 || e.which === 0 || e.which === 46 || e.which === 9 || e.which === 13 || (e.which >= 37 && e.which <= 40))) {
+        e.preventDefault();
+      }
+    });
+
+    // 単価入力欄で貼り付け時に数値のみを抽出
+    $(document).on('paste', '.unit-price-display', function(e) {
+      e.preventDefault();
+      var paste = (e.originalEvent || e).clipboardData.getData('text');
+      var numericValue = paste.replace(/[^0-9]/g, '');
+      $(this).val(numericValue);
+      $(this).trigger('input');
     });
 
     // 商品選択変更時に計算実行

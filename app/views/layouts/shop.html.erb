@@ -6,35 +6,60 @@
   <%= csp_meta_tag %>
 
   <%= stylesheet_link_tag 'application', media: 'all' %>
-  <script type="module" src="<%= asset_path 'application.js' %>"></script>
+  
+  <!-- Bootstrap CSS から CDN (unpkg.comを使用) -->
+  <link href="https://unpkg.com/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+  
+  <!-- Bootstrap JS から CDN (unpkg.comを使用) -->
+  <script src="https://unpkg.com/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+  
+  <!-- jQueryをCDNから読み込む (unpkg.comを使用) -->
+  <script src="https://unpkg.com/jquery@3.6.0/dist/jquery.min.js" crossorigin="anonymous"></script>
+  
+  <!-- アプリケーションのJavaScript -->
+  <%= javascript_include_tag "application" %>
+  <%= javascript_include_tag "password_utils" %>
 </head>
 <body class="shop-layout">
   <header class="shop-header">
     <div class="container">
-      <h1 class="shop-title">オンラインショップ</h1>
-      <nav class="shop-nav">
-        <ul>
-          <li><%= link_to '商品一覧', shop_products_path %></li>
-          <li><%= link_to 'カート', shop_cart_path %></li>
-          <% if customer_signed_in? %>
-            <li>
-              <%= current_customer.name %>様 |
-              <%= button_to 'ログアウト', shop_logout_path, method: :delete, class: 'btn btn-link' %>
-            </li>
-          <% else %>
-            <li><%= link_to 'ログイン', shop_login_path %></li>
-          <% end %>
-        </ul>
-      </nav>
+      <div class="shop-header-left">
+        <h1 class="shop-title">オンラインショップ</h1>
+        <nav class="shop-nav">
+          <ul>
+            <li><%= link_to '商品一覧', shop_products_path %></li>
+            <li><%= link_to 'カート', shop_cart_path %></li>
+            <% if customer_signed_in? %>
+              <li><%= link_to 'マイページ', shop_mypage_path %></li>
+            <% end %>
+          </ul>
+        </nav>
+      </div>
+      <div class="shop-header-right">
+        <% if customer_signed_in? %>
+          <span class="shop-user-name"><%= current_customer.name %>様</span>
+          <span class="shop-separator">|</span>
+          <%= button_to 'ログアウト', shop_logout_path, method: :delete, class: 'btn btn-link' %>
+        <% else %>
+          <%= link_to 'ログイン', shop_login_path, class: 'shop-login-link' %>
+        <% end %>
+      </div>
     </div>
   </header>
 
   <main class="container">
-    <% if notice %>
-      <div class="alert alert-success"><%= notice %></div>
+    <%# パスワード変更以外のフラッシュメッセージを表示 %>
+    <% if notice && !flash[:password_notice] %>
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <%= notice %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="閉じる"></button>
+      </div>
     <% end %>
-    <% if alert %>
-      <div class="alert alert-danger"><%= alert %></div>
+    <% if alert && !flash[:password_alert] %>
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <%= alert %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="閉じる"></button>
+      </div>
     <% end %>
 
     <%= yield %>
@@ -42,7 +67,7 @@
 
   <footer class="shop-footer">
     <div class="container">
-      <p>&copy; <%= Date.current.year %> オンラインショップ</p>
+      <p>&copy; <%= Date.current.year %> 有限会社クリーン日向</p>
     </div>
   </footer>
 </body>

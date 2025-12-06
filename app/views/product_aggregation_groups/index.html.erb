@@ -1,0 +1,71 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>集計グループ設定</h1>
+    <%= link_to '予算一覧に戻る', budgets_path(fiscal_year: @fiscal_year), class: 'btn btn-outline-secondary' %>
+  </div>
+
+  <div class="mb-3">
+    <%= form_with url: product_aggregation_groups_path, method: :get, local: true, class: 'd-flex align-items-center gap-3' do |form| %>
+      <div class="form-group mb-0">
+        <%= form.label :fiscal_year, '年度', class: 'me-2' %>
+        <%= form.number_field :fiscal_year, value: @fiscal_year, min: 2000, max: 3000, class: 'form-control', style: 'width: 120px;' %>
+      </div>
+      <%= form.submit '表示', class: 'btn btn-secondary' %>
+    <% end %>
+  </div>
+
+  <%= form_with url: update_all_product_aggregation_groups_path, method: :post, local: true do |form| %>
+    <%= form.hidden_field :fiscal_year, value: @fiscal_year %>
+    
+    <% @groups_by_category.each do |category, groups| %>
+      <div class="card mb-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0"><%= category.name %>（<%= category.code %>）</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-bordered mb-0" style="font-size: 0.9rem;">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 200px;">商品名</th>
+                  <th style="width: 150px;">商品コード</th>
+                  <th style="width: 150px;">グループ</th>
+                  <th style="width: 300px;">グループ名</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% groups.each do |group_data| %>
+                  <% product = group_data[:product] %>
+                  <% key = "#{category.id}_#{product.id}" %>
+                  <tr>
+                    <td><%= product.name %></td>
+                    <td><%= product.product_code %></td>
+                    <td>
+                      <%= form.text_field "groups[#{key}][group_code]", 
+                          value: group_data[:group_code], 
+                          class: 'form-control form-control-sm',
+                          placeholder: '例: A1' %>
+                    </td>
+                    <td>
+                      <%= form.text_field "groups[#{key}][group_name]", 
+                          value: group_data[:group_name], 
+                          class: 'form-control form-control-sm',
+                          placeholder: '例: 商品1、その他' %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="mb-4">
+      <%= form.submit '一括保存', class: 'btn btn-primary' %>
+      <%= link_to 'キャンセル', product_aggregation_groups_path(fiscal_year: @fiscal_year), class: 'btn btn-secondary' %>
+    </div>
+  <% end %>
+
+  <%= render 'shared/masters_back_button' %>
+</div>

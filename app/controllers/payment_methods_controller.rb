@@ -3,7 +3,7 @@ class PaymentMethodsController < ApplicationController
   before_action :set_payment_method, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @payment_methods = PaymentMethod.all
+    @payment_methods = PaymentMethod.all.page(params[:page]).per(30)
   end
 
   def show

@@ -12,12 +12,6 @@
     </div>
   </div>
 
-  <% if flash[:alert] %>
-    <div class="alert alert-danger" role="alert">
-      <%= flash[:alert] %>
-    </div>
-  <% end %>
-
   <div class="card mb-4">
     <div class="card-header bg-light">
       <h2 class="card-title mb-0">基本情報</h2>
@@ -28,21 +22,29 @@
           <strong>受注番号:</strong>
           <%= @order.order_number %>
         </div>
-        <div class="col-md-9">
+        <div class="col-md-4">
           <strong>請求書:</strong>
           <% if @order.invoiced? %>
             <%= @order.related_invoices %>
           <% end %>
           <%= render 'shared/invoice_status_badge', order: @order %>
         </div>
+        <div class="col-md-5">
+          <strong>注文元:</strong>
+          <% if @order.is_shop_order? %>
+            <span class="badge bg-success">ネットショップ</span>
+          <% else %>
+            <span class="badge bg-secondary">管理画面</span>
+          <% end %>
+        </div>
       </div>
       <div class="row">
         <div class="col-md-3">
-          <strong>取引先コード:</strong>
+          <strong>顧客コード:</strong>
           <%= @order.customer.customer_code %>
         </div>
         <div class="col-md-3">
-          <strong>取引先:</strong>
+          <strong>顧客名:</strong>
           <%= @order.customer.company_name %>
         </div>
         <div class="col-md-6">

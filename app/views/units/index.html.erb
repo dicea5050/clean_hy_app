@@ -4,31 +4,31 @@
     <%= link_to '新規登録', new_unit_path, class: 'btn btn-primary' %>
   </div>
 
-  <div class="card">
-    <div class="card-body">
-      <table class="table">
-        <thead>
+  <div class="table-responsive">
+    <table class="table units-index-table" style="table-layout: fixed; width: 100%;">
+      <thead>
+        <tr>
+          <th style="width: 300px;">単位名</th>
+          <th style="width: 200px;">操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @units.each do |unit| %>
           <tr>
-            <th>単位名</th>
-            <th>操作</th>
+            <td><small><%= unit.name %></small></td>
+            <td>
+              <%= render 'shared/index_action_buttons',
+                          show_path: unit_path(unit),
+                          edit_path: edit_unit_path(unit),
+                          delete_path: unit_path(unit) %>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          <% @units.each do |unit| %>
-            <tr>
-              <td><%= unit.name %></td>
-              <td>
-                <%= render 'shared/index_action_buttons',
-                            show_path: unit_path(unit),
-                            edit_path: edit_unit_path(unit),
-                            delete_path: unit_path(unit) %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
+        <% end %>
+      </tbody>
+    </table>
   </div>
+
+  <%= render 'shared/pagination', collection: @units %>
 
   <%= render 'shared/masters_back_button' %>
 </div>

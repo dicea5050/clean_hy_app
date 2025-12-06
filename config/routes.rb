@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get "product_aggregation_groups/index"
+  get "product_aggregation_groups/update_all"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -26,12 +28,33 @@ Rails.application.routes.draw do
   # 各種マスター
   resources :tax_rates
   resources :products
+  resources :budgets, only: [ :index, :new, :create ] do
+    collection do
+      get :edit
+      patch :update
+    end
+  end
+  resources :sales_reports, only: [ :index ] do
+    collection do
+      get :export_pdf
+      get :export_csv
+    end
+  end
+  resources :product_aggregation_groups, only: [ :index ] do
+    collection do
+      post :update_all
+    end
+  end
 
   # 顧客関連のルート（個別ルートを先に定義）
   get "customers/search", to: "customers#search"
   get "customers/company_name_search", to: "customers#company_name_search"
 
   resources :customers do
+    collection do
+      get :import_csv
+      post :process_csv
+    end
     member do
       get :delivery_locations
     end
@@ -55,6 +78,7 @@ Rails.application.routes.draw do
       get :find_product_by_code
       get :search_customers
       get :search_products
+      get :download_sample_csv
     end
 
     member do
@@ -79,15 +103,24 @@ Rails.application.routes.draw do
       get :unpaid_invoices
       get :paid_invoices
       get :payment_history
+      get :find_customer_by_code
     end
   end
 
   # ショップ機能用のルート
   namespace :shop do
     resources :products, only: [ :index, :show ]
-    resource :cart, only: [ :show, :update, :destroy ]
+    resource :cart, only: [ :show, :update, :destroy ] do
+      collection do
+        patch :update_item
+        delete :remove_item
+      end
+    end
     resources :orders, only: [ :new, :create ]
     get "orders/complete", to: "orders#complete", as: "order_complete"
+    get "mypage", to: "mypage#show", as: "mypage"
+    patch "mypage/update_password", to: "mypage#update_password", as: "mypage_update_password"
+    resources :delivery_locations, only: [ :new, :create, :show ]
 
     # カスタマーログイン関連
     get "login", to: "sessions#new", as: "login"
@@ -99,7 +132,7 @@ Rails.application.routes.draw do
   get "/shop", to: "shop/products#index"
 
   # ルートパスの設定
-  root to: "administrators#login"
+  root to: "home#index"
 
   resources :invoice_approvals, only: [ :index ] do
     collection do
@@ -112,4 +145,12 @@ Rails.application.routes.draw do
       post :reject
     end
   end
+
+  # 404エラーハンドリング：存在しないルートへのアクセス（最後に配置）
+  # Railsの内部パスとアセットパスは除外
+  match "*path", to: "application#not_found", via: :all, constraints: lambda { |request|
+    !request.path.start_with?("/rails") &&
+    !request.path.start_with?("/assets") &&
+    !request.path.start_with?("/packs")
+  }
 end

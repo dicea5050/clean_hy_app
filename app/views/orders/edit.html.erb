@@ -4,6 +4,14 @@
   <div class="row mb-3 align-items-center">
     <div class="col-md-12">
       <strong>受注番号：</strong><%= @order.order_number %>
+      <span class="d-inline-block ms-3">
+        <strong>注文元：</strong>
+        <% if @order.is_shop_order? %>
+          <span class="badge bg-success">ネットショップ</span>
+        <% else %>
+          <span class="badge bg-secondary">管理画面</span>
+        <% end %>
+      </span>
       <% if @order.invoiced? %>
         <span class="d-inline-block ms-3">
           <strong>請求書番号：</strong>

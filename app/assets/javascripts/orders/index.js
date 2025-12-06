@@ -101,13 +101,20 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // 取引先名のインクリメンタルサーチを初期化
-  if (window.CompanyNameSearch) {
-    window.CompanyNameSearch.setup(document, {
-      inputSelector: '#customer_name_search',
-      suggestionsSelector: '#customer_name_suggestions',
-      apiUrl: '/customers/company_name_search',
-      autoSubmit: true
+  // 顧客コード・取引先名連動機能を初期化
+  if (window.CustomerCodeSearch) {
+    window.CustomerCodeSearch.init({
+      customerCodeSelector: 'input[name="customer_code"]',
+      customerSelectSelector: '#customer_name_search',
+      customerIdSelector: null,
+      findCustomerApiUrl: '/orders/find_customer_by_code',
+      enableSelect2: true,
+      onCustomerChange: function(customerId, customerData) {
+        // 検索フォームなので特に追加処理は不要
+      },
+      onCustomerClear: function() {
+        // 検索フォームなので特に追加処理は不要
+      }
     });
   }
 });

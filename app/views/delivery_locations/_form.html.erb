@@ -1,4 +1,4 @@
-<%= form_with(model: delivery_location, local: true) do |form| %>
+<%= form_with(model: delivery_location, local: true, html: { class: 'h-adr' }) do |form| %>
   <% if delivery_location.errors.any? %>
     <div class="alert alert-danger">
       <h4><%= pluralize(delivery_location.errors.count, "error") %> 保存できませんでした:</h4>
@@ -10,9 +10,28 @@
     </div>
   <% end %>
 
-  <div class="mb-3">
-    <%= form.label :customer_id, '取引先', class: 'form-label' %>
-    <%= form.collection_select :customer_id, Customer.all, :id, :name, {}, class: 'form-control' %>
+  <span class="p-country-name d-none">Japan</span>
+
+  <div class="row mb-3">
+    <div class="col-md-3">
+      <%= form.label :customer_code, '顧客コード', class: 'form-label' %>
+      <%= text_field_tag :customer_code, @customer_code, class: 'form-control', id: 'delivery_location_customer_code', placeholder: '顧客コードを入力' %>
+    </div>
+
+    <div class="col-md-9">
+      <%= form.label :customer_id, class: 'form-label mb-2' do %>
+        顧客名<span class="text-danger">*</span>
+      <% end %>
+      <%= form.hidden_field :customer_id, id: 'delivery_location_customer_id' %>
+      <select id="delivery_location_customer_select" name="delivery_location[customer_id]" class="form-select" required>
+        <option value="">選択してください</option>
+        <% (@customers || Customer.order(:company_name)).each do |customer| %>
+          <option value="<%= customer.id %>" data-customer-code="<%= customer.customer_code %>" <%= 'selected' if delivery_location.customer_id == customer.id %>>
+            <%= customer.company_name %>
+          </option>
+        <% end %>
+      </select>
+    </div>
   </div>
 
   <div class="mb-3">
@@ -20,14 +39,16 @@
     <%= form.text_field :name, class: 'form-control' %>
   </div>
 
-  <div class="mb-3">
-    <%= form.label :postal_code, '郵便番号', class: 'form-label' %>
-    <%= form.text_field :postal_code, class: 'form-control', placeholder: '123-4567' %>
-  </div>
+  <div class="row mb-3">
+    <div class="col-md-3">
+      <%= form.label :postal_code, '郵便番号', class: 'form-label' %>
+      <%= form.text_field :postal_code, class: 'form-control p-postal-code', placeholder: '123-4567' %>
+    </div>
 
-  <div class="mb-3">
-    <%= form.label :address, '住所', class: 'form-label' %>
-    <%= form.text_area :address, class: 'form-control', rows: 3 %>
+    <div class="col-md-9">
+      <%= form.label :address, '住所', class: 'form-label' %>
+      <%= form.text_field :address, class: 'form-control p-region p-locality p-street-address' %>
+    </div>
   </div>
 
   <div class="mb-3">
@@ -45,3 +66,5 @@
     <%= link_to 'キャンセル', delivery_locations_path, class: 'btn btn-secondary' %>
   </div>
 <% end %>
+
+<%= javascript_include_tag "delivery_locations/form" %>

@@ -1,53 +1,64 @@
 <div class="container mt-4">
-  <div class="card">
+  <div class="card shadow mb-4">
     <div class="card-header bg-primary text-white">
-      <h2>商品詳細</h2>
+      <h1 class="mb-0">商品詳細</h1>
     </div>
     <div class="card-body">
-      <div class="mb-3">
-        <strong>商品コード:</strong> <%= @product.product_code %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">商品コード</div>
+        <div class="col-md-9"><%= @product.product_code %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>商品名:</strong> <%= @product.name %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">商品名</div>
+        <div class="col-md-9"><%= @product.name %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>カテゴリー:</strong> <%= @product.product_category.code %> - <%= @product.product_category.name %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">カテゴリー</div>
+        <div class="col-md-9"><%= @product.product_category.code %> - <%= @product.product_category.name %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>単価（税抜）:</strong> <%= number_to_currency(@product.price, unit: '¥', format: '%u%n') if @product.price.present? %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">単価（税抜）</div>
+        <div class="col-md-9"><%= number_to_currency(@product.price, unit: '¥', format: '%u%n') if @product.price.present? %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>値引き:</strong>
-        <% if @product.is_discount_target %>
-          対象
-        <% else %>
-          なし
-        <% end %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">値引き</div>
+        <div class="col-md-9">
+          <% if @product.is_discount_target %>
+            対象
+          <% else %>
+            なし
+          <% end %>
+        </div>
       </div>
 
-      <div class="mb-3">
-        <strong>適用税率:</strong> <%= @product.tax_rate.name %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">適用税率</div>
+        <div class="col-md-9"><%= @product.tax_rate.name %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>税率(%):</strong> <%= @product.tax_rate.rate %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">税率(%)</div>
+        <div class="col-md-9"><%= @product.tax_rate.rate %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>在庫数:</strong>
-        <% if @product.stock.nil? %>
-          無制限
-        <% else %>
-          <%= @product.stock %>個
-        <% end %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">在庫数</div>
+        <div class="col-md-9">
+          <% if @product.stock.nil? %>
+            無制限
+          <% else %>
+            <%= @product.stock %>個
+          <% end %>
+        </div>
       </div>
 
-      <div class="mb-3">
-        <strong>公開状態:</strong> <%= @product.is_public? ? '公開' : '非公開' %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">公開状態</div>
+        <div class="col-md-9"><%= @product.is_public? ? '公開' : '非公開' %></div>
       </div>
     </div>
     <div class="card-footer">

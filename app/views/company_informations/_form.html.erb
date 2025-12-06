@@ -10,59 +10,69 @@
     </div>
   <% end %>
 
-  <div class="mb-3">
-    <%= form.label :name, '社名', class: 'form-label' %>
-    <%= form.text_field :name, class: 'form-control' %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :postal_code, '郵便番号', class: 'form-label' %>
-    <%= form.text_field :postal_code, class: 'form-control', placeholder: '123-4567' %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :address, '住所', class: 'form-label' %>
-    <%= form.text_area :address, class: 'form-control', rows: 3 %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :phone_number, '電話番号', class: 'form-label' %>
-    <%= form.text_field :phone_number, class: 'form-control', placeholder: '03-1234-5678' %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :fax_number, 'FAX番号（任意）', class: 'form-label' %>
-    <%= form.text_field :fax_number, class: 'form-control', placeholder: '03-1234-5679' %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :invoice_registration_number, '適格請求書番号', class: 'form-label' %>
-    <%= form.text_field :invoice_registration_number, class: 'form-control', placeholder: 'T1234567890123' %>
-    <div class="form-text">大文字のTで始まる13桁の数字を入力してください</div>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :representative_name, '代表者名', class: 'form-label' %>
-    <%= form.text_field :representative_name, class: 'form-control' %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :company_seal, '社印画像', class: 'form-label' %>
-    <%= form.file_field :company_seal, class: 'form-control' %>
-
-    <% if company_information.company_seal.attached? %>
-      <div class="mt-2">
-        <p>現在の社印：</p>
-        <% begin %>
-          <%= image_tag company_information.company_seal, class: 'img-thumbnail', style: 'max-width: 200px; max-height: 200px;' %>
-        <% rescue => e %>
-          <p class="text-danger">画像の表示エラー: <%= e.message %></p>
-        <% end %>
+  <div class="form-group form-group-spacing">
+    <div class="d-flex align-items-end gap-3">
+      <div style="width: 300px;">
+        <%= form.label :name, '社名', class: 'form-label' %>
+        <%= form.text_field :name, class: 'form-control' %>
       </div>
-    <% end %>
+      <div>
+        <%= form.label :representative_name, '代表者名', class: 'form-label' %>
+        <%= form.text_field :representative_name, class: 'form-control' %>
+      </div>
+    </div>
   </div>
 
-  <div class="mb-3">
+  <div class="form-group form-group-spacing">
+    <div class="d-flex align-items-end gap-3">
+      <div>
+        <%= form.label :postal_code, '郵便番号', class: 'form-label' %>
+        <%= form.text_field :postal_code, class: 'form-control form-control-width-100', placeholder: '123-4567' %>
+      </div>
+      <div class="flex-fill">
+        <%= form.label :address, '住所', class: 'form-label' %>
+        <%= form.text_field :address, class: 'form-control' %>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group form-group-spacing">
+    <div class="d-flex align-items-end gap-3">
+      <div>
+        <%= form.label :phone_number, '電話番号', class: 'form-label' %>
+        <%= form.text_field :phone_number, class: 'form-control', placeholder: '03-1234-5678' %>
+      </div>
+      <div>
+        <%= form.label :fax_number, 'FAX番号（任意）', class: 'form-label' %>
+        <%= form.text_field :fax_number, class: 'form-control', placeholder: '03-1234-5679' %>
+      </div>
+      <div>
+        <%= form.label :invoice_registration_number, '適格請求書番号', class: 'form-label' %>
+        <%= form.text_field :invoice_registration_number, class: 'form-control', placeholder: 'T1234567890123' %>
+      </div>
+    </div>
+    <div class="form-text mt-1">適格請求書番号は、大文字のTで始まる13桁の数字を入力してください</div>
+  </div>
+
+  <div class="form-group form-group-spacing">
+    <div style="width: 400px;">
+      <%= form.label :company_seal, '社印画像', class: 'form-label' %>
+      <%= form.file_field :company_seal, class: 'form-control' %>
+
+      <% if company_information.company_seal.attached? %>
+        <div class="mt-2">
+          <p>現在の社印：</p>
+          <% begin %>
+            <%= image_tag company_information.company_seal, class: 'img-thumbnail', style: 'max-width: 200px; max-height: 200px;' %>
+          <% rescue => e %>
+            <p class="text-danger">画像の表示エラー: <%= e.message %></p>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="form-group form-group-spacing">
     <%= form.submit '保存', class: 'btn btn-primary me-2' %>
     <%= link_to 'キャンセル', company_informations_path, class: 'btn btn-secondary' %>
   </div>

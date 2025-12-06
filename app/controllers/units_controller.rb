@@ -3,7 +3,7 @@ class UnitsController < ApplicationController
   before_action :set_unit, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @units = Unit.all
+    @units = Unit.all.page(params[:page]).per(30)
   end
 
   def show

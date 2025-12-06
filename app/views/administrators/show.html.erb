@@ -1,15 +1,17 @@
 <div class="container mt-4">
-  <div class="card">
+  <div class="card shadow mb-4">
     <div class="card-header bg-primary text-white">
-      <h2>管理者詳細</h2>
+      <h1 class="mb-0">管理者詳細</h1>
     </div>
     <div class="card-body">
-      <div class="mb-3">
-        <strong>メールアドレス:</strong> <%= @administrator.email %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">メールアドレス</div>
+        <div class="col-md-9"><%= @administrator.email %></div>
       </div>
 
-      <div class="mb-3">
-        <strong>権限:</strong> <%= @administrator.role_name %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">権限</div>
+        <div class="col-md-9"><%= @administrator.role_name %></div>
       </div>
     </div>
     <div class="card-footer">

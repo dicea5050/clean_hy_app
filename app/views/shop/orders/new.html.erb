@@ -1,81 +1,93 @@
 <h1>注文確認</h1>
 
-<h2>ご注文内容</h2>
+<% if @order.errors.any? %>
+  <div class="alert alert-danger">
+    <h4>以下のエラーが発生しました：</h4>
+    <ul>
+      <% @order.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<h2 class="mt-4">ご注文内容</h2>
 <table class="table">
   <thead>
     <tr>
       <th>商品名</th>
-      <th>単価</th>
-      <th>数量</th>
-      <th>小計</th>
+      <th class="text-right">単価</th>
+      <th class="text-right">数量</th>
+      <th class="text-right">小計</th>
     </tr>
   </thead>
   <tbody>
     <% @cart.items.each do |item| %>
       <tr>
         <td><%= item.product.name %></td>
-        <td>¥<%= number_with_delimiter(item.product.price) %></td>
-        <td><%= item.quantity %></td>
-        <td>¥<%= number_with_delimiter(item.subtotal) %></td>
+        <td class="text-right">¥<%= number_with_delimiter(item.product.price) %></td>
+        <td class="text-right"><%= item.quantity %></td>
+        <td class="text-right">¥<%= number_with_delimiter(item.subtotal) %></td>
       </tr>
     <% end %>
   </tbody>
   <tfoot>
     <tr>
       <td colspan="3" class="text-right"><strong>合計（税抜）:</strong></td>
-      <td>¥<%= number_with_delimiter(@cart.total_price) %></td>
+      <td class="text-right"><strong>¥<%= number_with_delimiter(@cart.total_price) %></strong></td>
     </tr>
     <tr>
       <td colspan="3" class="text-right"><strong>消費税:</strong></td>
-      <td>¥<%= number_with_delimiter(@cart.total_tax) %></td>
+      <td class="text-right"><strong>¥<%= number_with_delimiter(@cart.total_tax) %></strong></td>
     </tr>
     <tr>
       <td colspan="3" class="text-right"><strong>合計（税込）:</strong></td>
-      <td>¥<%= number_with_delimiter(@cart.total_with_tax) %></td>
+      <td class="text-right"><strong>¥<%= number_with_delimiter(@cart.total_with_tax) %></strong></td>
     </tr>
   </tfoot>
 </table>
 
-<h2>お客様情報・お支払い方法</h2>
+<h2 class="mt-5">お客様情報・お支払い方法</h2>
 <%= form_with model: @order, url: shop_orders_path, local: true do |f| %>
   <div class="form-group">
-    <label>お名前</label>
-    <p class="form-control-static"><%= current_customer.contact_name %></p>
+    <label><strong>お客様名（ご注文者名）</strong></label>
+    <p class="form-control-static"><%= current_customer.company_name %></p>
   </div>
 
   <div class="form-group">
-    <label>メールアドレス</label>
+    <label><strong>メールアドレス</strong>（ご注文後に、注文完了メールが届きます）</label>
     <p class="form-control-static"><%= current_customer.email %></p>
   </div>
 
-  <div class="form-group">
-    <label>登録住所</label>
-    <p class="form-control-static"><%= current_customer.address %></p>
-  </div>
-
-  <div class="form-group">
-    <%= f.label :delivery_location_id, 'お届け先' %>
-    <%= f.collection_select :delivery_location_id, @delivery_locations, :id, :name,
-                          { prompt: 'お届け先を選択してください' },
-                          { class: 'form-control', id: 'delivery-location-select' } %>
-
-    <div id="delivery-location-details" class="mt-2 card p-3 d-none">
-      <p id="delivery-address"></p>
-      <p id="delivery-contact"></p>
+  <div class="form-group mb-4">
+    <%= f.label :delivery_location_id do %>
+      <strong>お届け先</strong>
+    <% end %>
+    <div class="d-flex align-items-center gap-3">
+      <%= f.collection_select :delivery_location_id, @delivery_locations, :id, :name,
+                            { prompt: 'お届け先を選択してください' },
+                            { class: 'form-select', id: 'delivery-location-select', style: 'width: 450px;', required: true } %>
+      <span id="delivery-location-address" class="text-muted" style="display: none;"></span>
     </div>
   </div>
 
-  <div class="form-group">
-    <%= f.label :payment_method_id, 'お支払い方法' %>
-    <%= f.collection_select :payment_method_id, @payment_methods, :id, :name, {}, class: 'form-control' %>
+  <div class="form-group mb-4">
+    <%= f.label :payment_method_id do %>
+      <strong>お支払い方法</strong>（＊銀行振込は、他のご注文と合算した請求書を後日お送りします）
+    <% end %>
+    <%= f.collection_select :payment_method_id, @payment_methods, :id, :name,
+                          { selected: @order.payment_method_id || current_customer.payment_method_id },
+                          { class: 'form-select', style: 'width: 450px;' } %>
   </div>
 
-  <div class="form-group">
-    <%= f.label :desired_delivery_date, '希望お届け日' %>
-    <%= f.date_field :desired_delivery_date, min: Date.tomorrow, class: 'form-control' %>
+  <div class="form-group mb-4">
+    <%= f.label :desired_delivery_date do %>
+      <strong>希望お届け日</strong>（＊ご希望日にお届けできない場合もあります）
+    <% end %>
+    <%= f.date_field :desired_delivery_date, min: Date.tomorrow, class: 'form-control', style: 'width: 450px;' %>
   </div>
 
-  <div class="form-actions">
+  <div class="form-actions mt-4">
     <%= link_to 'カートに戻る', shop_cart_path, class: 'btn btn-outline-secondary' %>
     <%= f.submit '注文する', class: 'btn btn-primary' %>
   </div>

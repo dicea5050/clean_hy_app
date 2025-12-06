@@ -1,10 +1,1 @@
-<div class="container mt-4">
-  <div class="card">
-    <div class="card-header bg-primary text-white">
-      <h2>商品規格の編集</h2>
-    </div>
-    <div class="card-body">
-      <%= render 'form', product_specification: @product_specification %>
-    </div>
-  </div>
-</div>
+<%= render 'shared/master_form_card', title: '商品規格の編集', form_partial: 'form', form_object: { product_specification: @product_specification } %>

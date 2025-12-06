@@ -4,7 +4,7 @@ class ProductCategoriesController < ApplicationController
   before_action :set_product_category, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @product_categories = ProductCategory.all
+    @product_categories = ProductCategory.all.page(params[:page]).per(30)
   end
 
   def show

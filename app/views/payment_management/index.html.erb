@@ -10,21 +10,32 @@
   <!-- 取引先選択カード -->
   <div class="card shadow-sm mb-4">
     <div class="card-body">
-      <h3 class="card-title">取引先選択</h3>
+      <h2 class="card-title mb-0">顧客選択</h2>
       <div class="row">
-        <div class="col-md-4">
+        <div class="col-12 col-md-2">
           <div class="form-group">
-            <label for="customer-select" class="form-label">取引先名</label>
+            <label for="customer-code-input" class="form-label">顧客コード</label>
+            <input type="text" 
+                   id="customer-code-input" 
+                   class="form-control" 
+                   placeholder="顧客コードを入力"
+                   data-payment-management-target="customerCodeInput"
+                   data-action="blur->payment-management#onCustomerCodeBlur">
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="form-group">
+            <label for="customer-select" class="form-label">顧客名</label>
             <select id="customer-select" class="form-select" data-payment-management-target="customerSelect" data-action="change->payment-management#onCustomerChange">
               <option value="">選択してください</option>
               <% @customers.each do |customer| %>
-                <option value="<%= customer.id %>"><%= customer.company_name %></option>
+                <option value="<%= customer.id %>" data-customer-code="<%= customer.customer_code %>"><%= customer.company_name %></option>
               <% end %>
             </select>
           </div>
         </div>
-        <div class="col-md-8 d-flex align-items-end">
-          <div class="d-flex gap-2 w-100" data-payment-management-target="invoiceButtons">
+        <div class="col-12 col-md-6 d-md-flex align-items-md-end mt-3 mt-md-0">
+          <div class="d-flex gap-2 flex-wrap w-100" data-payment-management-target="invoiceButtons">
             <button type="button" class="btn btn-primary payment-btn rounded text-nowrap" data-action="click->payment-management#loadUnpaidInvoices" data-payment-management-target="unpaidButton" disabled>
               入金未完了請求書を表示
             </button>
@@ -43,7 +54,7 @@
   <!-- 請求書一覧カード -->
   <div class="card shadow-sm mb-4 d-none" data-payment-management-target="invoicesCard">
     <div class="card-body">
-      <h3 class="card-title" data-payment-management-target="invoicesTitle">請求書一覧</h3>
+      <h2 class="card-title mb-0" data-payment-management-target="invoicesTitle">請求書一覧</h2>
       <div class="table-responsive">
         <table class="table table-striped table-bordered">
           <thead data-payment-management-target="tableHeader">
@@ -68,51 +79,83 @@
   <!-- 入金入力カード -->
   <div class="card shadow-sm mb-4 d-none" data-payment-management-target="paymentCard">
     <div class="card-body">
-      <h3 class="card-title">入金登録</h3>
+      <h2 class="card-title mb-0">入金登録</h2>
       <%= form_with url: payment_management_index_path, method: :post, local: true, scope: :payment, data: { payment_management_target: "paymentForm" } do |form| %>
-        <div class="row">
-          <div class="col-md-3">
-            <div class="form-group">
-              <%= form.label :payment_date, "入金日", class: "form-label" %>
-              <%= form.date_field :payment_date, value: Date.current, class: "form-control", required: true %>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="form-group">
-              <%= form.label :category, "入金種別", class: "form-label" %>
-              <%= form.select :category,
-                  options_for_select([
-                    ['入金（振込）', '入金（振込）'],
-                    ['入金（現金）', '入金（現金）'],
-                    ['振込手数料', '振込手数料'],
-                    ['相殺', '相殺'],
-                    ['返金', '返金']
-                  ]),
-                  { prompt: "選択してください" },
-                  { class: "form-select", required: true } %>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="form-group">
-              <%= form.label :amount, "入金額", class: "form-label" %>
-              <%= form.number_field :amount, class: "form-control", min: 1, step: 1, required: true, data: { payment_management_target: "amountInput", action: "input->payment-management#calculateAllocation" } %>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="form-group">
-              <%= form.label :notes, "備考", class: "form-label" %>
-              <%= form.text_field :notes, class: "form-control" %>
+        <div data-payment-management-target="paymentRowsContainer">
+          <!-- 入金行がここに動的に追加されます -->
+          <div class="payment-row mb-3" data-payment-management-target="paymentRow">
+            <div class="row">
+              <div class="col-md-2">
+                <div class="form-group">
+                  <label class="form-label">入金日</label>
+                  <input type="date" 
+                         class="form-control payment-date" 
+                         value="<%= Date.current %>" 
+                         required
+                         data-action="change->payment-management#calculateAllocation">
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="form-group">
+                  <label class="form-label">入金種別</label>
+                  <select class="form-select payment-category" required data-action="change->payment-management#calculateAllocation">
+                    <option value="">選択してください</option>
+                    <option value="入金（振込）">入金（振込）</option>
+                    <option value="入金（現金）">入金（現金）</option>
+                    <option value="振込手数料">振込手数料</option>
+                    <option value="相殺">相殺</option>
+                    <option value="返金">返金</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="form-group">
+                  <label class="form-label">入金額</label>
+                  <input type="number" 
+                         class="form-control payment-amount" 
+                         min="1" 
+                         step="1" 
+                         required
+                         data-action="input->payment-management#calculateAllocation">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="form-label">備考</label>
+                  <input type="text" class="form-control payment-notes">
+                </div>
+              </div>
+              <div class="col-md-2 d-flex align-items-end">
+                <button type="button" 
+                        class="btn btn-danger btn-sm remove-row-btn" 
+                        data-action="click->payment-management#removePaymentRow"
+                        style="display: none;">
+                  削除
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
         <div class="row mt-3">
           <div class="col-md-6">
-            <button type="button" class="btn btn-success" data-action="click->payment-management#confirmPayment" data-payment-management-target="confirmButton" disabled>
+            <button type="button" 
+                    class="btn btn-secondary btn-sm" 
+                    data-action="click->payment-management#addPaymentRow">
+              行を追加
+            </button>
+            <button type="button" 
+                    class="btn btn-success ms-2" 
+                    data-action="click->payment-management#confirmPayment" 
+                    data-payment-management-target="confirmButton" 
+                    disabled>
               消し込み登録
             </button>
           </div>
           <div class="col-md-6 text-end">
+            <div class="mb-2">
+              <strong>合計入金額: <span data-payment-management-target="totalAmount">¥0</span></strong>
+            </div>
             <div class="alert alert-info mb-0 d-none" data-payment-management-target="allocationSummary">
               <!-- 充当結果サマリー -->
             </div>

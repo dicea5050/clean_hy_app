@@ -1,118 +1,151 @@
 document.addEventListener('DOMContentLoaded', function() {
-  // 共通変数の宣言
-  const customerCodeField = document.getElementById('order_customer_code');
-  const customerSearchField = document.getElementById('customer_search_input');
-  const customerIdField = document.getElementById('order_customer_id');
-
-  // 編集時の初期化処理
-  if (customerIdField && customerIdField.value) {
-    // 既に顧客が選択されている場合、納品先の選択肢を更新
-    const deliverySelect = document.getElementById('order_delivery_location_id');
-    if (deliverySelect && deliverySelect.options.length <= 1) {
-      // 納品先の選択肢が空の場合、顧客情報を取得して更新
-      const customerCode = customerCodeField ? customerCodeField.value : '';
-      if (customerCode) {
-        fetch(`/orders/find_customer_by_code?code=${encodeURIComponent(customerCode)}`)
-          .then(response => response.json())
-          .then(data => {
-            if (data.success && data.customer) {
-              deliverySelect.innerHTML = '<option value="">納品先を選択してください</option>';
-              data.customer.delivery_locations.forEach(location => {
-                const option = document.createElement('option');
-                option.value = location.id;
-                option.textContent = location.name;
-                deliverySelect.appendChild(option);
-              });
-              deliverySelect.disabled = false;
-            }
-          })
-          .catch(error => {
-            console.error('Customer info fetch error:', error);
-          });
-      }
-    }
-  } else if (customerCodeField && customerCodeField.value) {
-    // 顧客コードが入力されているが、顧客IDが設定されていない場合（エラー時など）
-    const deliverySelect = document.getElementById('order_delivery_location_id');
-    if (deliverySelect && deliverySelect.options.length <= 1) {
-      const customerCode = customerCodeField.value.trim();
-      if (customerCode) {
-        fetch(`/orders/find_customer_by_code?code=${encodeURIComponent(customerCode)}`)
-          .then(response => response.json())
-          .then(data => {
-            if (data.success && data.customer) {
-              // 顧客名を設定
-              if (customerSearchField) {
-                customerSearchField.value = data.customer.company_name;
-              }
-              if (customerIdField) {
-                customerIdField.value = data.customer.id;
-              }
-
-              // 納品先の選択肢を更新
-              deliverySelect.innerHTML = '<option value="">納品先を選択してください</option>';
-              data.customer.delivery_locations.forEach(location => {
-                const option = document.createElement('option');
-                option.value = location.id;
-                option.textContent = location.name;
-                deliverySelect.appendChild(option);
-              });
-              deliverySelect.disabled = false;
-            }
-          })
-          .catch(error => {
-            console.error('Customer info fetch error:', error);
-          });
-      }
-    }
-  }
-
-  // 顧客コード入力時の自動補完
-  if (customerCodeField) {
-    customerCodeField.addEventListener('blur', function() {
-      const code = this.value.trim();
-      console.log('Customer code entered:', code); // デバッグ用
-      if (code) {
-        fetch(`/orders/find_customer_by_code?code=${encodeURIComponent(code)}`)
-          .then(response => {
-            console.log('Customer code response status:', response.status); // デバッグ用
-            return response.json();
-          })
-          .then(data => {
-            console.log('Customer code data:', data); // デバッグ用
-            if (data.success && data.customer) {
-              // 顧客名を設定
-              if (customerSearchField) {
-                customerSearchField.value = data.customer.company_name;
-              }
-              if (customerIdField) {
-                customerIdField.value = data.customer.id;
-              }
-
-              // 納品先の選択肢を更新
-              const deliverySelect = document.getElementById('order_delivery_location_id');
-              if (deliverySelect) {
-                deliverySelect.innerHTML = '<option value="">納品先を選択してください</option>';
-                data.customer.delivery_locations.forEach(location => {
+  // 顧客コード・取引先名連動機能を初期化
+  if (window.CustomerCodeSearch) {
+    window.CustomerCodeSearch.init({
+      customerCodeSelector: '#order_customer_code',
+      customerSelectSelector: '#order_customer_select',
+      customerIdSelector: '#order_customer_id',
+      findCustomerApiUrl: '/orders/find_customer_by_code',
+      enableSelect2: true,
+      onCustomerChange: function(customerId, customerData) {
+        // 納品先の選択肢を更新
+        const deliverySelect = document.getElementById('order_delivery_location_id');
+        if (deliverySelect && customerId) {
+          fetch(`/customers/${customerId}/delivery_locations`)
+            .then(response => response.json())
+            .then(data => {
+              deliverySelect.innerHTML = '';
+              if (data && data.length > 0) {
+                let mainOfficeId = null;
+                data.forEach(location => {
                   const option = document.createElement('option');
                   option.value = location.id;
                   option.textContent = location.name;
+                  if (location.is_main_office) {
+                    option.selected = true;
+                    mainOfficeId = location.id;
+                  }
                   deliverySelect.appendChild(option);
                 });
+                // 本社がなければ最初の納品先を選択
+                if (!mainOfficeId && data.length > 0) {
+                  deliverySelect.options[0].selected = true;
+                }
                 deliverySelect.disabled = false;
+              } else {
+                deliverySelect.disabled = true;
               }
+            })
+            .catch(error => {
+              console.error('Delivery locations fetch error:', error);
+            });
+        }
 
-              showMessage('顧客情報を取得しました', 'success');
-            } else {
-              showMessage('顧客コードが見つかりません', 'error');
+        // 支払い方法を自動設定（顧客情報に支払い方法が登録されている場合）
+        if (customerData && customerData.payment_method_id) {
+          const paymentMethodSelect = document.getElementById('order_payment_method_id');
+          if (paymentMethodSelect) {
+            // 支払い方法の選択肢が存在するか確認
+            const option = paymentMethodSelect.querySelector(`option[value="${customerData.payment_method_id}"]`);
+            if (option) {
+              paymentMethodSelect.value = customerData.payment_method_id;
+              // select2を使用している場合は更新
+              if (typeof $ !== 'undefined' && $(paymentMethodSelect).data('select2')) {
+                $(paymentMethodSelect).trigger('change');
+              }
             }
-          })
-          .catch(error => {
-            console.error('Customer code error:', error);
-            showMessage('顧客情報の取得に失敗しました', 'error');
-          });
+          }
+        }
+      },
+      onCustomerClear: function() {
+        const deliverySelect = document.getElementById('order_delivery_location_id');
+        if (deliverySelect) {
+          deliverySelect.innerHTML = '';
+          deliverySelect.disabled = true;
+        }
+        // 支払い方法はクリアしない（デフォルト値として残す）
       }
     });
+  }
+
+  // 顧客名のセレクトボックスが直接変更されたときの処理
+  const customerSelectField = document.getElementById('order_customer_select');
+  if (customerSelectField) {
+    // select2を使用している場合
+    if (typeof $ !== 'undefined' && $(customerSelectField).data('select2')) {
+      $(customerSelectField).on('select2:select', function() {
+        const customerId = $(this).val();
+        if (customerId) {
+          updatePaymentMethodFromCustomer(customerId);
+        }
+      });
+    } else {
+      // 通常のselectの場合
+      customerSelectField.addEventListener('change', function() {
+        const customerId = this.value;
+        if (customerId) {
+          updatePaymentMethodFromCustomer(customerId);
+        }
+      });
+    }
+  }
+
+  // 顧客IDから支払い方法を取得して設定する関数
+  function updatePaymentMethodFromCustomer(customerId) {
+    // 顧客IDから顧客情報を取得（支払い方法IDを含む）
+    fetch(`/orders/find_customer_by_code?customer_id=${encodeURIComponent(customerId)}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.customer && data.customer.payment_method_id) {
+          const paymentMethodSelect = document.getElementById('order_payment_method_id');
+          if (paymentMethodSelect) {
+            const option = paymentMethodSelect.querySelector(`option[value="${data.customer.payment_method_id}"]`);
+            if (option) {
+              paymentMethodSelect.value = data.customer.payment_method_id;
+              // select2を使用している場合は更新
+              if (typeof $ !== 'undefined' && $(paymentMethodSelect).data('select2')) {
+                $(paymentMethodSelect).trigger('change');
+              }
+            }
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Payment method fetch error:', error);
+      });
+  }
+
+  // 編集時の初期化処理（納品先の選択肢を更新）
+  const customerIdField = document.getElementById('order_customer_id');
+  const deliverySelect = document.getElementById('order_delivery_location_id');
+  if (customerIdField && customerIdField.value && deliverySelect && deliverySelect.options.length <= 1) {
+    // 既に顧客が選択されている場合、納品先の選択肢を更新
+    fetch(`/customers/${customerIdField.value}/delivery_locations`)
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          deliverySelect.innerHTML = '';
+          let mainOfficeId = null;
+          data.forEach(location => {
+            const option = document.createElement('option');
+            option.value = location.id;
+            option.textContent = location.name;
+            if (location.is_main_office) {
+              option.selected = true;
+              mainOfficeId = location.id;
+            }
+            deliverySelect.appendChild(option);
+          });
+          // 本社がなければ最初の納品先を選択
+          if (!mainOfficeId && data.length > 0) {
+            deliverySelect.options[0].selected = true;
+          }
+          deliverySelect.disabled = false;
+        }
+      })
+      .catch(error => {
+        console.error('Delivery locations fetch error:', error);
+      });
   }
 
   // インクリメンタルサーチ機能は一時的に無効化
@@ -175,10 +208,10 @@ document.addEventListener('DOMContentLoaded', function() {
           if (unitPriceInput && data.product.price) {
             unitPriceInput.value = data.product.price;
           }
-          if (taxRateDisplay && data.product.tax_rate) {
-            taxRateDisplay.textContent = data.product.tax_rate;
+          if (taxRateDisplay && data.product.tax_rate !== undefined && data.product.tax_rate !== null) {
+            taxRateDisplay.textContent = data.product.tax_rate + '%';
           }
-          if (taxRateInput && data.product.tax_rate) {
+          if (taxRateInput && data.product.tax_rate !== undefined && data.product.tax_rate !== null) {
             taxRateInput.value = data.product.tax_rate;
           }
 

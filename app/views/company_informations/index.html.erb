@@ -4,44 +4,42 @@
     <%= link_to '新規作成', new_company_information_path, class: 'btn btn-primary' %>
   </div>
 
-  <div class="card shadow">
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table table-striped table-hover">
-          <thead>
-            <tr>
-              <th>社名</th>
-              <th>郵便番号</th>
-              <th>住所</th>
-              <th>電話番号</th>
-              <th>適格請求書番号</th>
-              <th>代表者名</th>
-              <th colspan="3"></th>
-            </tr>
-          </thead>
+  <div class="table-responsive">
+    <table class="table company-informations-index-table" style="table-layout: fixed; width: 100%;">
+      <thead>
+        <tr>
+          <th style="width: 170px;">社名</th>
+          <th style="width: 100px;">郵便番号</th>
+          <th style="width: 260px;">住所</th>
+          <th style="width: 120px;">電話番号</th>
+          <th style="width: 150px;">適格請求書番号</th>
+          <th style="width: 120px;">代表者名</th>
+          <th style="width: 180px;">操作</th>
+        </tr>
+      </thead>
 
-          <tbody>
-            <% @company_informations.each do |company_information| %>
-              <tr>
-                <td><%= company_information.name %></td>
-                <td><%= company_information.postal_code %></td>
-                <td><%= company_information.address %></td>
-                <td><%= company_information.phone_number %></td>
-                <td><%= company_information.invoice_registration_number %></td>
-                <td><%= company_information.representative_name %></td>
-                <td>
-                  <%= render 'shared/index_action_buttons',
-                              show_path: company_information_path(company_information),
-                              edit_path: edit_company_information_path(company_information),
-                              delete_path: company_information_path(company_information) %>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    </div>
+      <tbody>
+        <% @company_informations.each do |company_information| %>
+          <tr>
+            <td><small><%= company_information.name %></small></td>
+            <td><small><%= company_information.postal_code %></small></td>
+            <td><small><%= company_information.address %></small></td>
+            <td><small><%= company_information.phone_number %></small></td>
+            <td><small><%= company_information.invoice_registration_number %></small></td>
+            <td><small><%= company_information.representative_name %></small></td>
+            <td>
+              <%= render 'shared/index_action_buttons',
+                          show_path: company_information_path(company_information),
+                          edit_path: edit_company_information_path(company_information),
+                          delete_path: company_information_path(company_information) %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
   </div>
+
+  <%= render 'shared/pagination', collection: @company_informations %>
 
   <%= render 'shared/masters_back_button' %>
 </div>

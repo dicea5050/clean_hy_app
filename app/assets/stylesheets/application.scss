@@ -1,6 +1,9 @@
 // Bootstrapのメインスタイルを読み込み
 @use "bootstrap/scss/bootstrap";
 
+// ショップ専用のスタイルを読み込み
+@import "shop";
+
 // カスタムスタイルをここに記述
 
 // ヘッダーナビゲーション用のカスタムスタイル
@@ -77,9 +80,13 @@ h2 .badge, .h2 .badge {
   border-bottom: none !important;
 }
 
-// h2、h3、h4のフォントサイズを10%小さくする
+// h1、h2のフォントサイズを70%に縮小
+h1, .h1 {
+  font-size: 1.75rem !important; // デフォルト2.5remの70%
+}
+
 h2, .h2 {
-  font-size: 1.8rem !important; // デフォルト2remの90%
+  font-size: 1.26rem !important; // 現在の1.8remの70%
 }
 
 h3, .h3 {
@@ -172,67 +179,184 @@ h4, .h4 {
 }
 
 // 注文明細テーブルの列幅指定
-.order-item-table {
-  table-layout: fixed;
+.table.order-item-table {
+  table-layout: fixed !important;
+  width: 100% !important;
 
   colgroup {
-    col:nth-child(1) { width: 90px; }  // 商品コード
-    col:nth-child(2) { width: 160px; } // 商品
-    col:nth-child(3) { width: 70px; }   // 規格
-    col:nth-child(4) { width: 85px; }   // 単価
-    col:nth-child(5) { width: 70px; }   // 税率
-    col:nth-child(6) { width: 88px; }   // 数量
-    col:nth-child(7) { width: 64px; }   // 単位
-    col:nth-child(8) { width: 100px; }  // 税抜金額
-    col:nth-child(9) { width: 100px; }  // 税込金額
-    col:nth-child(10) { width: 162px; } // 備考
-    col:nth-child(11) { width: 70px; }  // 削除ボタン
+    col:nth-child(1) { width: 75px !important; min-width: 75px !important; max-width: 75px !important; }   // 商品コード
+    col:nth-child(2) { width: 200px !important; min-width: 180px !important; }  // 商品（残りのpx数で固定）
+    col:nth-child(3) { width: 70px !important; min-width: 70px !important; max-width: 70px !important; }   // 規格
+    col:nth-child(4) { width: 80px !important; min-width: 80px !important; max-width: 80px !important; }   // 単価
+    col:nth-child(5) { width: 70px !important; min-width: 70px !important; max-width: 70px !important; }   // 税率（10%表示用の固定幅）
+    col:nth-child(6) { width: 70px !important; min-width: 70px !important; max-width: 70px !important; }   // 数量
+    col:nth-child(7) { width: 77px !important; min-width: 77px !important; max-width: 77px !important; }   // 単位（64pxの120%）
+    col:nth-child(8) { width: 110px !important; min-width: 110px !important; max-width: 110px !important; }  // 税抜金額（7桁の数字表示用）
+    col:nth-child(9) { width: 110px !important; min-width: 110px !important; max-width: 110px !important; }  // 税込金額（7桁の数字表示用）
+    col:nth-child(10) { width: 65px !important; min-width: 65px !important; max-width: 65px !important; }  // 備考（162pxの40%）
+    col:nth-child(11) { width: 70px !important; min-width: 70px !important; max-width: 70px !important; }  // 削除ボタン
+  }
+
+  // すべてのヘッダーを中央揃えに
+  thead th {
+    text-align: center !important;
   }
 
   thead th:nth-child(1),
-  tbody td:nth-child(1) { width: 90px; }
-
-  thead th:nth-child(2),
-  tbody td:nth-child(2) { width: 160px; }
-
-  thead th:nth-child(3),
-  tbody td:nth-child(3) { width: 70px; }
-
-  thead th:nth-child(4),
-  tbody td:nth-child(4) { width: 85px; }
-
-  thead th:nth-child(5),
-  tbody td:nth-child(5) { width: 70px; }
-
-  thead th:nth-child(6),
-  tbody td:nth-child(6) { width: 88px; }
-
-  thead th:nth-child(7),
-  tbody td:nth-child(7) { width: 64px; }
-
-  thead th:nth-child(8),
-  tbody td:nth-child(8) { width: 100px; }
-
-  thead th:nth-child(9),
-  tbody td:nth-child(9) { width: 100px; }
-
-  thead th:nth-child(10),
-  tbody td:nth-child(10) { width: 162px; }
-
-  thead th:nth-child(11),
-  tbody td:nth-child(11) { width: 70px; }
-}
-
-// 注文明細テーブルのセル内要素のスタイル
-.order-item-table {
-  .tax-rate-display,
-  .subtotal-without-tax,
-  .subtotal-with-tax {
-    min-width: 80px;
+  tbody td:nth-child(1) { 
+    width: 75px !important;
+    min-width: 75px !important;
+    max-width: 75px !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
   }
 
-  td {
-    vertical-align: middle;
+  thead th:nth-child(2),
+  tbody td:nth-child(2) { 
+    width: 200px !important;
+    min-width: 180px !important;
+    max-width: 200px !important;
+  }
+
+  thead th:nth-child(3),
+  tbody td:nth-child(3) { 
+    width: 70px !important;
+    min-width: 70px !important;
+    max-width: 70px !important;
+  }
+
+  thead th:nth-child(4),
+  tbody td:nth-child(4) { 
+    width: 80px !important;
+    min-width: 80px !important;
+    max-width: 80px !important;
+  }
+
+  thead th:nth-child(5) {
+    width: 70px !important;
+    min-width: 70px !important;
+    max-width: 70px !important;
+    text-align: center !important;
+  }
+
+  tbody td:nth-child(5) { 
+    width: 70px !important;
+    min-width: 70px !important;
+    max-width: 70px !important;
+    text-align: right !important;
+  }
+
+  thead th:nth-child(6),
+  tbody td:nth-child(6) { 
+    width: 70px !important;
+    min-width: 70px !important;
+    max-width: 70px !important;
+  }
+
+  thead th:nth-child(7),
+  tbody td:nth-child(7) { 
+    width: 77px !important;
+    min-width: 77px !important;
+    max-width: 77px !important;
+  }
+
+  thead th:nth-child(8),
+  tbody td:nth-child(8) { 
+    width: 110px !important;
+    min-width: 110px !important;
+    max-width: 110px !important;
+  }
+
+  thead th:nth-child(9),
+  tbody td:nth-child(9) { 
+    width: 110px !important;
+    min-width: 110px !important;
+    max-width: 110px !important;
+  }
+
+  thead th:nth-child(10),
+  tbody td:nth-child(10) { 
+    width: 65px !important;
+    min-width: 65px !important;
+    max-width: 65px !important;
+  }
+
+  thead th:nth-child(11),
+  tbody td:nth-child(11) { 
+    width: 70px !important;
+    min-width: 70px !important;
+    max-width: 70px !important;
+  }
+}
+
+  // 注文明細テーブルのセル内要素のスタイル
+  .order-item-table {
+    .tax-rate-display {
+      min-width: 50px;
+      width: 100%;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    tbody td:nth-child(5) {
+      text-align: center !important;
+    }
+
+    // 単価入力フィールドを右揃え
+    tbody td:nth-child(4) {
+      text-align: right !important;
+      .unit-price-display {
+        text-align: right !important;
+      }
+    }
+
+    // 数量入力フィールドを右揃え（スピナーを非表示）
+    tbody td:nth-child(6) {
+      text-align: right !important;
+      .quantity-input {
+        text-align: right !important;
+        // スピナー（上下矢印）を非表示
+        -moz-appearance: textfield;
+        appearance: textfield;
+        &::-webkit-inner-spin-button,
+        &::-webkit-outer-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+      }
+    }
+
+    // 単位セレクトボックスを中央揃え
+    tbody td:nth-child(7) {
+      text-align: center !important;
+      select {
+        text-align: center !important;
+      }
+    }
+
+    .subtotal-without-tax,
+    .subtotal-with-tax {
+      min-width: 100px;
+      width: 100%;
+    }
+
+    td {
+      vertical-align: middle;
+    }
+
+  // 合計行の税抜・税込カラムを明細行と同じスタイルに
+  tfoot td:nth-child(8),
+  tfoot td:nth-child(9) {
+    text-align: right !important;
+  }
+
+  // 合計金額表示を明細行と同じ幅に
+  .order-total-amount {
+    min-width: 100px;
+    width: 100%;
+    display: inline-block;
+    text-align: right;
+    white-space: nowrap;
   }
 }
 
@@ -260,7 +384,66 @@ h4, .h4 {
   max-width: 800px;
 }
 
-// 合計金額表示の最小幅
-.order-total-amount {
-  min-width: 65px;
+// 日付表示用：通常のフォントを使いつつ、数字のみ等幅にする
+.date-monospace {
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+}
+
+// マスター系一覧ページのテーブルレイアウト修正
+// table-responsive内のテーブルを100%幅にして右側の余白をなくす
+.table-responsive {
+  table {
+    width: 100% !important;
+    margin-bottom: 0;
+    table-layout: auto;
+  }
+}
+
+
+// マスター系一覧ページのテーブル：改行を防ぎスクロールにする（共通設定）
+// card-body内のテーブルで横スクロールを有効化
+.card-body {
+  overflow-x: auto;
+  
+  // マスター系テーブルと請求書一覧テーブルの共通設定
+  table[class*="-index-table"],
+  table.table {
+    // 見出しとセルの改行を防ぐ
+    thead th,
+    tbody td {
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+  }
+}
+
+// product_specificationsはcard-body外なので個別に設定
+.table.product-specifications-index-table {
+  thead th,
+  tbody td {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}
+
+// card-body内のテーブルも100%幅にする（table-responsiveで囲まれていない場合）
+// ただし、マスター系テーブル（-index-tableクラス）は除外
+.card-body {
+  > .table:not([class*="-index-table"]) {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+  
+  // マスター系テーブルは幅を自動計算
+  > .table[class*="-index-table"] {
+    width: auto !important;
+  }
+}
+
+// 各ページの下に50px（3rem）の余白を追加（Bootstrap標準クラス pb-5 相当）
+body {
+  padding-bottom: 3rem; // 48px (16px基準) - Bootstrap標準の pb-5 と同じ
 }

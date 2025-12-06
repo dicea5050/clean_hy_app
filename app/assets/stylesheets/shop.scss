@@ -1,4 +1,133 @@
 // ショップ専用のスタイル
+
+// h1、h2のフォントサイズを70%に縮小（application.scssと統一）
+h1, .h1 {
+  font-size: 1.75rem !important; // デフォルト2.5remの70%
+}
+
+h2, .h2 {
+  font-size: 1.26rem !important; // 現在の1.8remの70%
+}
+
+h3, .h3 {
+  font-size: 1.575rem !important; // デフォルト1.75remの90%
+}
+
+h4, .h4 {
+  font-size: 1.215rem !important; // デフォルト1.5remの81%（90%のさらに90%）
+}
+
+// ヘッダーのスタイル
+.shop-header {
+  background-color: #fff;
+  border-bottom: 1px solid #dee2e6;
+  padding: 1rem 0;
+  margin-bottom: 2rem;
+  
+  .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: nowrap;
+  }
+  
+  .shop-header-left {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .shop-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+    color: #333;
+    white-space: nowrap;
+  }
+  
+  .shop-nav {
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      flex-wrap: nowrap;
+      
+      li {
+        white-space: nowrap;
+        
+        a {
+          color: #333;
+          text-decoration: none;
+          font-weight: 500;
+          transition: color 0.2s ease;
+          
+          &:hover {
+            color: #0d6efd;
+          }
+        }
+      }
+    }
+  }
+  
+  .shop-header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    
+    .shop-user-name {
+      color: #333;
+      font-weight: 500;
+    }
+    
+    .shop-separator {
+      color: #333;
+      margin: 0 0.25rem;
+    }
+    
+    .btn-link {
+      padding: 0;
+      border: none;
+      background: none;
+      color: #333;
+      text-decoration: none;
+      font-weight: 500;
+      cursor: pointer;
+      
+      &:hover {
+        color: #0d6efd;
+      }
+    }
+    
+    .shop-login-link {
+      color: #333;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s ease;
+      
+      &:hover {
+        color: #0d6efd;
+      }
+    }
+  }
+}
+
+// フッターのスタイル
+.shop-footer {
+  margin-top: 3rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid #dee2e6;
+  text-align: center;
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -27,6 +156,19 @@
 
 .quantity-select {
   margin-top: 10px;
+  position: relative;
+  
+  select.form-control {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 30px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+    cursor: pointer;
+  }
 }
 
 // テーブルレイアウト用の追加スタイル
@@ -34,6 +176,7 @@
   width: 100%;
   margin-bottom: 1rem;
   border-collapse: collapse;
+  table-layout: fixed; // カラム幅を固定
 }
 
 .table th,
@@ -47,4 +190,157 @@
   vertical-align: bottom;
   border-bottom: 2px solid #dee2e6;
   background-color: #f8f9fa;
+}
+
+// カートテーブルのカラム幅を固定
+.table.cart-table {
+  th:nth-child(1), // 商品名
+  td:nth-child(1) {
+    width: auto; // 残りのスペースを使用
+  }
+  
+  th:nth-child(2), // 単価
+  td:nth-child(2) {
+    width: 120px;
+  }
+  
+  th:nth-child(3), // 数量
+  td:nth-child(3) {
+    width: 100px; // 狭く設定
+  }
+  
+  th:nth-child(4), // 小計
+  td:nth-child(4) {
+    width: 150px; // 広めに設定（金額の桁数が増えるため）
+  }
+  
+  th:nth-child(5), // 削除ボタン
+  td:nth-child(5) {
+    width: 100px;
+  }
+}
+
+// 右揃え用のクラス
+.text-right {
+  text-align: right !important;
+}
+
+// 小計欄の右揃えを確実にする
+.table td.text-right,
+.table th.text-right {
+  text-align: right !important;
+}
+
+// 金額表示の右揃えを確実にする
+.table td.text-right {
+  text-align: right !important;
+  white-space: nowrap;
+}
+
+// ログインページ専用のスタイル
+.shop-login-layout {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+.shop-login-layout .container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding-top: 10px;
+  padding-bottom: 50px;
+}
+
+// フラッシュメッセージ用のコンテナは中央配置を無効化
+.shop-login-layout .flash-message-container {
+  display: block;
+  min-height: auto;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.login-form-wrapper {
+  width: 100%;
+  max-width: 800px;
+  text-align: center;
+}
+
+.login-form-wrapper h1 {
+  margin-bottom: 20px;
+}
+
+.login-form-wrapper .alert {
+  width: 300px;
+  margin: 0 auto 20px auto;
+  text-align: left;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.login-form .form-group {
+  width: 300px;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.login-form .form-group label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.login-form .form-group .form-control {
+  width: 300px !important;
+  max-width: 300px;
+  box-sizing: border-box;
+}
+
+.login-form .form-actions {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.login-form .form-actions .btn {
+  margin: 0;
+}
+
+// カートアクション用のスタイル
+.cart-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  
+  .btn {
+    flex-shrink: 0;
+  }
+}
+
+// カートテーブル用のスタイル
+.table {
+  .cart-quantity-form {
+    display: inline-block;
+    margin: 0;
+    
+    .form-control {
+      text-align: right;
+    }
+  }
+  
+  // 数量入力フィールドの幅を固定
+  .cart-quantity-input {
+    width: 70px;
+    display: inline-block;
+    max-width: 100%;
+  }
+}
+
+// 各ページの下に50px（3rem）の余白を追加（Bootstrap標準クラス pb-5 相当）
+body.shop-layout main {
+  padding-bottom: 3rem; // 48px (16px基準) - Bootstrap標準の pb-5 と同じ
 }

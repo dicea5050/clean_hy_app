@@ -6,11 +6,11 @@
   <%# 検索フォームを追加 %>
   <div class="card mb-4">
     <div class="card-header bg-light">
-      <button class="btn btn-link btn-sm text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="true" aria-controls="searchCollapse">
+      <button class="btn btn-link btn-sm text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="false" aria-controls="searchCollapse">
         <i class="bi bi-search"></i> 検索条件
       </button>
     </div>
-    <div class="collapse show" id="searchCollapse">
+    <div class="collapse" id="searchCollapse">
       <div class="card-body">
         <%= form_with(url: orders_path, method: :get, local: true, id: 'search-form', class: 'row g-3') do |f| %>
           <!-- 1行目：顧客コード、取引先名、受注日、受注番号 -->
@@ -23,15 +23,15 @@
           </div>
 
           <div class="col-md-3 me-3">
-            <label class="form-label">取引先名</label>
-            <div class="position-relative">
-              <%= f.text_field :customer_name,
-                  id: "customer_name_search",
-                  value: @search_params&.dig(:customer_name),
-                  class: 'form-control',
-                  autocomplete: "off" %>
-              <div id="customer_name_suggestions" class="autocomplete-results position-absolute w-100 bg-white border rounded shadow-lg d-none"></div>
-            </div>
+            <label class="form-label">顧客名</label>
+            <select id="customer_name_search" name="customer_name" class="form-select">
+              <option value="">選択してください</option>
+              <% @customers.each do |customer| %>
+                <option value="<%= customer.company_name %>" data-customer-code="<%= customer.customer_code %>" data-customer-id="<%= customer.id %>" <%= 'selected' if @search_params&.dig(:customer_name) == customer.company_name %>>
+                  <%= customer.company_name %>
+                </option>
+              <% end %>
+            </select>
           </div>
 
           <div class="col-md-4 me-3">
@@ -163,72 +163,92 @@
       <%= link_to '新規受注', new_order_path, class: 'btn btn-primary' %>
     </div>
 
-    <table class="table">
-      <thead>
-        <tr>
-          <th></th>
-          <th>ID</th>
-          <th>受注番号</th>
-          <th>取引先</th>
-          <th>受注日</th>
-          <th>希望納品日</th>
-          <th>確定納品日</th>
-          <th>取引額</th>
-          <th>支払い方法</th>
-          <th>請求書</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <% @orders.each do |order| %>
+    <div class="table-responsive">
+      <table class="table orders-index-table" style="table-layout: fixed; width: 100%;">
+        <thead>
           <tr>
-            <td>
-              <input type="checkbox" class="order-checkbox"
-                    data-customer-id="<%= order.customer_id %>"
-                    data-customer-name="<%= order.customer.company_name %>"
-                    data-order-id="<%= order.id %>"
-                    data-payment-method="<%= order.payment_method %>"
-                    data-actual-delivery-date="<%= order.actual_delivery_date.present? %>"
-                    data-invoiced="<%= order.invoiced? %>"
-                    <%= 'disabled' if order.invoiced? %>>
-            </td>
-            <td><%= order.id %></td>
-            <td><%= link_to order.order_number, order_path(order) %></td>
-            <td><%= order.customer.company_name %></td>
-            <td><%= l order.order_date %></td>
-            <td><%= l order.expected_delivery_date if order.expected_delivery_date %></td>
-            <td><%= l order.actual_delivery_date if order.actual_delivery_date %></td>
-            <td><%= number_to_currency(order.order_items.sum { |item| item.subtotal_without_tax }) %></td>
-            <td><%= order.payment_method&.name %></td>
-            <td>
-              <%= render 'shared/invoice_status_badge', order: order %>
-            </td>
-            <td>
-              <%= link_to '詳細', order_path(order), class: 'btn btn-sm btn-info' %>
-              <%= link_to '編集', edit_order_path(order),
-                         class: 'btn btn-sm btn-primary edit-order-btn',
-                         data: { has_pending_or_approved_invoice: order.has_pending_or_approved_invoice? } %>
-              <%= render 'shared/delivery_slip_button', order: order %>
-              <% confirm_msg = t('confirms.destroy', default: '本当に削除しますか？') %>
-              <%= button_to order_path(order),
-                              method: :delete,
-                              form: { data: { turbo_confirm: confirm_msg },
-                                      class: 'd-inline' },
-                              class: 'btn btn-sm btn-danger' do %>
-                <%= t('buttons.destroy', default: '削除') %>
-              <% end %>
-            </td>
+            <th class="text-center" style="width: 30px;"></th>
+            <th class="text-center" style="width: 130px;">受注番号</th>
+            <th class="text-center" style="width: 220px;">顧客名</th>
+            <th class="text-center" style="width: 70px;">注文元</th>
+            <th class="text-center" style="width: 110px;">受注日</th>
+            <th class="text-center" style="width: 110px;">希望納品日</th>
+            <th class="text-center" style="width: 110px;">確定納品日</th>
+            <th class="text-center" style="width: 110px;">受注金額</th>
+            <th class="text-center" style="width: 140px;">支払い方法</th>
+            <th class="text-center" style="width: 70px;">請求書</th>
+            <th class="text-center" style="width: 160px;">操作</th>
           </tr>
-        <% end %>
-      </tbody>
-    </table>
+        </thead>
+
+        <tbody>
+          <% @orders.each do |order| %>
+            <tr>
+              <td>
+                <input type="checkbox" class="order-checkbox"
+                      data-customer-id="<%= order.customer_id %>"
+                      data-customer-name="<%= order.customer.company_name %>"
+                      data-order-id="<%= order.id %>"
+                      data-payment-method="<%= order.payment_method %>"
+                      data-actual-delivery-date="<%= order.actual_delivery_date.present? %>"
+                      data-invoiced="<%= order.invoiced? %>"
+                      <%= 'disabled' if order.invoiced? %>>
+              </td>
+              <td><small><%= link_to order.order_number, order_path(order) %></small></td>
+              <td><small><%= order.customer.company_name %></small></td>
+              <td>
+                <% if order.is_shop_order? %>
+                  <span class="badge bg-success">shop</span>
+                <% else %>
+                  <span class="badge bg-secondary">自社</span>
+                <% end %>
+              </td>
+              <td class="text-end date-monospace"><small><%= l order.order_date %></small></td>
+              <td class="text-end date-monospace"><small><%= l order.expected_delivery_date if order.expected_delivery_date %></small></td>
+              <td class="text-end date-monospace"><small><%= l order.actual_delivery_date if order.actual_delivery_date %></small></td>
+              <td class="text-end"><small><%= number_to_currency(order.order_items.sum { |item| item.subtotal_without_tax }) %></small></td>
+              <td><small><%= order.payment_method&.name %></small></td>
+              <td>
+                <%= render 'shared/invoice_status_badge', order: order %>
+              </td>
+              <td>
+                <div class="d-flex gap-1">
+                  <%= link_to order_path(order), class: 'btn btn-sm btn-info', title: '詳細' do %>
+                    <i class="bi bi-eye"></i>
+                  <% end %>
+                  <%= link_to edit_order_path(order),
+                             class: 'btn btn-sm btn-primary edit-order-btn',
+                             title: '編集',
+                             data: { has_pending_or_approved_invoice: order.has_pending_or_approved_invoice? } do %>
+                    <i class="bi bi-pencil"></i>
+                  <% end %>
+                  <%= link_to delivery_slip_order_path(order, format: :pdf),
+                             class: 'btn btn-sm btn-success delivery-slip-btn',
+                             title: '納品書',
+                             target: '_blank',
+                             data: { has_delivery_date: order.actual_delivery_date.present? } do %>
+                    <i class="bi bi-file-earmark-text"></i>
+                  <% end %>
+                  <% confirm_msg = t('confirms.destroy', default: '本当に削除しますか？') %>
+                  <%= button_to order_path(order),
+                                  method: :delete,
+                                  form: { data: { turbo_confirm: confirm_msg },
+                                          class: 'd-inline' },
+                                  class: 'btn btn-sm btn-danger',
+                                  title: '削除' do %>
+                    <i class="bi bi-trash"></i>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
 
   </form>
 
-  <div class="d-flex justify-content-center">
-    <%= paginate @orders %>
-  </div>
+  <%= render 'shared/pagination', collection: @orders %>
 </div>
 
 <%= javascript_include_tag "/assets/javascripts/search_form.js" %>

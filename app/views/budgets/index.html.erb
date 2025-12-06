@@ -1,0 +1,69 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>予算一覧</h1>
+    <div class="d-flex gap-2">
+      <%= link_to '新規予算登録', new_budget_path(fiscal_year: @fiscal_year), class: 'btn btn-primary' %>
+      <%= link_to '編集', edit_budgets_path(fiscal_year: @fiscal_year), class: 'btn btn-outline-primary' %>
+      <%= link_to '集計グループ設定', product_aggregation_groups_path(fiscal_year: @fiscal_year), class: 'btn btn-outline-secondary' %>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <%= form_with url: budgets_path, method: :get, local: true, class: 'd-flex align-items-center gap-3' do |form| %>
+      <div class="form-group mb-0">
+        <%= form.label :fiscal_year, '年度', class: 'me-2' %>
+        <%= form.number_field :fiscal_year, value: @fiscal_year, min: 2000, max: 3000, class: 'form-control', style: 'width: 120px;' %>
+      </div>
+      <%= form.submit '表示', class: 'btn btn-secondary' %>
+    <% end %>
+  </div>
+
+  <% if @groups_by_category.present? %>
+    <div class="table-responsive">
+      <table class="table table-bordered" style="font-size: 0.9rem;">
+        <thead class="table-light">
+          <tr>
+            <th style="width: 200px;">事業部</th>
+            <th style="width: 35px;">No.</th>
+            <th style="width: 500px;">商品名</th>
+            <th style="width: 150px;">予算</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @groups_by_category.each do |category, groups| %>
+            <% groups.each do |group_data| %>
+              <% if group_data[:type] == :group %>
+                <% # グループの予算 %>
+                <% product_names = group_data[:products].map { |p| "#{p.name}（#{p.product_code}）" }.join('、') %>
+                <tr>
+                  <td><%= category.name %>（<%= category.code %>）</td>
+                  <td><%= group_data[:group_code] || '-' %></td>
+                  <td><strong><%= group_data[:group_name] %></strong>（<%= product_names %>）</td>
+                  <td class="text-end">
+                    <%= number_to_currency(group_data[:budget]&.budget_amount || 0, unit: '', format: '%n') %>
+                  </td>
+                </tr>
+              <% end %>
+            <% end %>
+            <% # 事業部ごとの合計行 %>
+            <% category_total = groups.select { |g| g[:type] == :group }.sum { |g| g[:budget]&.budget_amount || 0 } %>
+            <tr class="table-secondary">
+              <td class="fw-bold"><%= category.name %>（<%= category.code %>）合計</td>
+              <td class="fw-bold"></td>
+              <td class="fw-bold">合計</td>
+              <td class="text-end fw-bold">
+                <%= number_to_currency(category_total, unit: '', format: '%n') %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="alert alert-info">
+      予算データがありません。<%= link_to '新規予算登録', new_budget_path(fiscal_year: @fiscal_year), class: 'alert-link' %>から登録してください。
+    </div>
+  <% end %>
+
+  <%= render 'shared/masters_back_button' %>
+</div>

@@ -30,10 +30,11 @@
 
     class PaymentManagementController extends Controller {
       static targets = [
-        "customerSelect", "invoicesCard", "paymentCard", "invoicesTableBody",
+        "customerSelect", "customerCodeInput", "invoicesCard", "paymentCard", "invoicesTableBody",
         "amountInput", "customerIdField", "confirmButton", "allocationSummary",
         "loadingSpinner", "paymentForm", "invoiceButtons", "invoicesTitle",
-        "unpaidButton", "paidButton", "historyButton", "tableHeader"
+        "unpaidButton", "paidButton", "historyButton", "tableHeader",
+        "paymentRowsContainer", "paymentRow", "totalAmount"
       ];
 
       connect() {
@@ -41,6 +42,37 @@
         this.unpaidInvoices = [];
         this.allocationResults = [];
         this.paymentHistory = [];
+        
+        // 顧客コード・取引先名連動機能を初期化（共通コードを使用）
+        if (window.CustomerCodeSearch) {
+          const controller = this;
+          window.CustomerCodeSearch.init({
+            customerCodeSelector: '#' + this.customerCodeInputTarget.id,
+            customerSelectSelector: '#' + this.customerSelectTarget.id,
+            customerIdSelector: this.hasCustomerIdFieldTarget ? '#' + this.customerIdFieldTarget.id : null,
+            findCustomerApiUrl: '/payment_management/find_customer_by_code',
+            enableSelect2: true,
+            onCustomerChange: function(customerId, customerData) {
+              // Stimulusのchangeイベントを発火
+              const event = new Event('change', { bubbles: true });
+              controller.customerSelectTarget.dispatchEvent(event);
+            },
+            onCustomerClear: function() {
+              // Stimulusのchangeイベントを発火
+              const event = new Event('change', { bubbles: true });
+              controller.customerSelectTarget.dispatchEvent(event);
+            }
+          });
+        }
+      }
+
+      disconnect() {
+        // select2を破棄
+        if (this.customerSelectTarget && typeof $ !== 'undefined' && $.fn.select2) {
+          if ($(this.customerSelectTarget).hasClass('select2-hidden-accessible')) {
+            $(this.customerSelectTarget).select2('destroy');
+          }
+        }
       }
 
       onCustomerChange() {
@@ -54,11 +86,44 @@
           if (this.hasCustomerIdFieldTarget) {
             this.customerIdFieldTarget.value = customerId;
           }
+          // 顧客コードフィールドも更新（選択された顧客のコードを表示）
+          this.updateCustomerCodeFromSelect(customerId);
         } else {
           console.log('Disabling buttons');
           this.disableButtons();
           this.hideInvoicesCard();
           this.hidePaymentCard();
+          // 取引先名がクリアされたら顧客コードもクリア
+          if (this.hasCustomerCodeInputTarget) {
+            this.customerCodeInputTarget.value = '';
+          }
+          if (this.hasCustomerIdFieldTarget) {
+            this.customerIdFieldTarget.value = '';
+          }
+        }
+      }
+
+      // 顧客コード入力時の処理（共通コードで処理されるため、このメソッドは不要だが後方互換性のため残す）
+      onCustomerCodeBlur() {
+        // 共通コードで処理されるため、ここでは何もしない
+        // 必要に応じて追加の処理を記述可能
+      }
+
+      // selectから顧客コードを更新（共通コードで処理されるため、このメソッドは不要だが後方互換性のため残す）
+      updateCustomerCodeFromSelect(customerId) {
+        // 共通コードで処理されるため、ここでは何もしない
+        // 必要に応じて追加の処理を記述可能
+      }
+
+      // メッセージ表示用のヘルパーメソッド
+      showMessage(message, type) {
+        // 簡単なアラートで表示（必要に応じてBootstrapのトーストなどに変更可能）
+        if (type === 'success') {
+          console.log('Success:', message);
+          // 必要に応じてBootstrapのアラートを表示
+        } else {
+          console.error('Error:', message);
+          alert(message);
         }
       }
 
@@ -75,16 +140,40 @@
 
         try {
           const response = await fetch(`/payment_management/unpaid_invoices?customer_id=${customerId}`);
-          const data = await response.json();
+          
+          // レスポンスのステータスコードをチェック
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('HTTP error response:', response.status, errorText);
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          // Content-Typeをチェック
+          const contentType = response.headers.get('content-type');
+          if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            console.error('Response is not JSON:', contentType, text);
+            throw new Error('Response is not JSON');
+          }
+
+          let data;
+          try {
+            data = await response.json();
+          } catch (parseError) {
+            const text = await response.text();
+            console.error('JSON parse error:', parseError, 'Response text:', text);
+            throw new Error('Failed to parse JSON response');
+          }
 
           if (data.success) {
-            this.unpaidInvoices = data.invoices;
-            this.invoicesTitleTarget.textContent = data.title;
+            this.unpaidInvoices = data.invoices || [];
+            this.invoicesTitleTarget.textContent = data.title || '未入金請求書一覧';
             this.displayInvoices(true); // 未入金請求書なので充当カラムを表示
             this.showInvoicesCard();
             this.showPaymentCard();
           } else {
-            console.error('Server error:', data.error);
+            // サーバー側でエラーが返された場合でも、空の配列として表示（正常な状態）
+            console.warn('Server returned error:', data.error);
             this.unpaidInvoices = [];
             this.invoicesTitleTarget.textContent = '未入金請求書一覧';
             this.displayInvoices(true); // 未入金請求書なので充当カラムを表示
@@ -92,13 +181,20 @@
             this.showPaymentCard();
           }
         } catch (error) {
+          // ネットワークエラーやJSONパースエラーの場合のみアラートを表示
           console.error('Error loading unpaid invoices:', error);
           this.unpaidInvoices = [];
           this.invoicesTitleTarget.textContent = '未入金請求書一覧';
           this.displayInvoices(true); // 未入金請求書なので充当カラムを表示
           this.showInvoicesCard();
           this.hidePaymentCard();
-          alert('未入金請求書の取得中にエラーが発生しました');
+          // ネットワークエラーやパースエラーの場合のみアラートを表示
+          // ただし、空の配列が返された場合は正常な状態なのでアラートを表示しない
+          if (error instanceof TypeError || error.message.includes('HTTP error') || error.message.includes('JSON')) {
+            console.error('Critical error occurred:', error);
+            // 実際のエラーの場合のみアラートを表示
+            alert('未入金請求書の取得中にエラーが発生しました');
+          }
         } finally {
           this.hideLoading();
         }
@@ -322,23 +418,34 @@
       }
 
       calculateAllocation() {
-        const amount = parseInt(this.amountInputTarget.value) || 0;
+        // 全行の入金額を合算
+        const totalAmount = this.getTotalPaymentAmount();
 
-        if (amount <= 0) {
+        if (totalAmount <= 0) {
           this.clearAllocation();
+          this.confirmButtonTarget.disabled = true;
+          this.updateTotalAmountDisplay(0);
+          return;
+        }
+
+        // 未入金請求書がない場合は、充当表示を更新しない
+        if (!this.unpaidInvoices || this.unpaidInvoices.length === 0) {
+          this.updateTotalAmountDisplay(totalAmount);
           this.confirmButtonTarget.disabled = true;
           return;
         }
 
+        this.updateTotalAmountDisplay(totalAmount);
+
         this.allocationResults = [];
-        let remainingAmount = amount;
+        let remainingAmount = totalAmount;
 
         this.unpaidInvoices.forEach((invoice, index) => {
           if (remainingAmount <= 0) return;
 
-          const totalAmount = invoice.total_amount;
+          const invoiceTotalAmount = invoice.total_amount;
           const alreadyPaidAmount = invoice.paid_amount;
-          const unpaidAmount = totalAmount - alreadyPaidAmount;
+          const unpaidAmount = invoiceTotalAmount - alreadyPaidAmount;
 
           if (unpaidAmount <= 0) return;
 
@@ -355,9 +462,10 @@
         });
 
         this.updateAllocationDisplay();
-        this.updateAllocationSummary(amount, remainingAmount);
+        this.updateAllocationSummary(totalAmount, remainingAmount);
 
-        this.confirmButtonTarget.disabled = false;
+        // 全行が有効な場合のみ登録ボタンを有効化
+        this.confirmButtonTarget.disabled = !this.validatePaymentRows();
       }
 
       updateAllocationDisplay() {
@@ -366,6 +474,11 @@
         rows.forEach((row, index) => {
           const allocationCell = row.querySelector('[data-allocation-amount]');
           const remainingCell = row.querySelector('[data-remaining-after]');
+
+          // 要素が存在しない場合はスキップ（未入金請求書がない場合など）
+          if (!allocationCell || !remainingCell) {
+            return;
+          }
 
           if (this.allocationResults[index]) {
             const result = this.allocationResults[index];
@@ -406,15 +519,207 @@
         this.allocationSummaryTarget.classList.add('d-none');
       }
 
+      addPaymentRow() {
+        const container = this.paymentRowsContainerTarget;
+        const firstRow = container.querySelector('.payment-row');
+        const newRow = firstRow.cloneNode(true);
+
+        // 新しい行の入力値をクリア
+        newRow.querySelector('.payment-date').value = new Date().toISOString().split('T')[0];
+        newRow.querySelector('.payment-category').value = '';
+        newRow.querySelector('.payment-amount').value = '';
+        newRow.querySelector('.payment-notes').value = '';
+
+        // 削除ボタンを表示
+        const removeBtn = newRow.querySelector('.remove-row-btn');
+        if (removeBtn) {
+          removeBtn.style.display = 'block';
+        }
+
+        // 削除ボタンにイベントリスナーを追加
+        removeBtn.addEventListener('click', () => {
+          this.removePaymentRow(event);
+        });
+
+        // 入力フィールドにイベントリスナーを追加
+        newRow.querySelector('.payment-amount').addEventListener('input', () => {
+          this.calculateAllocation();
+        });
+        newRow.querySelector('.payment-date').addEventListener('change', () => {
+          this.calculateAllocation();
+        });
+        newRow.querySelector('.payment-category').addEventListener('change', () => {
+          this.calculateAllocation();
+        });
+
+        container.appendChild(newRow);
+
+        // 最初の行の削除ボタンも表示
+        const firstRemoveBtn = firstRow.querySelector('.remove-row-btn');
+        if (firstRemoveBtn && container.querySelectorAll('.payment-row').length > 1) {
+          firstRemoveBtn.style.display = 'block';
+        }
+
+        this.calculateAllocation();
+      }
+
+      removePaymentRow(event) {
+        const row = event.currentTarget.closest('.payment-row');
+        const container = this.paymentRowsContainerTarget;
+        const rows = container.querySelectorAll('.payment-row');
+
+        // 最後の1行は削除できない
+        if (rows.length <= 1) {
+          alert('最低1行は必要です');
+          return;
+        }
+
+        row.remove();
+
+        // 残りの行が1行になったら削除ボタンを非表示
+        const remainingRows = container.querySelectorAll('.payment-row');
+        if (remainingRows.length === 1) {
+          const removeBtn = remainingRows[0].querySelector('.remove-row-btn');
+          if (removeBtn) {
+            removeBtn.style.display = 'none';
+          }
+        }
+
+        this.calculateAllocation();
+      }
+
+      getTotalPaymentAmount() {
+        const rows = this.paymentRowsContainerTarget.querySelectorAll('.payment-row');
+        let total = 0;
+
+        rows.forEach(row => {
+          const amountInput = row.querySelector('.payment-amount');
+          const amount = parseInt(amountInput.value) || 0;
+          total += amount;
+        });
+
+        return total;
+      }
+
+      updateTotalAmountDisplay(totalAmount) {
+        if (this.hasTotalAmountTarget) {
+          this.totalAmountTarget.textContent = `¥${this.formatNumber(totalAmount)}`;
+        }
+      }
+
+      validatePaymentRows() {
+        const rows = this.paymentRowsContainerTarget.querySelectorAll('.payment-row');
+        
+        for (let row of rows) {
+          const date = row.querySelector('.payment-date').value;
+          const category = row.querySelector('.payment-category').value;
+          const amount = parseInt(row.querySelector('.payment-amount').value) || 0;
+
+          // 入金額が入力されている行は、日付と種別も必須
+          if (amount > 0) {
+            if (!date || !category) {
+              return false;
+            }
+          }
+        }
+
+        return this.getTotalPaymentAmount() > 0;
+      }
+
       confirmPayment() {
         if (!this.confirmButtonTarget.disabled) {
-          const amount = parseInt(this.amountInputTarget.value) || 0;
-          if (amount <= 0) {
+          const totalAmount = this.getTotalPaymentAmount();
+          if (totalAmount <= 0) {
             alert('入金額を正しく入力してください');
             return;
           }
 
-          this.paymentFormTarget.submit();
+          if (!this.validatePaymentRows()) {
+            alert('入金額が入力されている行は、入金日と入金種別も入力してください');
+            return;
+          }
+
+          // 複数の入金を一度に送信するため、フォームを動的に構築
+          this.submitMultiplePayments();
+        }
+      }
+
+      submitMultiplePayments() {
+        const rows = this.paymentRowsContainerTarget.querySelectorAll('.payment-row');
+        const customerId = this.customerIdFieldTarget.value;
+
+        if (!customerId) {
+          alert('取引先が選択されていません');
+          return;
+        }
+
+        // 入金額が入力されている行のみを取得
+        const paymentRows = Array.from(rows).filter(row => {
+          const amount = parseInt(row.querySelector('.payment-amount').value) || 0;
+          return amount > 0;
+        });
+
+        if (paymentRows.length === 0) {
+          alert('入金額を入力してください');
+          return;
+        }
+
+        // 確認ダイアログ
+        const totalAmount = this.getTotalPaymentAmount();
+        if (!confirm(`${paymentRows.length}件の入金を登録しますか？\n合計金額: ¥${this.formatNumber(totalAmount)}`)) {
+          return;
+        }
+
+        // 各入金を順次送信
+        this.submitPaymentsSequentially(paymentRows, customerId, 0);
+      }
+
+      async submitPaymentsSequentially(paymentRows, customerId, index) {
+        if (index >= paymentRows.length) {
+          // 全ての入金が完了したらリロード
+          window.location.reload();
+          return;
+        }
+
+        const row = paymentRows[index];
+        const paymentDate = row.querySelector('.payment-date').value;
+        const category = row.querySelector('.payment-category').value;
+        const amount = parseInt(row.querySelector('.payment-amount').value) || 0;
+        const notes = row.querySelector('.payment-notes').value || '';
+
+        // フォームデータを作成
+        const formData = new FormData();
+        formData.append('payment[payment_date]', paymentDate);
+        formData.append('payment[category]', category);
+        formData.append('payment[amount]', amount);
+        formData.append('payment[notes]', notes);
+        formData.append('payment[customer_id]', customerId);
+
+        // CSRFトークンを取得
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        try {
+          const response = await fetch(this.paymentFormTarget.action, {
+            method: 'POST',
+            headers: {
+              'X-CSRF-Token': token,
+              'Accept': 'application/json'
+            },
+            body: formData
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data.success) {
+            console.log(`入金 ${index + 1}/${paymentRows.length} を登録しました: ${data.message}`);
+            // 次の入金を送信
+            this.submitPaymentsSequentially(paymentRows, customerId, index + 1);
+          } else {
+            throw new Error(data.error || '入金の登録に失敗しました');
+          }
+        } catch (error) {
+          console.error('Payment submission error:', error);
+          alert(`入金 ${index + 1}/${paymentRows.length} の登録中にエラーが発生しました: ${error.message}`);
         }
       }
 
@@ -428,6 +733,16 @@
 
       showPaymentCard() {
         this.paymentCardTarget.classList.remove('d-none');
+        // 最初の行の削除ボタンを非表示
+        const firstRow = this.paymentRowsContainerTarget.querySelector('.payment-row');
+        if (firstRow) {
+          const removeBtn = firstRow.querySelector('.remove-row-btn');
+          if (removeBtn) {
+            removeBtn.style.display = 'none';
+          }
+        }
+        // 合計金額をリセット
+        this.calculateAllocation();
       }
 
       hidePaymentCard() {

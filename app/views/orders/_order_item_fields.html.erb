@@ -24,34 +24,32 @@
         ProductSpecification.active.order(:name),
         :id,
         :name,
-        { include_blank: "規格を選択", selected: f.object.product_specification_id },
-        { class: "form-control product-specification-select w-100" } %>
+        { include_blank: true, selected: f.object.product_specification_id },
+        { class: "form-select product-specification-select w-100" } %>
   </td>
   <td>
     <%= f.hidden_field :unit_price, class: "unit-price-input" %>
-    <input type="number"
+    <input type="text"
            class="form-control unit-price-display text-end w-100"
-           step="1"
-           min="0"
            value="<%= f.object.unit_price.present? && f.object.product_id.present? ? f.object.unit_price.to_i : '' %>"
            <%= 'readonly' if f.object.product&.fixed_price? %>>
   </td>
   <td>
     <%= f.hidden_field :tax_rate %>
-    <span class="tax-rate-display text-end d-inline-block">
-      <%= f.object.tax_rate.present? && f.object.product_id.present? ? f.object.tax_rate : '' %>
-    </span>%
+    <span class="tax-rate-display text-center">
+      <%= f.object.tax_rate.present? && f.object.product_id.present? ? f.object.tax_rate : '' %>%
+    </span>
   </td>
   <td>
     <%= f.text_field :quantity,
-        { class: "form-control quantity-input w-100", required: true,
+        { class: "form-control quantity-input text-end w-100", required: true,
           placeholder: "数量", type: "number", step: "0.001", min: "0",
           value: f.object.quantity.present? ? number_with_precision(f.object.quantity, precision: 3, strip_insignificant_zeros: true) : '' } %>
   </td>
   <td>
     <%= f.select :unit_id, Unit.all.map { |u| [u.name, u.id] },
-        { include_blank: "単位", selected: f.object.unit_id },
-        { class: "form-control w-100" } %>
+        { include_blank: true, selected: f.object.unit_id },
+        { class: "form-select w-100" } %>
   </td>
   <td>
     <span class="subtotal-without-tax d-inline-block text-end">

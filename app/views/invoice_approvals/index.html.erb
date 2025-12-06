@@ -14,46 +14,48 @@
       </button>
     </div>
 
-    <table class="table">
+    <table class="table" style="table-layout: fixed; width: 100%;">
       <thead>
         <tr>
-          <th>
+          <th style="width: 40px;" class="text-center">
             <input type="checkbox" id="select-all" class="form-check-input">
           </th>
-          <th>請求書番号</th>
-          <th>取引先</th>
-          <th>請求日</th>
-          <th>支払期限</th>
-          <th>合計金額（税込）</th>
-          <th>申請日時</th>
-          <th>操作</th>
+          <th style="width: 120px;" class="text-center">請求書番号</th>
+          <th style="width: 220px;" class="text-center">顧客名</th>
+          <th style="width: 95px;" class="text-center">請求日</th>
+          <th style="width: 95px;" class="text-center">支払期限</th>
+          <th style="width: 120px;" class="text-center">合計金額（税込）</th>
+          <th style="width: 130px;" class="text-center">申請日時</th>
+          <th style="width: 180px;" class="text-center">操作</th>
         </tr>
       </thead>
 
       <tbody>
         <% @invoice_approvals.each do |approval| %>
           <tr>
-            <td>
+            <td class="text-center">
               <input type="checkbox" name="approval_ids[]" value="<%= approval.id %>" class="form-check-input approval-checkbox">
             </td>
-            <td><%= link_to approval.invoice.invoice_number, invoice_path(approval.invoice) %></td>
-            <td><%= approval.invoice.customer.company_name %></td>
-            <td><%= l approval.invoice.invoice_date %></td>
-            <td><%= l approval.invoice.due_date if approval.invoice.due_date %></td>
-            <td><%= number_to_currency(approval.invoice.total_amount) %></td>
-            <td><%= l approval.created_at, format: :month_day_time %></td>
+            <td><small><%= link_to approval.invoice.invoice_number, invoice_path(approval.invoice) %></small></td>
+            <td><small><%= approval.invoice.customer.company_name %></small></td>
+            <td class="text-end date-monospace"><small><%= l approval.invoice.invoice_date %></small></td>
+            <td class="text-end date-monospace"><small><%= l approval.invoice.due_date if approval.invoice.due_date %></small></td>
+            <td class="text-end"><small><%= number_to_currency(approval.invoice.total_amount) %></small></td>
+            <td class="text-end date-monospace"><small><%= l approval.created_at, format: :month_day_time %></small></td>
             <td>
-              <%= render 'shared/detail_button', path: invoice_path(approval.invoice), extra_class: 'me-2' %>
-              <%= render 'shared/invoice_pdf_button', invoice: approval.invoice, text: 'PDF', extra_class: 'me-2' %>
-              <%= button_to '承認', approve_invoice_approval_path(approval),
-                          class: 'btn btn-sm btn-success me-2 d-inline',
-                          form: { class: 'd-inline' },
-                          data: { turbo_confirm: '承認してよろしいですか？' } %>
-              <button type="button" class="btn btn-sm btn-danger"
-                      data-bs-toggle="modal"
-                      data-bs-target="#rejectModal<%= approval.id %>">
-                差戻
-              </button>
+              <div class="d-flex gap-1">
+                <%= render 'shared/detail_button', path: invoice_path(approval.invoice) %>
+                <%= render 'shared/invoice_pdf_button', invoice: approval.invoice, text: 'PDF' %>
+                <%= button_to '承認', approve_invoice_approval_path(approval),
+                            class: 'btn btn-sm btn-success d-inline',
+                            form: { class: 'd-inline' },
+                            data: { turbo_confirm: '承認してよろしいですか？' } %>
+                <button type="button" class="btn btn-sm btn-danger"
+                        data-bs-toggle="modal"
+                        data-bs-target="#rejectModal<%= approval.id %>">
+                  差戻
+                </button>
+              </div>
             </td>
           </tr>
         <% end %>
@@ -65,9 +67,7 @@
     </div>
   <% end %>
 
-  <div class="d-flex justify-content-center">
-    <%= paginate @invoice_approvals %>
-  </div>
+  <%= render 'shared/pagination', collection: @invoice_approvals %>
 </div>
 
 <!-- 個別差し戻しモーダル -->

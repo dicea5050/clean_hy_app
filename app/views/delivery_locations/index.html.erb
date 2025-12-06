@@ -4,44 +4,42 @@
     <%= link_to '新規作成', new_delivery_location_path, class: 'btn btn-primary' %>
   </div>
 
-  <div class="card shadow">
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table table-striped table-hover">
-          <thead>
-            <tr>
-              <th>取引先</th>
-              <th>納品先名</th>
-              <th>郵便番号</th>
-              <th>住所</th>
-              <th>電話番号</th>
-              <th>担当者名</th>
-              <th colspan="3"></th>
-            </tr>
-          </thead>
+  <div class="table-responsive">
+    <table class="table delivery-locations-index-table" style="table-layout: fixed; width: 100%;">
+      <thead>
+        <tr>
+          <th style="width: 250px;">顧客名</th>
+          <th style="width: 240px;">納品先名</th>
+          <th style="width: 80px;">郵便番号</th>
+          <th style="width: 250px;">住所</th>
+          <th style="width: 120px;">電話番号</th>
+          <th style="width: 100px;">担当者名</th>
+          <th style="width: 120px;">操作</th>
+        </tr>
+      </thead>
 
-          <tbody>
-            <% @delivery_locations.each do |delivery_location| %>
-              <tr>
-                <td><%= delivery_location.customer.name %></td>
-                <td><%= delivery_location.name %></td>
-                <td><%= delivery_location.postal_code %></td>
-                <td><%= delivery_location.address %></td>
-                <td><%= delivery_location.phone %></td>
-                <td><%= delivery_location.contact_person %></td>
-                <td>
-                  <%= render 'shared/index_action_buttons',
-                              show_path: delivery_location_path(delivery_location),
-                              edit_path: edit_delivery_location_path(delivery_location),
-                              delete_path: delivery_location_path(delivery_location) %>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    </div>
+      <tbody>
+        <% @delivery_locations.each do |delivery_location| %>
+          <tr>
+            <td><small><%= delivery_location.customer.name %></small></td>
+            <td><small><%= delivery_location.name %></small></td>
+            <td><small><%= delivery_location.postal_code %></small></td>
+            <td><small><%= delivery_location.address %></small></td>
+            <td><small><%= delivery_location.phone %></small></td>
+            <td><small><%= delivery_location.contact_person %></small></td>
+            <td>
+              <%= render 'shared/index_action_buttons',
+                          show_path: delivery_location_path(delivery_location),
+                          edit_path: edit_delivery_location_path(delivery_location),
+                          delete_path: delivery_location_path(delivery_location) %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
   </div>
+
+  <%= render 'shared/pagination', collection: @delivery_locations %>
 
   <%= render 'shared/masters_back_button' %>
 </div>

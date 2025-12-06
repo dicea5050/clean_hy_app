@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_07_095924) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_05_080956) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -62,6 +62,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_07_095924) do
     t.boolean "disabled", default: false, null: false
   end
 
+  create_table "budgets", force: :cascade do |t|
+    t.integer "fiscal_year", null: false
+    t.bigint "product_category_id", null: false
+    t.bigint "product_id"
+    t.integer "budget_amount", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "aggregation_group_name"
+    t.index ["fiscal_year", "product_category_id", "product_id", "aggregation_group_name"], name: "index_budgets_on_fiscal_year_and_category_and_product_and_group", unique: true
+    t.index ["product_category_id"], name: "index_budgets_on_product_category_id"
+    t.index ["product_id"], name: "index_budgets_on_product_id"
+  end
+
   create_table "company_informations", force: :cascade do |t|
     t.string "name", null: false
     t.string "postal_code", null: false
@@ -89,7 +102,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_07_095924) do
     t.integer "invoice_delivery_method"
     t.string "department"
     t.string "billing_closing_day"
+    t.string "fax_number"
+    t.bigint "payment_method_id"
     t.index ["customer_code"], name: "index_customers_on_customer_code", unique: true
+    t.index ["payment_method_id"], name: "index_customers_on_payment_method_id"
   end
 
   create_table "delivery_locations", force: :cascade do |t|
@@ -176,6 +192,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_07_095924) do
     t.bigint "delivery_location_id"
     t.string "customer_code"
     t.string "product_code"
+    t.boolean "is_shop_order", default: false, null: false
     t.index ["customer_code"], name: "index_orders_on_customer_code"
     t.index ["customer_id"], name: "index_orders_on_customer_id"
     t.index ["delivery_location_id"], name: "index_orders_on_delivery_location_id"
@@ -203,6 +220,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_07_095924) do
     t.integer "paid_amount", default: 0, null: false
     t.index ["customer_id"], name: "index_payment_records_on_customer_id"
     t.index ["invoice_id"], name: "index_payment_records_on_invoice_id"
+  end
+
+  create_table "product_aggregation_groups", force: :cascade do |t|
+    t.integer "fiscal_year", null: false
+    t.bigint "product_category_id", null: false
+    t.bigint "product_id", null: false
+    t.string "group_code"
+    t.string "group_name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["fiscal_year", "product_category_id", "group_code"], name: "index_pag_on_fiscal_year_and_category_and_group_code"
+    t.index ["fiscal_year", "product_category_id", "product_id"], name: "index_pag_on_fiscal_year_and_category_and_product", unique: true
+    t.index ["product_category_id"], name: "index_product_aggregation_groups_on_product_category_id"
+    t.index ["product_id"], name: "index_product_aggregation_groups_on_product_id"
   end
 
   create_table "product_categories", force: :cascade do |t|
@@ -252,6 +283,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_07_095924) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "budgets", "product_categories"
+  add_foreign_key "budgets", "products"
+  add_foreign_key "customers", "payment_methods"
   add_foreign_key "delivery_locations", "customers"
   add_foreign_key "invoice_approvals", "invoices"
   add_foreign_key "invoice_orders", "invoices"
@@ -264,6 +298,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_07_095924) do
   add_foreign_key "orders", "customers"
   add_foreign_key "orders", "delivery_locations"
   add_foreign_key "payment_records", "customers"
+  add_foreign_key "product_aggregation_groups", "product_categories"
+  add_foreign_key "product_aggregation_groups", "products"
   add_foreign_key "products", "product_categories"
   add_foreign_key "products", "tax_rates"
 end

@@ -7,7 +7,7 @@ class ProductsController < ApplicationController
   before_action :set_categories, only: [ :new, :edit, :create, :update ]
 
   def index
-    @products = Product.all.includes(:tax_rate, :product_category)
+    @products = Product.all.includes(:tax_rate, :product_category).page(params[:page]).per(30)
   end
 
   def show

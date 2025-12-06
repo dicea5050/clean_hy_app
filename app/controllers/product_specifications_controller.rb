@@ -5,7 +5,7 @@ class ProductSpecificationsController < ApplicationController
   before_action :set_product_specification, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @product_specifications = ProductSpecification.all
+    @product_specifications = ProductSpecification.all.page(params[:page]).per(30)
   end
 
   def show

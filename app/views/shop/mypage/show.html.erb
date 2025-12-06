@@ -1,0 +1,145 @@
+<div class="container mt-4">
+  <h1 class="mb-4"><%= @customer.company_name %> 様マイページ</h1>
+
+  <div class="card shadow mb-4">
+    <div class="card-header bg-primary text-white">
+      <h2 class="mb-0">注文履歴</h2>
+    </div>
+    <div class="card-body">
+      <% if @orders.any? %>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>注文ID</th>
+                <th>注文日</th>
+                <th>納品予定日</th>
+                <th>確定納品日</th>
+                <th>合計金額（税抜）</th>
+                <th>合計金額（税込）</th>
+                <th>支払い方法</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @orders.each do |order| %>
+                <tr>
+                  <td><%= order.id %></td>
+                  <td><%= l order.order_date %></td>
+                  <td><%= order.expected_delivery_date.present? ? l(order.expected_delivery_date) : '未設定' %></td>
+                  <td><%= order.actual_delivery_date.present? ? l(order.actual_delivery_date) : '未確定' %></td>
+                  <td><%= number_to_currency(order.order_items.sum { |item| item.subtotal_without_tax }) %></td>
+                  <td><%= number_to_currency(order.order_items.sum { |item| item.subtotal }) %></td>
+                  <td><%= order.payment_method&.name || '未設定' %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+        <%= render 'shared/pagination', collection: @orders %>
+      <% else %>
+        <p class="text-center text-muted">注文履歴がありません</p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card shadow mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h2 class="mb-0">納品先情報</h2>
+      <%= link_to '納品先を追加', new_shop_delivery_location_path, class: 'btn btn-light btn-sm' %>
+    </div>
+    <div class="card-body">
+      <% if @delivery_locations.any? %>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>納品先名</th>
+                <th>郵便番号</th>
+                <th>住所</th>
+                <th>電話番号</th>
+                <th>担当者名</th>
+                <th>種別</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @delivery_locations.each do |location| %>
+                <tr>
+                  <td><%= location.name %></td>
+                  <td><%= location.postal_code.present? ? location.postal_code : '未設定' %></td>
+                  <td><%= location.address.present? ? location.address : '未設定' %></td>
+                  <td><%= location.phone.present? ? location.phone : '未設定' %></td>
+                  <td><%= location.contact_person.present? ? location.contact_person : '未設定' %></td>
+                  <td>
+                    <% if location.is_main_office? %>
+                      <span class="badge bg-primary">本社</span>
+                    <% else %>
+                      <span class="badge bg-secondary">その他</span>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <p class="text-center text-muted">納品先情報がありません</p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card shadow mb-4" id="password-change">
+    <div class="card-header bg-primary text-white">
+      <h2 class="mb-0">パスワード変更</h2>
+    </div>
+    <div class="card-body">
+      <div id="password-message-container"></div>
+      <%= form_with url: shop_mypage_update_password_path, method: :patch, local: true, class: "needs-validation", novalidate: true, id: "password-change-form" do |form| %>
+        <% if @customer.password_set? %>
+          <div class="mb-3">
+            <%= form.label :current_password, "現在のパスワード", class: "form-label" %>
+            <div class="position-relative">
+              <%= form.password_field :current_password, class: "form-control", required: true, autocomplete: "current-password", id: "current_password" %>
+              <button type="button" class="btn btn-sm btn-link position-absolute end-0 top-50 translate-middle-y pe-2" style="z-index: 10; text-decoration: none;" onclick="togglePasswordVisibility('current_password', 'current_password_toggle')" id="current_password_toggle">
+                <span class="password-toggle-icon">👁️</span>
+              </button>
+            </div>
+          </div>
+        <% end %>
+
+        <div class="mb-3">
+          <%= form.label :new_password, "新しいパスワード", class: "form-label" %>
+          <div class="position-relative">
+            <%= form.password_field :new_password, class: "form-control", required: true, autocomplete: "new-password", minlength: 6, id: "new_password" %>
+            <button type="button" class="btn btn-sm btn-link position-absolute end-0 top-50 translate-middle-y pe-2" style="z-index: 10; text-decoration: none;" onclick="togglePasswordVisibility('new_password', 'new_password_toggle')" id="new_password_toggle">
+              <span class="password-toggle-icon">👁️</span>
+            </button>
+          </div>
+          <small class="form-text text-muted">6文字以上で入力してください。半角英数字と記号のみ使用可能です（全角文字は使用できません）。</small>
+          <div id="password-format-warning" class="text-danger mt-1" style="display: none;"></div>
+        </div>
+
+        <div class="mb-3">
+          <%= form.label :password_confirmation, "新しいパスワード（確認）", class: "form-label" %>
+          <div class="position-relative">
+            <%= form.password_field :password_confirmation, class: "form-control", required: true, autocomplete: "new-password", minlength: 6, id: "password_confirmation" %>
+            <button type="button" class="btn btn-sm btn-link position-absolute end-0 top-50 translate-middle-y pe-2" style="z-index: 10; text-decoration: none;" onclick="togglePasswordVisibility('password_confirmation', 'password_confirmation_toggle')" id="password_confirmation_toggle">
+              <span class="password-toggle-icon">👁️</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="d-grid position-relative">
+          <%= form.submit "パスワードを変更", class: "btn btn-primary", id: "password-submit-btn" %>
+          <div id="password-loading" class="position-absolute top-50 start-50 translate-middle" style="display: none; z-index: 10;">
+            <div class="spinner-border spinner-border-sm text-light" role="status">
+              <span class="visually-hidden">読み込み中...</span>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<%= javascript_include_tag "shop/mypage" %>
+

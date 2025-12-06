@@ -1,0 +1,44 @@
+<%= form_with(model: budget, local: true) do |form| %>
+  <% if budget.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= budget.errors.count %>件のエラーがあります:</h4>
+      <ul>
+        <% budget.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= form.label :fiscal_year, '年度' %>
+    <%= form.number_field :fiscal_year, min: 2000, max: 3000, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :product_category_id, '事業部' %>
+    <%= form.collection_select :product_category_id, @product_categories, :id, :name, { selected: @product_category_id }, { class: 'form-control' } %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :product_id, '商品' %>
+    <small class="form-text text-muted">空白の場合は事業部全体の予算として登録されます</small>
+    <%= form.collection_select :product_id, @products, :id, :name, { include_blank: '事業部全体' }, { class: 'form-control' } %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :aggregation_group_name, '集計グループ名' %>
+    <small class="form-text text-muted">空白の場合は個別表示、同じグループ名を設定すると「その他」として集計されます（例: その他）</small>
+    <%= form.text_field :aggregation_group_name, class: 'form-control', placeholder: '例: その他' %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :budget_amount, '予算額' %>
+    <%= form.number_field :budget_amount, step: '1', min: 0, class: 'form-control' %>
+  </div>
+
+  <div class="form-group mt-4">
+    <%= render 'shared/form_actions', form: form, back_path: budgets_path(fiscal_year: budget.fiscal_year || @fiscal_year) %>
+  </div>
+<% end %>
+

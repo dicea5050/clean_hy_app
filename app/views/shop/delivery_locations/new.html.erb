@@ -1,0 +1,61 @@
+<div class="container mt-4">
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white">
+      <h2 class="mb-0">納品先登録</h2>
+    </div>
+    <div class="card-body">
+      <%= form_with(model: [ :shop, @delivery_location ], local: true, html: { class: 'h-adr' }) do |form| %>
+        <% if @delivery_location.errors.any? %>
+          <div class="alert alert-danger">
+            <h4><%= pluralize(@delivery_location.errors.count, "error") %> 保存できませんでした:</h4>
+            <ul>
+              <% @delivery_location.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <span class="p-country-name d-none">Japan</span>
+
+        <div class="mb-3">
+          <%= form.label :name, '納品先名', class: 'form-label' do %>
+            納品先名<span class="text-danger">*</span>
+          <% end %>
+          <%= form.text_field :name, class: 'form-control', required: true %>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-3">
+            <%= form.label :postal_code, '郵便番号', class: 'form-label' %>
+            <%= form.text_field :postal_code, class: 'form-control p-postal-code', placeholder: '123-4567' %>
+          </div>
+
+          <div class="col-md-9">
+            <%= form.label :address, '住所', class: 'form-label' do %>
+              住所<span class="text-danger">*</span>
+            <% end %>
+            <%= form.text_field :address, class: 'form-control p-region p-locality p-street-address', required: true %>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <%= form.label :phone, '電話番号', class: 'form-label' %>
+          <%= form.text_field :phone, class: 'form-control', placeholder: '03-1234-5678' %>
+        </div>
+
+        <div class="mb-3">
+          <%= form.label :contact_person, '担当者名', class: 'form-label' %>
+          <%= form.text_field :contact_person, class: 'form-control' %>
+        </div>
+
+        <div class="mb-3">
+          <%= form.submit '保存', class: 'btn btn-primary me-2' %>
+          <%= link_to 'キャンセル', shop_mypage_path, class: 'btn btn-secondary' %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+

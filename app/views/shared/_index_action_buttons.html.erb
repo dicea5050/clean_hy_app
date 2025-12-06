@@ -1,12 +1,19 @@
-<%= link_to t('buttons.show', default: '詳細'), local_assigns[:show_path], class: 'btn btn-sm btn-info' %>
-<% if local_assigns[:edit_path].present? %>
-  <%= link_to t('buttons.edit', default: '編集'), local_assigns[:edit_path], class: 'btn btn-sm btn-success' %>
-<% end %>
-<% confirm_msg = (local_assigns[:confirm_text] || t('confirms.destroy', default: '本当に削除しますか？')) %>
-<%= button_to local_assigns[:delete_path],
+<div class="d-flex gap-1">
+  <%= link_to local_assigns[:show_path], class: 'btn btn-sm btn-info', title: '詳細' do %>
+    <i class="bi bi-eye"></i>
+  <% end %>
+  <% if local_assigns[:edit_path].present? %>
+    <%= link_to local_assigns[:edit_path], class: 'btn btn-sm btn-primary', title: '編集' do %>
+      <i class="bi bi-pencil"></i>
+    <% end %>
+  <% end %>
+  <% confirm_msg = (local_assigns[:confirm_text] || t('confirms.destroy', default: '本当に削除しますか？')) %>
+  <%= button_to local_assigns[:delete_path],
                 method: :delete,
                 form: { data: { turbo_confirm: confirm_msg },
                         class: 'd-inline' },
-                class: 'btn btn-sm btn-danger' do %>
-  <%= t('buttons.destroy', default: '削除') %>
-<% end %>
+                class: 'btn btn-sm btn-danger',
+                title: '削除' do %>
+    <i class="bi bi-trash"></i>
+  <% end %>
+</div>

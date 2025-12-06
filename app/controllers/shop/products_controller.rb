@@ -1,5 +1,6 @@
 class Shop::ProductsController < ApplicationController
   layout "shop"
+  before_action :authenticate_customer!
 
   def index
     @products = Product.available.order(created_at: :desc).page(params[:page]).per(25)

@@ -1,16 +1,16 @@
 <div class="container mt-4">
-  <div class="card">
+  <div class="card shadow mb-4">
     <div class="card-header bg-primary text-white">
-      <h2>単位の詳細</h2>
+      <h1 class="mb-0">単位の詳細</h1>
     </div>
     <div class="card-body">
-      <div class="mb-3">
-        <strong>単位名:</strong> <%= @unit.name %>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">単位名</div>
+        <div class="col-md-9"><%= @unit.name %></div>
       </div>
-
-      <div class="mt-4">
-        <%= render 'shared/show_action_buttons', edit_path: edit_unit_path(@unit), delete_path: unit_path(@unit), back_path: units_path %>
-      </div>
+    </div>
+    <div class="card-footer">
+      <%= render 'shared/show_action_buttons', edit_path: edit_unit_path(@unit), delete_path: unit_path(@unit), back_path: units_path %>
     </div>
   </div>
 </div>

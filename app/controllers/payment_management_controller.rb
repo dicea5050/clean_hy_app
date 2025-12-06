@@ -50,40 +50,56 @@ class PaymentManagementController < ApplicationController
           load Rails.root.join("app", "services", "payment_management_service.rb")
           @service = PaymentManagementService.new(@customer)
         end
-        @unpaid_invoices = @service.unpaid_invoices
+
+        begin
+          @unpaid_invoices = @service.unpaid_invoices
+          @unpaid_invoices = [] if @unpaid_invoices.nil?
+        rescue => e
+          Rails.logger.error "Error in unpaid_invoices service: #{e.message}"
+          Rails.logger.error e.backtrace.join("\n")
+          @unpaid_invoices = []
+        end
 
         Rails.logger.debug "未入金請求書数（サービスから取得）: #{@unpaid_invoices.count}"
 
-        invoices_data = @unpaid_invoices.map do |invoice|
-          begin
-            # 元入金IDを取得（充当記録のnotesから抽出）
-            original_payment_ids = invoice.payment_records.map do |pr|
-              extract_original_payment_id(pr.notes)
-            end.compact.uniq
+        # 全額入金済みの場合、空の配列を返す（正常な状態）
+        invoices_data = if @unpaid_invoices.empty?
+          []
+        else
+          @unpaid_invoices.map do |invoice|
+            begin
+              # payment_recordsが正しく読み込まれていることを確認
+              payment_records = invoice.payment_records.to_a
 
-            {
-              id: invoice.id,
-              invoice_number: invoice.invoice_number,
-              invoice_date: invoice.invoice_date&.strftime("%Y-%m-%d"),
-              total_amount: invoice.total_amount.to_i,
-              paid_amount: invoice.total_paid_amount.to_i,
-              remaining_amount: invoice.remaining_amount.to_i,
-              payment_ids: invoice.payment_records.pluck(:id),
-              original_payment_ids: original_payment_ids
-            }
-          rescue => e
-            Rails.logger.error "Error processing invoice #{invoice.id}: #{e.message}"
-            Rails.logger.error e.backtrace.join("\n")
-            nil
-          end
-        end.compact
+              # 元入金IDを取得（充当記録のnotesから抽出）
+              original_payment_ids = payment_records.map do |pr|
+                extract_original_payment_id(pr.notes) if pr.notes.present?
+              end.compact.uniq
+
+              {
+                id: invoice.id,
+                invoice_number: invoice.invoice_number,
+                invoice_date: invoice.invoice_date&.strftime("%Y-%m-%d"),
+                total_amount: invoice.total_amount.to_i,
+                paid_amount: invoice.total_paid_amount.to_i,
+                remaining_amount: invoice.remaining_amount.to_i,
+                payment_ids: payment_records.map(&:id),
+                original_payment_ids: original_payment_ids
+              }
+            rescue => e
+              Rails.logger.error "Error processing invoice #{invoice.id}: #{e.message}"
+              Rails.logger.error e.backtrace.join("\n")
+              nil
+            end
+          end.compact
+        end
 
         Rails.logger.debug "=== PaymentManagementController#unpaid_invoices 終了 ==="
 
         render json: {
           success: true,
           title: "\u5165\u91D1\u672A\u5B8C\u4E86\u8ACB\u6C42\u66F8\u4E00\u89A7",
-          invoices: invoices_data,
+          invoices: invoices_data || [],
           debug: {
             total_invoices: total_invoices,
             approval_statuses: approval_statuses,
@@ -167,8 +183,12 @@ class PaymentManagementController < ApplicationController
     @customer = Customer.find(payment_params[:customer_id]) if payment_params[:customer_id].present?
 
     unless @customer
-      redirect_to payment_management_index_path,
-                  alert: "取引先が選択されていません"
+      if request.format.json?
+        render json: { success: false, error: "取引先が選択されていません" }, status: :unprocessable_entity
+      else
+        redirect_to payment_management_index_path,
+                    alert: "取引先が選択されていません"
+      end
       return
     end
 
@@ -182,17 +202,29 @@ class PaymentManagementController < ApplicationController
         payment_params[:notes]
       )
 
-      redirect_to payment_management_index_path,
-                  notice: "入金を登録しました。入金ID: #{payment_record.id}"
+      if request.format.json?
+        render json: { success: true, payment_id: payment_record.id, message: "入金を登録しました。入金ID: #{payment_record.id}" }
+      else
+        redirect_to payment_management_index_path,
+                    notice: "入金を登録しました。入金ID: #{payment_record.id}"
+      end
     rescue ActiveRecord::RecordInvalid => e
       Rails.logger.error "Validation errors: #{e.record.errors.full_messages}"
-      redirect_to payment_management_index_path,
-                  alert: "入金の登録に失敗しました: #{e.record.errors.full_messages.join(', ')}"
+      if request.format.json?
+        render json: { success: false, error: "入金の登録に失敗しました: #{e.record.errors.full_messages.join(', ')}" }, status: :unprocessable_entity
+      else
+        redirect_to payment_management_index_path,
+                    alert: "入金の登録に失敗しました: #{e.record.errors.full_messages.join(', ')}"
+      end
     rescue => e
       Rails.logger.error "Payment creation error: #{e.message}"
       Rails.logger.error e.backtrace.join("\n")
-      redirect_to payment_management_index_path,
-                  alert: "入金の登録に失敗しました: #{e.message}"
+      if request.format.json?
+        render json: { success: false, error: "入金の登録に失敗しました: #{e.message}" }, status: :internal_server_error
+      else
+        redirect_to payment_management_index_path,
+                    alert: "入金の登録に失敗しました: #{e.message}"
+      end
     end
   end
 
@@ -241,6 +273,23 @@ class PaymentManagementController < ApplicationController
       Rails.logger.error e.backtrace.join("\n")
       redirect_to payment_management_index_path,
                   alert: "入金の削除に失敗しました: #{e.message}"
+    end
+  end
+
+  # 顧客コードから顧客情報を取得するAPI（orders_controllerから再利用）
+  def find_customer_by_code
+    customer = Customer.find_by(customer_code: params[:code])
+    if customer
+      render json: {
+        success: true,
+        customer: {
+          id: customer.id,
+          company_name: customer.company_name,
+          customer_code: customer.customer_code
+        }
+      }
+    else
+      render json: { success: false, message: "顧客が見つかりません" }
     end
   end
 

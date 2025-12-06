@@ -1,0 +1,76 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>予算登録</h1>
+    <%= link_to '集計グループ設定', product_aggregation_groups_path(fiscal_year: @fiscal_year), class: 'btn btn-outline-primary' %>
+  </div>
+
+  <div class="mb-3">
+    <%= form_with url: new_budget_path, method: :get, local: true, class: 'd-flex align-items-center gap-3' do |form| %>
+      <div class="form-group mb-0">
+        <%= form.label :fiscal_year, '年度', class: 'me-2' %>
+        <%= form.number_field :fiscal_year, value: @fiscal_year, min: 2000, max: 3000, class: 'form-control', style: 'width: 120px;' %>
+      </div>
+      <%= form.submit '表示', class: 'btn btn-secondary' %>
+    <% end %>
+  </div>
+
+  <%= form_with url: budgets_path, method: :post, local: true do |form| %>
+    <%= form.hidden_field :fiscal_year, value: @fiscal_year %>
+    
+    <div class="table-responsive">
+      <table class="table table-bordered" style="font-size: 0.9rem;">
+        <thead class="table-light">
+          <tr>
+            <th style="width: 200px;">事業部</th>
+            <th style="width: 100px;">グループ番号</th>
+            <th style="width: 400px;">商品名</th>
+            <th style="width: 200px;">予算</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @groups_by_category.each do |category, groups| %>
+            <% groups.each do |group_data| %>
+              <% if group_data[:type] == :group %>
+                <% # グループの予算 %>
+                <% key = "#{category.id}|#{group_data[:group_name]}" %>
+                <% product_names = group_data[:products].map { |p| "#{p.name}（#{p.product_code}）" }.join('、') %>
+                <tr>
+                  <td><%= category.name %>（<%= category.code %>）</td>
+                  <td><%= group_data[:group_code] || '-' %></td>
+                  <td><strong><%= group_data[:group_name] %></strong>（<%= product_names %>）</td>
+                  <td>
+                    <%= form.text_field "budgets[#{key}][budget_amount]", 
+                        value: group_data[:budget]&.budget_amount || nil,
+                        placeholder: '予算金額を入力してください',
+                        class: 'form-control form-control-sm text-end budget-input',
+                        data: { category_id: category.id },
+                        inputmode: 'numeric',
+                        pattern: '[0-9]*' %>
+                  </td>
+                </tr>
+              <% end %>
+            <% end %>
+            <% # 事業部ごとの合計行（自動計算） %>
+            <tr class="table-secondary" data-category-id="<%= category.id %>">
+              <td class="fw-bold"><%= category.name %>（<%= category.code %>）合計</td>
+              <td class="fw-bold"></td>
+              <td class="fw-bold">合計</td>
+              <td class="text-end">
+                <span class="budget-total fw-bold" data-category-id="<%= category.id %>">0</span>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mb-4 mt-4">
+      <%= form.submit '一括保存', class: 'btn btn-primary' %>
+      <%= link_to 'キャンセル', budgets_path(fiscal_year: @fiscal_year), class: 'btn btn-secondary' %>
+    </div>
+  <% end %>
+
+  <%= render 'shared/masters_back_button' %>
+</div>
+
+<%= javascript_include_tag "budgets" %>

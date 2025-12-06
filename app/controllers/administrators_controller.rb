@@ -1,9 +1,10 @@
 class AdministratorsController < ApplicationController
+  layout "admin_login", only: [ :login ]
   before_action :require_admin, except: [ :login, :authenticate, :logout ]
   before_action :set_administrator, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @administrators = Administrator.all.order(:email)
+    @administrators = Administrator.all.order(:email).page(params[:page]).per(30)
   end
 
   def show

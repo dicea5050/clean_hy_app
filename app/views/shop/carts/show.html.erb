@@ -1,48 +1,53 @@
 <h1>ショッピングカート</h1>
 
 <% if @cart.items.any? %>
-  <table class="table">
+  <table class="table cart-table">
     <thead>
       <tr>
         <th>商品名</th>
-        <th>単価</th>
-        <th>数量</th>
-        <th>小計</th>
+        <th class="text-right">単価</th>
+        <th class="text-right">数量</th>
+        <th class="text-right">小計</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
       <% @cart.items.each do |item| %>
         <tr>
           <td><%= item.product.name %></td>
-          <td>¥<%= number_with_delimiter(item.product.price) %></td>
-          <td><%= item.quantity %></td>
-          <td>¥<%= number_with_delimiter(item.subtotal) %></td>
+          <td class="text-right">¥<%= number_with_delimiter(item.product.price) %></td>
+          <td class="text-right">
+            <%= form_with url: update_item_shop_cart_path, method: :patch, local: true, class: "d-inline-block" do |f| %>
+              <%= f.hidden_field :product_id, value: item.product_id %>
+              <%= f.number_field :quantity, value: item.quantity, min: 1, class: "form-control text-right cart-quantity-input", onchange: "this.form.submit();" %>
+            <% end %>
+          </td>
+          <td class="text-right">¥<%= number_with_delimiter(item.subtotal) %></td>
+          <td>
+            <%= button_to "削除", remove_item_shop_cart_path(product_id: item.product_id), method: :delete, class: "btn btn-sm btn-outline-danger", data: { confirm: "この商品をカートから削除しますか？" } %>
+          </td>
         </tr>
       <% end %>
     </tbody>
     <tfoot>
       <tr>
         <td colspan="3" class="text-right"><strong>合計（税抜）:</strong></td>
-        <td>¥<%= number_with_delimiter(@cart.total_price) %></td>
+        <td class="text-right"><strong>¥<%= number_with_delimiter(@cart.total_price) %></strong></td>
       </tr>
       <tr>
         <td colspan="3" class="text-right"><strong>消費税:</strong></td>
-        <td>¥<%= number_with_delimiter(@cart.total_tax) %></td>
+        <td class="text-right"><strong>¥<%= number_with_delimiter(@cart.total_tax) %></strong></td>
       </tr>
       <tr>
         <td colspan="3" class="text-right"><strong>合計（税込）:</strong></td>
-        <td>¥<%= number_with_delimiter(@cart.total_with_tax) %></td>
+        <td class="text-right"><strong>¥<%= number_with_delimiter(@cart.total_with_tax) %></strong></td>
       </tr>
     </tfoot>
   </table>
 
-  <div class="cart-actions">
+  <div class="cart-actions d-flex justify-content-end gap-2">
     <%= button_to 'カートを空にする', shop_cart_path, method: :delete, class: 'btn btn-outline-danger', data: { confirm: '本当にカートを空にしますか？' } %>
-    <% if customer_signed_in? %>
-      <%= link_to '注文手続きへ進む', new_shop_order_path, class: 'btn btn-success' %>
-    <% else %>
-      <%= link_to '注文手続きへ進む', shop_login_path, class: 'btn btn-success' %>
-    <% end %>
+    <%= link_to '注文手続きへ進む', new_shop_order_path, class: 'btn btn-success' %>
   </div>
 <% else %>
   <p>カートには商品が入っていません。</p>

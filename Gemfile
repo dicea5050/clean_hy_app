@@ -46,8 +46,8 @@ gem "thruster", require: false
 # gem 'sassc-rails'
 # gem 'jquery-rails'
 
-# Select2は削除またはコメントアウト
-# gem 'select2-rails'
+# Select2（Propshaft使用のためCDNから読み込むが、gemは有効化）
+gem "select2-rails"
 # jQuery
 gem "jquery-rails"
 

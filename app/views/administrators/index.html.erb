@@ -4,36 +4,34 @@
     <%= link_to '新規管理者登録', new_administrator_path, class: 'btn btn-primary' %>
   </div>
 
-  <div class="card">
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table table-striped table-hover">
-          <thead class="thead-light">
-            <tr>
-              <th>メールアドレス</th>
-              <th>権限</th>
-              <th colspan="3">操作</th>
-            </tr>
-          </thead>
+  <div class="table-responsive">
+    <table class="table administrators-index-table" style="table-layout: fixed; width: 100%;">
+      <thead>
+        <tr>
+          <th style="width: 300px;">メールアドレス</th>
+          <th style="width: 200px;">権限</th>
+          <th style="width: 200px;">操作</th>
+        </tr>
+      </thead>
 
-          <tbody>
-            <% @administrators.each do |administrator| %>
-              <tr>
-                <td><%= administrator.email %></td>
-                <td><%= administrator.role_name %></td>
-                <td>
-                  <%= render 'shared/index_action_buttons',
-                              show_path: administrator_path(administrator),
-                              edit_path: edit_administrator_path(administrator),
-                              delete_path: administrator_path(administrator) %>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    </div>
+      <tbody>
+        <% @administrators.each do |administrator| %>
+          <tr>
+            <td><small><%= administrator.email %></small></td>
+            <td><small><%= administrator.role_name %></small></td>
+            <td>
+              <%= render 'shared/index_action_buttons',
+                          show_path: administrator_path(administrator),
+                          edit_path: edit_administrator_path(administrator),
+                          delete_path: administrator_path(administrator) %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
   </div>
+
+  <%= render 'shared/pagination', collection: @administrators %>
 
   <%= render 'shared/masters_back_button' %>
 </div>
