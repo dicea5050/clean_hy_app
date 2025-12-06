@@ -41,4 +41,3 @@ class Shop::DeliveryLocationsController < ApplicationController
     params.require(:delivery_location).permit(:name, :postal_code, :address, :phone, :contact_person)
   end
 end
-

@@ -47,7 +47,7 @@ gem "thruster", require: false
 # gem 'jquery-rails'
 
 # Select2（Propshaft使用のためCDNから読み込むが、gemは有効化）
-gem 'select2-rails'
+gem "select2-rails"
 # jQuery
 gem "jquery-rails"
 

@@ -28,19 +28,19 @@ Rails.application.routes.draw do
   # 各種マスター
   resources :tax_rates
   resources :products
-  resources :budgets, only: [:index, :new, :create] do
+  resources :budgets, only: [ :index, :new, :create ] do
     collection do
       get :edit
       patch :update
     end
   end
-  resources :sales_reports, only: [:index] do
+  resources :sales_reports, only: [ :index ] do
     collection do
       get :export_pdf
       get :export_csv
     end
   end
-  resources :product_aggregation_groups, only: [:index] do
+  resources :product_aggregation_groups, only: [ :index ] do
     collection do
       post :update_all
     end

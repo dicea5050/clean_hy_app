@@ -64,7 +64,7 @@ class Shop::CartsController < ApplicationController
     quantity = params[:quantity].to_i
 
     product = Product.find(product_id)
-    
+
     if quantity > 0
       if product.in_stock?(quantity)
         if @cart.update_item_quantity(product_id, quantity)

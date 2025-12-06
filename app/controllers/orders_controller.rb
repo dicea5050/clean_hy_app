@@ -422,7 +422,7 @@ class OrdersController < ApplicationController
   # 顧客コードまたは顧客IDから顧客情報を取得するAPI
   def find_customer_by_code
     customer = nil
-    
+
     # 顧客IDが指定されている場合はIDで検索
     if params[:customer_id].present?
       customer = Customer.find_by(id: params[:customer_id])
@@ -430,7 +430,7 @@ class OrdersController < ApplicationController
     elsif params[:code].present?
       customer = Customer.find_by(customer_code: params[:code])
     end
-    
+
     if customer
       render json: {
         success: true,
@@ -524,12 +524,12 @@ class OrdersController < ApplicationController
     # CSVデータを生成
     csv_data = CSV.generate(force_quotes: true) do |csv|
       # ヘッダー行
-      csv << ["取引先コード", "取引先名", "支払方法", "受注日", "予定納品日", "確定納品日", "商品コード", "商品名", "数量", "単価", "税率", "単位", "備考"]
+      csv << [ "取引先コード", "取引先名", "支払方法", "受注日", "予定納品日", "確定納品日", "商品コード", "商品名", "数量", "単価", "税率", "単位", "備考" ]
       # データ行（1受注に2明細の例）
-      csv << ["C001", "株式会社A", "銀行振込", "2023-05-01", "2023-05-10", "", "P001", "商品A", "2", "1000", "10", "個", "サンプル備考1"]
-      csv << ["C001", "株式会社A", "銀行振込", "2023-05-01", "2023-05-10", "", "P002", "商品B", "3", "2000", "8", "箱", "サンプル備考2"]
+      csv << [ "C001", "株式会社A", "銀行振込", "2023-05-01", "2023-05-10", "", "P001", "商品A", "2", "1000", "10", "個", "サンプル備考1" ]
+      csv << [ "C001", "株式会社A", "銀行振込", "2023-05-01", "2023-05-10", "", "P002", "商品B", "3", "2000", "8", "箱", "サンプル備考2" ]
       # 別の受注の例
-      csv << ["C002", "株式会社B", "代金引換", "2023-05-02", "2023-05-15", "", "P003", "商品C", "1", "3000", "10", "セット", "サンプル備考3"]
+      csv << [ "C002", "株式会社B", "代金引換", "2023-05-02", "2023-05-15", "", "P003", "商品C", "1", "3000", "10", "セット", "サンプル備考3" ]
     end
 
     # UTF-8 BOMを追加

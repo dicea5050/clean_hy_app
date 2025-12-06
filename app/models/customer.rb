@@ -52,7 +52,7 @@ class Customer < ApplicationRecord
     return if password.blank?
 
     # 半角スペースを検出
-    if password.include?(' ')
+    if password.include?(" ")
       errors.add(:password, "パスワードに半角スペースは使用できません。半角英数字と記号のみ使用してください。")
       return
     end

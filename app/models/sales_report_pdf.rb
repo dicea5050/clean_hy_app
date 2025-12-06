@@ -27,24 +27,24 @@ class SalesReportPdf < Prawn::Document
   def sales_table
     # テーブルデータを準備
     table_data = []
-    
+
     # ヘッダー行1
-    header_row1 = ["No.", "商品名", "予算"]
+    header_row1 = [ "No.", "商品名", "予算" ]
     (1..12).each do |month|
       month_name = case month
-                   when 1 then "5月"
-                   when 2 then "6月"
-                   when 3 then "7月"
-                   when 4 then "8月"
-                   when 5 then "9月"
-                   when 6 then "10月"
-                   when 7 then "11月"
-                   when 8 then "12月"
-                   when 9 then "1月"
-                   when 10 then "2月"
-                   when 11 then "3月"
-                   when 12 then "4月"
-                   end
+      when 1 then "5月"
+      when 2 then "6月"
+      when 3 then "7月"
+      when 4 then "8月"
+      when 5 then "9月"
+      when 6 then "10月"
+      when 7 then "11月"
+      when 8 then "12月"
+      when 9 then "1月"
+      when 10 then "2月"
+      when 11 then "3月"
+      when 12 then "4月"
+      end
       header_row1 << month_name
     end
     header_row1 << "小計"
@@ -59,7 +59,7 @@ class SalesReportPdf < Prawn::Document
       category_total_sales = 0
 
       # 事業部ヘッダー行（1列目を空にして、2列目に事業部名を配置、3列目以降を空にする）
-      category_header = [""]
+      category_header = [ "" ]
       category_header << "#{category.name}（#{category.code}）"
       (1..15).each { category_header << "" }
       table_data << category_header
@@ -74,14 +74,14 @@ class SalesReportPdf < Prawn::Document
           monthly_sales = item[:monthly_sales]
           total_sales = item[:total_sales]
           budget_balance = budget_amount - total_sales
-          product_names = item[:products].map { |p| "#{p.name}（#{p.product_code}）" }.join('、')
+          product_names = item[:products].map { |p| "#{p.name}（#{p.product_code}）" }.join("\u3001")
 
           category_total_sales += total_sales
           (1..12).each do |month|
             category_monthly_sales[month - 1] += monthly_sales[month - 1]
           end
 
-          row = [(item[:group_code] || '-').to_s, "#{group_name}（#{product_names}）", number_with_delimiter(budget_amount)]
+          row = [ (item[:group_code] || "-").to_s, "#{group_name}（#{product_names}）", number_with_delimiter(budget_amount) ]
           (1..12).each do |month|
             row << number_with_delimiter(monthly_sales[month - 1])
           end
@@ -93,7 +93,7 @@ class SalesReportPdf < Prawn::Document
 
       # 事業部合計行
       category_budget_balance = category_total_budget - category_total_sales
-      total_row = ["", "合計", number_with_delimiter(category_total_budget)]
+      total_row = [ "", "合計", number_with_delimiter(category_total_budget) ]
       (1..12).each do |month|
         total_row << number_with_delimiter(category_monthly_sales[month - 1])
       end
@@ -132,8 +132,8 @@ class SalesReportPdf < Prawn::Document
     end
 
     grand_budget_balance = grand_total_budget - grand_total_sales
-    table_data << ["", "総合計", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]
-    grand_total_row = ["", "総合計", number_with_delimiter(grand_total_budget)]
+    table_data << [ "", "総合計", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" ]
+    grand_total_row = [ "", "総合計", number_with_delimiter(grand_total_budget) ]
     (1..12).each do |month|
       grand_total_row << number_with_delimiter(grand_monthly_sales[month - 1])
     end
@@ -149,8 +149,8 @@ class SalesReportPdf < Prawn::Document
     remaining_width = total_width - first_column_width - product_name_width
     other_columns_count = 15  # 1列目と2列目以外のカラム数
     other_column_width = remaining_width / other_columns_count
-    
-    column_widths = [first_column_width, product_name_width] + ([other_column_width] * other_columns_count)
+
+    column_widths = [ first_column_width, product_name_width ] + ([ other_column_width ] * other_columns_count)
 
     # テーブルを描画
     table table_data, width: bounds.width, column_widths: column_widths, cell_style: { size: 7, padding: [ 3, 3 ] } do
@@ -162,7 +162,7 @@ class SalesReportPdf < Prawn::Document
       # 各行のスタイルを設定
       table_data.each_with_index do |row, index|
         next if index == 0 # ヘッダー行は既に設定済み
-        
+
         # 事業部ヘッダー行のスタイル（2列目に事業部名がある）
         if row[0].blank? && row[1] && row[1].include?("（") && row[1].include?("）") && row[2].blank?
           row(index).font_style = :bold
@@ -172,18 +172,18 @@ class SalesReportPdf < Prawn::Document
             cell = cells[index, col]
             if cell
               # 上下の境界線だけを残し、左右の境界線を消す
-              cell.borders = [:top, :bottom]
+              cell.borders = [ :top, :bottom ]
             end
           end
           # 1列目のセルの右の境界線を消す
           cell_0 = cells[index, 0]
           if cell_0
-            cell_0.borders = [:top, :bottom, :left]
+            cell_0.borders = [ :top, :bottom, :left ]
           end
           # 2列目のセル（事業部名）の左右の境界線を消し、テキストを折り返さずに1行で表示（隣のセルにはみ出してもOK）
           cell_1 = cells[index, 1]
           if cell_1
-            cell_1.borders = [:top, :bottom]
+            cell_1.borders = [ :top, :bottom ]
             # テキストを折り返さないようにする（overflowオプションは削除）
             # Prawnのテーブルでは、セル幅を超えるテキストは自動的に折り返されるため、
             # はみ出して表示するには、列幅の設定を変更する必要がある
@@ -193,15 +193,15 @@ class SalesReportPdf < Prawn::Document
           # 3列目のセルの左の境界線を消す
           cell_2 = cells[index, 2]
           if cell_2
-            cell_2.borders = [:top, :bottom]
+            cell_2.borders = [ :top, :bottom ]
           end
           # 一番右のセル（16列目）の右の境界線を残す（外枠を保持）
           cell_16 = cells[index, 16]
           if cell_16
-            cell_16.borders = [:top, :bottom, :right]
+            cell_16.borders = [ :top, :bottom, :right ]
           end
         end
-        
+
         # 合計行のスタイル
         if row[1] == "合計"
           row(index).font_style = :bold
@@ -217,7 +217,7 @@ class SalesReportPdf < Prawn::Document
           row(index).font_style = :bold
           row(index).background_color = "FFFF99"  # 黄色系の背景色
         end
-        
+
         # 数値列を右揃え
         columns(2..16).align = :right
       end
@@ -229,4 +229,3 @@ class SalesReportPdf < Prawn::Document
     number.to_i.to_s.gsub(/(\d)(?=(\d{3})+(?!\d))/, '\1,')
   end
 end
-

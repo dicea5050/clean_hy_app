@@ -10,7 +10,7 @@ class CreateProductAggregationGroups < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :product_aggregation_groups, [:fiscal_year, :product_category_id, :product_id], unique: true, name: 'index_pag_on_fiscal_year_and_category_and_product'
-    add_index :product_aggregation_groups, [:fiscal_year, :product_category_id, :group_code], name: 'index_pag_on_fiscal_year_and_category_and_group_code'
+    add_index :product_aggregation_groups, [ :fiscal_year, :product_category_id, :product_id ], unique: true, name: 'index_pag_on_fiscal_year_and_category_and_product'
+    add_index :product_aggregation_groups, [ :fiscal_year, :product_category_id, :group_code ], name: 'index_pag_on_fiscal_year_and_category_and_group_code'
   end
 end

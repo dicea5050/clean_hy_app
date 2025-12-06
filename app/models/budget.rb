@@ -5,7 +5,7 @@ class Budget < ApplicationRecord
   validates :fiscal_year, presence: true, numericality: { only_integer: true, greater_than: 2000, less_than: 3000 }
   validates :product_category_id, presence: true
   validates :budget_amount, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-  validates :fiscal_year, uniqueness: { scope: [:product_category_id, :product_id, :aggregation_group_name], message: "この年度・事業部・商品・グループの組み合わせは既に登録されています" }
+  validates :fiscal_year, uniqueness: { scope: [ :product_category_id, :product_id, :aggregation_group_name ], message: "この年度・事業部・商品・グループの組み合わせは既に登録されています" }
 
   scope :by_fiscal_year, ->(year) { where(fiscal_year: year) }
   scope :by_category, ->(category_id) { where(product_category_id: category_id) }
@@ -41,4 +41,3 @@ class Budget < ApplicationRecord
     !individual?
   end
 end
-

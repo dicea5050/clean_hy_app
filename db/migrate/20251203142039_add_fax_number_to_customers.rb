@@ -3,4 +3,3 @@ class AddFaxNumberToCustomers < ActiveRecord::Migration[8.0]
     add_column :customers, :fax_number, :string
   end
 end
-

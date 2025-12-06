@@ -21,13 +21,13 @@ class SalesReportsController < ApplicationController
     @budgets = Budget.by_fiscal_year(@fiscal_year)
                      .where(product_id: nil)
                      .includes(:product_category)
-                     .index_by { |b| [b.product_category_id, b.aggregation_group_name] }
+                     .index_by { |b| [ b.product_category_id, b.aggregation_group_name ] }
 
     # 集計グループ設定を取得
     @aggregation_groups = ProductAggregationGroup
       .by_fiscal_year(@fiscal_year)
       .includes(:product, :product_category)
-      .group_by { |g| [g.product_category_id, g.group_name] }
+      .group_by { |g| [ g.product_category_id, g.group_name ] }
 
     # 集計グループごとのデータを準備
     @grouped_data = prepare_grouped_data
@@ -52,13 +52,13 @@ class SalesReportsController < ApplicationController
     @budgets = Budget.by_fiscal_year(@fiscal_year)
                      .where(product_id: nil)
                      .includes(:product_category)
-                     .index_by { |b| [b.product_category_id, b.aggregation_group_name] }
+                     .index_by { |b| [ b.product_category_id, b.aggregation_group_name ] }
 
     # 集計グループ設定を取得
     @aggregation_groups = ProductAggregationGroup
       .by_fiscal_year(@fiscal_year)
       .includes(:product, :product_category)
-      .group_by { |g| [g.product_category_id, g.group_name] }
+      .group_by { |g| [ g.product_category_id, g.group_name ] }
 
     # 集計グループごとのデータを準備
     @grouped_data = prepare_grouped_data
@@ -89,13 +89,13 @@ class SalesReportsController < ApplicationController
     @budgets = Budget.by_fiscal_year(@fiscal_year)
                      .where(product_id: nil)
                      .includes(:product_category)
-                     .index_by { |b| [b.product_category_id, b.aggregation_group_name] }
+                     .index_by { |b| [ b.product_category_id, b.aggregation_group_name ] }
 
     # 集計グループ設定を取得
     @aggregation_groups = ProductAggregationGroup
       .by_fiscal_year(@fiscal_year)
       .includes(:product, :product_category)
-      .group_by { |g| [g.product_category_id, g.group_name] }
+      .group_by { |g| [ g.product_category_id, g.group_name ] }
 
     # 集計グループごとのデータを準備
     @grouped_data = prepare_grouped_data
@@ -105,7 +105,7 @@ class SalesReportsController < ApplicationController
     # CSVデータを生成
     csv_data = CSV.generate(force_quotes: true) do |csv|
       # ヘッダー行
-      csv << ["No.", "商品名", "予算", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月", "1月", "2月", "3月", "4月", "小計", "予算残高"]
+      csv << [ "No.", "商品名", "予算", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月", "1月", "2月", "3月", "4月", "小計", "予算残高" ]
 
       # データ行
       @categories.each do |category|
@@ -115,7 +115,7 @@ class SalesReportsController < ApplicationController
         category_total_sales = 0
 
         # 事業部ヘッダー行
-        csv << ["#{category.name}（#{category.code}）", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]
+        csv << [ "#{category.name}（#{category.code}）", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" ]
 
         # グループごとの行
         grouped_items.each do |item|
@@ -127,7 +127,7 @@ class SalesReportsController < ApplicationController
             monthly_sales = item[:monthly_sales]
             total_sales = item[:total_sales]
             budget_balance = budget_amount - total_sales
-            product_names = item[:products].map { |p| "#{p.name}（#{p.product_code}）" }.join('、')
+            product_names = item[:products].map { |p| "#{p.name}（#{p.product_code}）" }.join("\u3001")
 
             category_total_sales += total_sales
             (1..12).each do |month|
@@ -135,7 +135,7 @@ class SalesReportsController < ApplicationController
             end
 
             row = [
-              (item[:group_code] || '-').to_s,
+              (item[:group_code] || "-").to_s,
               "#{group_name}（#{product_names}）",
               budget_amount.to_s,
               monthly_sales[0].to_s,
@@ -206,7 +206,7 @@ class SalesReportsController < ApplicationController
       end
 
       grand_budget_balance = grand_total_budget - grand_total_sales
-      csv << ["総合計", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]
+      csv << [ "総合計", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" ]
       csv << [
         "",
         "総合計",
@@ -254,22 +254,22 @@ class SalesReportsController < ApplicationController
 
     # 商品ごと、月ごとに集計
     sales_by_product_month = {}
-    
+
     order_items.each do |item|
       next unless item.product_id && item.order&.order_date
-      
+
       product_id = item.product_id
       category_id = item.product.product_category_id
       order_date = item.order.order_date
       month = order_date.month
-      
+
       # 年度の月番号に変換（5月=1, 6月=2, ..., 4月=12）
       fiscal_month = month >= 5 ? month - 4 : month + 8
-      
-      key = [category_id, product_id]
+
+      key = [ category_id, product_id ]
       sales_by_product_month[key] ||= {}
       sales_by_product_month[key][fiscal_month] ||= 0
-      
+
       # subtotal_without_taxメソッドを使用（税抜き金額）
       amount = item.subtotal_without_tax || 0
       sales_by_product_month[key][fiscal_month] += amount
@@ -286,7 +286,7 @@ class SalesReportsController < ApplicationController
       grouped_items = []
 
       # 事業部全体の予算
-      category_budget = @budgets[[category.id, nil]]
+      category_budget = @budgets[[ category.id, nil ]]
       if category_budget
         grouped_items << {
           type: :category,
@@ -321,11 +321,11 @@ class SalesReportsController < ApplicationController
         # group_codeが数値の場合は数値として、文字列の場合は文字列としてソート
         code = g[:group_code].to_s
         if code.blank?
-          [2, ''] # nilまたは空の場合は最後に
+          [ 2, "" ] # nilまたは空の場合は最後に
         elsif code.match?(/^\d+$/)
-          [0, code.to_i] # 数値の場合は先に
+          [ 0, code.to_i ] # 数値の場合は先に
         else
-          [1, code] # 文字列の場合は後に
+          [ 1, code ] # 文字列の場合は後に
         end
       end
 
@@ -334,11 +334,11 @@ class SalesReportsController < ApplicationController
         group_code = group_data[:group_code]
 
         # このグループに属する商品を取得
-        group_products = @aggregation_groups[[category.id, group_name]] || []
+        group_products = @aggregation_groups[[ category.id, group_name ]] || []
         next if group_products.empty?
 
         # グループの予算を取得
-        group_budget = @budgets[[category.id, group_name]]
+        group_budget = @budgets[[ category.id, group_name ]]
         next unless group_budget # 予算が設定されているグループのみ表示
 
         monthly_sales = Array.new(12, 0)
@@ -348,7 +348,7 @@ class SalesReportsController < ApplicationController
         group_products.each do |group|
           product = group.product
           (1..12).each do |month|
-            sales_key = [category.id, product.id]
+            sales_key = [ category.id, product.id ]
             month_sales = @sales_data[sales_key]&.dig(month) || 0
             monthly_sales[month - 1] += month_sales
             total_sales += month_sales
@@ -372,4 +372,3 @@ class SalesReportsController < ApplicationController
     grouped_by_category
   end
 end
-

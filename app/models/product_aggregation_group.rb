@@ -6,7 +6,7 @@ class ProductAggregationGroup < ApplicationRecord
   validates :product_category_id, presence: true
   validates :product_id, presence: true
   validates :group_name, presence: true
-  validates :fiscal_year, uniqueness: { scope: [:product_category_id, :product_id], message: "この年度・事業部・商品の組み合わせは既に登録されています" }
+  validates :fiscal_year, uniqueness: { scope: [ :product_category_id, :product_id ], message: "この年度・事業部・商品の組み合わせは既に登録されています" }
 
   scope :by_fiscal_year, ->(year) { where(fiscal_year: year) }
   scope :by_category, ->(category_id) { where(product_category_id: category_id) }

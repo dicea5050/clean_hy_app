@@ -50,7 +50,7 @@ class PaymentManagementController < ApplicationController
           load Rails.root.join("app", "services", "payment_management_service.rb")
           @service = PaymentManagementService.new(@customer)
         end
-        
+
         begin
           @unpaid_invoices = @service.unpaid_invoices
           @unpaid_invoices = [] if @unpaid_invoices.nil?
@@ -70,7 +70,7 @@ class PaymentManagementController < ApplicationController
             begin
               # payment_recordsが正しく読み込まれていることを確認
               payment_records = invoice.payment_records.to_a
-              
+
               # 元入金IDを取得（充当記録のnotesから抽出）
               original_payment_ids = payment_records.map do |pr|
                 extract_original_payment_id(pr.notes) if pr.notes.present?

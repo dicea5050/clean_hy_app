@@ -5,4 +5,3 @@ class HomeController < ApplicationController
     # ログイン不要のトップページ
   end
 end
-

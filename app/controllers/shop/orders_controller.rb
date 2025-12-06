@@ -18,7 +18,7 @@ class Shop::OrdersController < ApplicationController
 
   def create
     @cart = current_cart
-    
+
     # カートが空の場合はエラー
     if @cart.items.empty?
       redirect_to shop_cart_path, alert: "カートが空です。商品を追加してください。"
