@@ -13,4 +13,3 @@ class CreateEmailTemplates < ActiveRecord::Migration[8.0]
     add_index :email_templates, :is_active
   end
 end
-
