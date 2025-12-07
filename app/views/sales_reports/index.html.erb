@@ -4,15 +4,7 @@
   </div>
 
   <div class="mb-3">
-    <div class="d-flex align-items-center gap-3 flex-wrap">
-      <%= form_with url: sales_reports_path, method: :get, local: true, class: 'd-flex align-items-center gap-3' do |form| %>
-        <div class="d-flex align-items-center gap-2">
-          <%= form.label :fiscal_year, '年度', class: 'mb-0' %>
-          <%= form.number_field :fiscal_year, value: @fiscal_year, min: 2000, max: 3000, class: 'form-control', style: 'width: 120px;' %>
-        </div>
-        <%= form.submit '表示', class: 'btn btn-secondary' %>
-      <% end %>
-      
+    <%= render 'shared/fiscal_year_form', url: sales_reports_path, fiscal_year: @fiscal_year, wrapper_class: 'd-flex align-items-center gap-3 flex-wrap' do %>
       <div class="ms-auto d-flex gap-2">
         <%= link_to export_pdf_sales_reports_path(fiscal_year: @fiscal_year), class: 'btn btn-primary', target: '_blank' do %>
           PDFダウンロード
@@ -21,7 +13,7 @@
           CSVダウンロード
         <% end %>
       </div>
-    </div>
+    <% end %>
   </div>
 
   <div class="table-responsive">
@@ -57,6 +49,7 @@
           <% category_monthly_sales = Array.new(12, 0) %>
           <% category_total_sales = 0 %>
           <% grouped_items = @grouped_data[category.id] || [] %>
+          <% has_category_budget = false %>
 
           <!-- 事業部ヘッダー -->
           <tr class="table-info">
@@ -70,6 +63,7 @@
             <% if item[:type] == :category %>
               <% # 事業部全体の予算（表示しない、合計にのみ使用） %>
               <% category_total_budget = item[:budget_amount] %>
+              <% has_category_budget = true %>
             <% elsif item[:type] == :group %>
               <% # グループ表示 %>
               <% group_name = item[:group_name] %>
@@ -79,6 +73,7 @@
               <% budget_balance = budget_amount - total_sales %>
               <% product_names = item[:products].map { |p| "#{p.name}（#{p.product_code}）" }.join('、') %>
 
+              <% category_total_budget += budget_amount unless has_category_budget %>
               <% category_total_sales += total_sales %>
               <% (1..12).each do |month| %>
                 <% category_monthly_sales[month - 1] += monthly_sales[month - 1] %>
@@ -123,30 +118,53 @@
         <% grand_monthly_sales = Array.new(12, 0) %>
         <% grand_total_sales = 0 %>
 
+        <tr class="table-warning">
+          <td colspan="17" style="font-weight: bold; text-align: center;">総合計</td>
+        </tr>
+
         <% @categories.each do |category| %>
           <% grouped_items = @grouped_data[category.id] || [] %>
+          <% category_total_budget = 0 %>
           <% category_monthly_sales = Array.new(12, 0) %>
+          <% category_total_sales = 0 %>
+          <% has_category_budget = false %>
 
           <% grouped_items.each do |item| %>
             <% if item[:type] == :category %>
-              <% grand_total_budget += item[:budget_amount] %>
+              <% category_total_budget = item[:budget_amount] %>
+              <% has_category_budget = true %>
             <% elsif item[:type] == :group %>
+              <% category_total_budget += item[:budget_amount] unless has_category_budget %>
               <% (1..12).each do |month| %>
                 <% month_sales = item[:monthly_sales][month - 1] || 0 %>
                 <% category_monthly_sales[month - 1] += month_sales %>
                 <% grand_monthly_sales[month - 1] += month_sales %>
               <% end %>
+              <% category_total_sales += item[:total_sales] %>
             <% end %>
           <% end %>
 
-          <% grand_total_sales += category_monthly_sales.sum %>
+          <% grand_total_budget += category_total_budget %>
+          <% grand_total_sales += category_total_sales %>
+          <% category_budget_balance = category_total_budget - category_total_sales %>
+
+          <!-- 事業部合計（総合計セクション内） -->
+          <tr class="table-secondary">
+            <td class="fw-bold"></td>
+            <td class="fw-bold"><%= category.name %>（<%= category.code %>）合計</td>
+            <td class="text-end fw-bold"><%= number_to_currency(category_total_budget, unit: '', format: '%n') %></td>
+            <% (1..12).each do |month| %>
+              <td class="text-end fw-bold"><%= number_to_currency(category_monthly_sales[month - 1], unit: '', format: '%n') %></td>
+            <% end %>
+            <td class="text-end fw-bold"><%= number_to_currency(category_total_sales, unit: '', format: '%n') %></td>
+            <td class="text-end fw-bold <%= category_budget_balance < 0 ? 'text-danger' : '' %>">
+              <%= number_to_currency(category_budget_balance, unit: '', format: '%n') %>
+            </td>
+          </tr>
         <% end %>
 
         <% grand_budget_balance = grand_total_budget - grand_total_sales %>
 
-        <tr class="table-warning">
-          <td colspan="17" style="font-weight: bold; text-align: center;">総合計</td>
-        </tr>
         <tr class="table-warning">
           <td class="fw-bold"></td>
           <td class="fw-bold">総合計</td>

@@ -1,0 +1,18 @@
+<%# 年度選択フォームの共通パーシャル %>
+<%# 使用例: <%= render 'shared/fiscal_year_form', url: budgets_path, fiscal_year: @fiscal_year %>
+<%# 追加コンテンツがある場合: <%= render 'shared/fiscal_year_form', url: sales_reports_path, fiscal_year: @fiscal_year, wrapper_class: 'd-flex align-items-center gap-3 flex-wrap' do %>
+<%#   <div class="ms-auto d-flex gap-2">...</div> %>
+<%# <% end %>
+<% wrapper_class = local_assigns[:wrapper_class] || 'd-flex align-items-center gap-3' %>
+<div class="<%= wrapper_class %>">
+  <%= form_with url: url, method: :get, local: true, class: 'd-flex align-items-center gap-3' do |form| %>
+    <div class="d-flex align-items-center gap-2">
+      <%= form.label :fiscal_year, '年度', class: 'mb-0' %>
+      <%= form.number_field :fiscal_year, value: fiscal_year, min: 2000, max: 3000, class: 'form-control', style: 'width: 120px;' %>
+    </div>
+    <%= form.submit '表示', class: 'btn btn-secondary' %>
+  <% end %>
+  <% if block_given? %>
+    <%= yield %>
+  <% end %>
+</div>

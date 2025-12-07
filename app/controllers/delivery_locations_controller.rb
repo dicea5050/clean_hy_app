@@ -1,5 +1,6 @@
 class DeliveryLocationsController < ApplicationController
   before_action :require_editor_limited_access
+  before_action :require_viewer_show_only
   before_action :set_delivery_location, only: [ :show, :edit, :update, :destroy ]
 
   def index

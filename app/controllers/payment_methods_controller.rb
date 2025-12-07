@@ -1,5 +1,6 @@
 class PaymentMethodsController < ApplicationController
   before_action :require_editor_limited_access
+  before_action :require_viewer_show_only
   before_action :set_payment_method, only: [ :show, :edit, :update, :destroy ]
 
   def index

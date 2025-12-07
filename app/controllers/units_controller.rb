@@ -1,5 +1,6 @@
 class UnitsController < ApplicationController
   before_action :require_editor_limited_access
+  before_action :require_viewer_show_only
   before_action :set_unit, only: [ :show, :edit, :update, :destroy ]
 
   def index

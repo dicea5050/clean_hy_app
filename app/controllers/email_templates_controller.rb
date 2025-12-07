@@ -1,5 +1,6 @@
 class EmailTemplatesController < ApplicationController
   before_action :require_viewer_or_editor_access
+  before_action :require_viewer_show_only
   before_action :require_editor, except: [ :index, :show ]
   before_action :set_email_template, only: [ :show, :edit, :update, :destroy ]
 

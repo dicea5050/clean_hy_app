@@ -8,10 +8,9 @@ class ApplicationController < ActionController::Base
   rescue_from AbstractController::ActionNotFound, with: :not_found
 
   # shop-user権限チェック：shopコントローラー以外へのアクセスを制限
-  # shop/sessions、home、administrators#loginは公開ページなので除外
+  # shop/sessions、administrators#loginは公開ページなので除外
   before_action :require_shop_user_access, unless: -> {
     controller_path.start_with?("shop/") ||
-    controller_path == "home" ||
     (controller_path == "administrators" && action_name == "login")
   }
 
@@ -39,7 +38,9 @@ class ApplicationController < ActionController::Base
   end
 
   def require_editor
-    unless administrator_signed_in? && (current_administrator.editor? || current_administrator.admin? || current_administrator.editor_limited?)
+    # editorは承認・差し戻し不可、Budgetの登録・編集・削除不可、ProductAggregationGroupの登録・編集・削除不可
+    # そのため、require_editorはadminのみを許可
+    unless administrator_signed_in? && current_administrator.admin?
       redirect_to masters_path, alert: "この操作を行う権限がありません。"
     end
   end
@@ -71,11 +72,8 @@ class ApplicationController < ActionController::Base
       return if allowed_controller_paths.include?(controller_path)
     end
 
-    # viewer は orders と invoices にアクセス可能（閲覧のみ）
-    if administrator_signed_in? && current_administrator.viewer?
-      allowed_controller_paths = %w[orders invoices]
-      return if allowed_controller_paths.include?(controller_path)
-    end
+    # viewer は全てのページにアクセス可能（ただし、require_viewer_show_onlyでshowのみに制限される）
+    return if administrator_signed_in? && current_administrator.viewer?
 
     redirect_to masters_path, alert: "このページにアクセスする権限がありません。"
   end
@@ -96,11 +94,8 @@ class ApplicationController < ActionController::Base
       return if allowed_controller_paths.include?(controller_path)
     end
 
-    # viewer は orders と invoices にアクセス可能（閲覧のみ）
-    if current_administrator.viewer?
-      allowed_controller_paths = %w[orders invoices]
-      return if allowed_controller_paths.include?(controller_path)
-    end
+    # viewer は全てのページにアクセス可能（ただし、require_viewer_show_onlyでshowのみに制限される）
+    return if current_administrator.viewer?
 
     redirect_to masters_path, alert: "このページにアクセスする権限がありません。"
   end
@@ -113,6 +108,17 @@ class ApplicationController < ActionController::Base
 
     unless current_administrator.admin?
       redirect_to masters_path, alert: "この操作を行う権限がありません。管理者権限が必要です。"
+    end
+  end
+
+  # viewerはindex（一覧）とshow（詳細）のみ許可
+  # new、editページの表示は不可、create、update、destroy操作も不可
+  def require_viewer_show_only
+    return unless administrator_signed_in? && current_administrator.viewer?
+
+    # index（一覧）とshow（詳細）のみ許可、それ以外は制限
+    unless action_name == "show" || action_name == "index"
+      redirect_to masters_path, alert: "この操作を行う権限がありません。閲覧のみ可能です。"
     end
   end
 

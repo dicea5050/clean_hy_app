@@ -1,6 +1,7 @@
 class SalesReportsController < ApplicationController
   before_action :require_login
   before_action :require_editor_limited_access
+  before_action :require_viewer_show_only
 
   def index
     # 年度の設定（デフォルトは現在の年度）
@@ -113,6 +114,7 @@ class SalesReportsController < ApplicationController
         category_total_budget = 0
         category_monthly_sales = Array.new(12, 0)
         category_total_sales = 0
+        has_category_budget = false
 
         # 事業部ヘッダー行
         csv << [ "#{category.name}（#{category.code}）", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" ]
@@ -121,6 +123,7 @@ class SalesReportsController < ApplicationController
         grouped_items.each do |item|
           if item[:type] == :category
             category_total_budget = item[:budget_amount]
+            has_category_budget = true
           elsif item[:type] == :group
             group_name = item[:group_name]
             budget_amount = item[:budget_amount]
@@ -129,6 +132,7 @@ class SalesReportsController < ApplicationController
             budget_balance = budget_amount - total_sales
             product_names = item[:products].map { |p| "#{p.name}（#{p.product_code}）" }.join("\u3001")
 
+            category_total_budget += budget_amount unless has_category_budget
             category_total_sales += total_sales
             (1..12).each do |month|
               category_monthly_sales[month - 1] += monthly_sales[month - 1]
@@ -186,27 +190,58 @@ class SalesReportsController < ApplicationController
       grand_monthly_sales = Array.new(12, 0)
       grand_total_sales = 0
 
+      csv << [ "総合計", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" ]
+
       @categories.each do |category|
         grouped_items = @grouped_data[category.id] || []
+        category_total_budget = 0
         category_monthly_sales = Array.new(12, 0)
+        category_total_sales = 0
+        has_category_budget = false
 
         grouped_items.each do |item|
           if item[:type] == :category
+            category_total_budget = item[:budget_amount]
+            has_category_budget = true
             grand_total_budget += item[:budget_amount]
           elsif item[:type] == :group
+            category_total_budget += item[:budget_amount] unless has_category_budget
             (1..12).each do |month|
               month_sales = item[:monthly_sales][month - 1] || 0
               category_monthly_sales[month - 1] += month_sales
               grand_monthly_sales[month - 1] += month_sales
             end
+            category_total_sales += item[:total_sales]
           end
         end
 
-        grand_total_sales += category_monthly_sales.sum
+        grand_total_budget += category_total_budget unless has_category_budget
+        grand_total_sales += category_total_sales
+        category_budget_balance = category_total_budget - category_total_sales
+
+        # 事業部合計（総合計セクション内）
+        csv << [
+          "",
+          "#{category.name}（#{category.code}）合計",
+          category_total_budget.to_s,
+          category_monthly_sales[0].to_s,
+          category_monthly_sales[1].to_s,
+          category_monthly_sales[2].to_s,
+          category_monthly_sales[3].to_s,
+          category_monthly_sales[4].to_s,
+          category_monthly_sales[5].to_s,
+          category_monthly_sales[6].to_s,
+          category_monthly_sales[7].to_s,
+          category_monthly_sales[8].to_s,
+          category_monthly_sales[9].to_s,
+          category_monthly_sales[10].to_s,
+          category_monthly_sales[11].to_s,
+          category_total_sales.to_s,
+          category_budget_balance.to_s
+        ]
       end
 
       grand_budget_balance = grand_total_budget - grand_total_sales
-      csv << [ "総合計", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" ]
       csv << [
         "",
         "総合計",

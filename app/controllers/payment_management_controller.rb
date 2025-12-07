@@ -1,5 +1,6 @@
 class PaymentManagementController < ApplicationController
   before_action :require_editor_limited_access
+  before_action :require_viewer_show_only
   before_action :require_editor, only: [ :create, :edit, :update, :destroy ]
   before_action :set_payment_record, only: [ :edit, :update, :destroy ]
 

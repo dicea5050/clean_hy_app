@@ -1,5 +1,6 @@
 class InvoicesController < ApplicationController
   before_action :require_viewer_or_editor_access
+  before_action :require_viewer_show_only
   before_action :require_editor, only: [ :new, :create, :edit, :update, :destroy, :bulk_request_approval, :pdf, :receipt, :send_email, :bulk_send_email, :bulk_download_pdf, :mark_printed ]
   before_action :set_invoice, only: [ :show, :edit, :update, :destroy, :send_email, :mark_printed ]
 

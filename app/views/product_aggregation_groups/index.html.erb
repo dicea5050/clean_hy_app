@@ -5,13 +5,7 @@
   </div>
 
   <div class="mb-3">
-    <%= form_with url: product_aggregation_groups_path, method: :get, local: true, class: 'd-flex align-items-center gap-3' do |form| %>
-      <div class="form-group mb-0">
-        <%= form.label :fiscal_year, '年度', class: 'me-2' %>
-        <%= form.number_field :fiscal_year, value: @fiscal_year, min: 2000, max: 3000, class: 'form-control', style: 'width: 120px;' %>
-      </div>
-      <%= form.submit '表示', class: 'btn btn-secondary' %>
-    <% end %>
+    <%= render 'shared/fiscal_year_form', url: product_aggregation_groups_path, fiscal_year: @fiscal_year %>
   </div>
 
   <%= form_with url: update_all_product_aggregation_groups_path, method: :post, local: true do |form| %>
@@ -27,8 +21,8 @@
             <table class="table table-bordered mb-0" style="font-size: 0.9rem;">
               <thead class="table-light">
                 <tr>
-                  <th style="width: 200px;">商品名</th>
                   <th style="width: 150px;">商品コード</th>
+                  <th style="width: 200px;">商品名</th>
                   <th style="width: 150px;">グループ</th>
                   <th style="width: 300px;">グループ名</th>
                 </tr>
@@ -38,8 +32,8 @@
                   <% product = group_data[:product] %>
                   <% key = "#{category.id}_#{product.id}" %>
                   <tr>
-                    <td><%= product.name %></td>
                     <td><%= product.product_code %></td>
+                    <td><%= product.name %></td>
                     <td>
                       <%= form.text_field "groups[#{key}][group_code]", 
                           value: group_data[:group_code], 

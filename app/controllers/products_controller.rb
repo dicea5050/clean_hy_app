@@ -1,6 +1,7 @@
 class ProductsController < ApplicationController
   before_action :require_login
   before_action :require_editor_limited_access
+  before_action :require_viewer_show_only
   # 破壊的操作のみ管理者/編集者に限定
   before_action :require_editor, only: [ :destroy ]
   before_action :set_product, only: [ :show, :edit, :update, :destroy ]

@@ -1,5 +1,6 @@
 class OrdersController < ApplicationController
   before_action :require_viewer_or_editor_access
+  before_action :require_viewer_show_only
   before_action :require_editor, only: [ :new, :create, :edit, :update, :destroy, :import_csv, :process_csv, :delivery_slip ]
   before_action :set_order, only: [ :show, :edit, :update, :destroy ]
   before_action :set_payment_methods, only: [ :new, :edit, :create, :update ]

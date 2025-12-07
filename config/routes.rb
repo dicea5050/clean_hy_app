@@ -141,8 +141,8 @@ Rails.application.routes.draw do
   # ショップのルートページを商品一覧に設定
   get "/shop", to: "shop/products#index"
 
-  # ルートパスの設定
-  root to: "home#index"
+  # ルートパスの設定（shopログインページ）
+  root to: "shop/sessions#new"
 
   resources :invoice_approvals, only: [ :index ] do
     collection do

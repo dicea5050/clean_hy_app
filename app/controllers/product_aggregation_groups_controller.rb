@@ -1,7 +1,9 @@
 class ProductAggregationGroupsController < ApplicationController
   before_action :require_login
   before_action :require_editor_limited_access
-  before_action :require_editor, only: [ :update_all ]
+  # editorはProductAggregationGroupの登録・編集・削除不可のため、adminのみ許可
+  before_action :require_admin_only, only: [ :update_all ]
+  before_action :require_viewer_show_only
   before_action :set_fiscal_year
   before_action :set_categories
 
