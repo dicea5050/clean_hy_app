@@ -76,7 +76,7 @@ module ApplicationHelper
 
   # 納品先名を表示用に変換（（本社）を（基本）に置き換え）
   def delivery_location_display_name(name)
-    name.to_s.gsub('（本社）', '（基本）')
+    name.to_s.gsub("\uFF08\u672C\u793E\uFF09", "\uFF08\u57FA\u672C\uFF09")
   end
 
   # 有効/無効ステータスに応じたバッジのクラスとテキストを返す（汎用）
@@ -101,10 +101,10 @@ module ApplicationHelper
   def sortable_column(title, column, current_sort, current_direction, params_hash)
     # 現在のソートカラムと一致する場合、方向を切り替える
     if current_sort == column
-      new_direction = current_direction == 'asc' ? 'desc' : 'asc'
-      icon_class = current_direction == 'asc' ? 'bi-arrow-up' : 'bi-arrow-down'
+      new_direction = current_direction == "asc" ? "desc" : "asc"
+      icon_class = current_direction == "asc" ? "bi-arrow-up" : "bi-arrow-down"
     else
-      new_direction = 'asc'
+      new_direction = "asc"
       icon_class = nil
     end
 
@@ -115,7 +115,7 @@ module ApplicationHelper
     else
       link_params = params_hash.dup
     end
-    
+
     link_params[:sort] = column
     link_params[:direction] = new_direction
     link_params.delete(:page) # ページネーションをリセット

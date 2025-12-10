@@ -8,6 +8,6 @@ class DeliveryLocation < ApplicationRecord
 
   # 表示用の納品先名（（本社）を（基本）に置き換え）
   def display_name
-    name.to_s.gsub('（本社）', '（基本）')
+    name.to_s.gsub("\uFF08\u672C\u793E\uFF09", "\uFF08\u57FA\u672C\uFF09")
   end
 end

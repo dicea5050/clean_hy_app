@@ -20,22 +20,22 @@ class CustomersController < ApplicationController
     end
 
     # 並び替え
-    sort_column = params[:sort] || 'company_name'
-    sort_direction = params[:direction] || 'asc'
-    
+    sort_column = params[:sort] || "company_name"
+    sort_direction = params[:direction] || "asc"
+
     # セキュリティ対策：許可されたカラムのみソート可能
     allowed_sort_columns = %w[customer_code company_name phone_number fax_number payment_method invoice_delivery_method billing_closing_day]
-    sort_column = 'company_name' unless allowed_sort_columns.include?(sort_column)
-    sort_direction = 'asc' unless %w[asc desc].include?(sort_direction)
-    
+    sort_column = "company_name" unless allowed_sort_columns.include?(sort_column)
+    sort_direction = "asc" unless %w[asc desc].include?(sort_direction)
+
     # 支払い方法でソートする場合はjoinsが必要
-    if sort_column == 'payment_method'
+    if sort_column == "payment_method"
       @customers = @customers.left_joins(:payment_method)
                              .order("payment_methods.name #{sort_direction} NULLS LAST")
-    elsif sort_column == 'customer_code'
+    elsif sort_column == "customer_code"
       # 顧客コードは数値としてソート（数値のみの場合は数値として、そうでない場合は文字列として）
       @customers = @customers.order(
-        Arel.sql("CASE 
+        Arel.sql("CASE
           WHEN customer_code ~ '^[0-9]+$' THEN CAST(customer_code AS INTEGER)
           ELSE NULL
         END #{sort_direction} NULLS LAST"),
@@ -46,7 +46,7 @@ class CustomersController < ApplicationController
     end
 
     @customers = @customers.page(params[:page]).per(25)
-    
+
     # ビューで使用するための変数
     @sort_column = sort_column
     @sort_direction = sort_direction
