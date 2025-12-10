@@ -6,6 +6,9 @@ class Order < ApplicationRecord
   has_many :invoice_orders, dependent: :destroy
   has_many :invoices, through: :invoice_orders
 
+  # CSVインポート時に規格のバリデーションをスキップするための一時属性
+  attr_accessor :skip_specification_validation
+
   accepts_nested_attributes_for :order_items,
     allow_destroy: true,
     reject_if: proc { |attributes| attributes["product_id"].blank? && attributes["quantity"].blank? }
@@ -41,8 +44,8 @@ class Order < ApplicationRecord
         errors.add(:base, "商品#{index + 1}: 商品を選択してください")
       end
 
-      # ショップ注文の場合は規格を必須にしない
-      if item.product_specification_id.blank? && !is_shop_order?
+      # ショップ注文またはCSVインポートの場合は規格を必須にしない
+      if item.product_specification_id.blank? && !is_shop_order? && !skip_specification_validation
         errors.add(:base, "商品#{index + 1}: 規格を選択してください")
       end
 

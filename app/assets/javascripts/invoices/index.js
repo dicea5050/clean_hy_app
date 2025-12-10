@@ -84,6 +84,53 @@ document.addEventListener('DOMContentLoaded', function() {
   // 初期状態を設定
   updateBulkButtonState();
 
+  // 削除ボタンのクリックイベント
+  const deleteInvoiceBtns = document.querySelectorAll('.delete-invoice-btn');
+  deleteInvoiceBtns.forEach(btn => {
+    btn.addEventListener('click', function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const invoiceId = this.dataset.invoiceId;
+      const paymentStatus = this.dataset.paymentStatus;
+
+      // 入金済み（入金済、一部未入金）の場合は削除不可
+      if (paymentStatus === '入金済' || paymentStatus === '一部未入金') {
+        alert('入金済みのため削除できません');
+        return false;
+      }
+
+      // 確認ダイアログを表示
+      if (confirm('本当に削除しますか？')) {
+        // CSRFトークンを取得
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        // 削除用のフォームを作成
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/invoices/${invoiceId}`;
+
+        // method override
+        const methodInput = document.createElement('input');
+        methodInput.type = 'hidden';
+        methodInput.name = '_method';
+        methodInput.value = 'DELETE';
+        form.appendChild(methodInput);
+
+        // CSRFトークン
+        const tokenInput = document.createElement('input');
+        tokenInput.type = 'hidden';
+        tokenInput.name = 'authenticity_token';
+        tokenInput.value = csrfToken;
+        form.appendChild(tokenInput);
+
+        // フォームを送信
+        document.body.appendChild(form);
+        form.submit();
+      }
+    });
+  });
+
   // 顧客コード・取引先名連動機能を初期化
   if (window.CustomerCodeSearch) {
     window.CustomerCodeSearch.init({

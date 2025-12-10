@@ -22,7 +22,7 @@
         <% @delivery_locations.each do |delivery_location| %>
           <tr>
             <td><small><%= delivery_location.customer.name %></small></td>
-            <td><small><%= delivery_location.name %></small></td>
+            <td><small><%= delivery_location_display_name(delivery_location.name) %></small></td>
             <td><small><%= delivery_location.postal_code %></small></td>
             <td><small><%= delivery_location.address %></small></td>
             <td><small><%= delivery_location.phone %></small></td>

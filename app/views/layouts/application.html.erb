@@ -73,7 +73,7 @@
       <header class="mb-4">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
           <div class="container">
-            <span class="navbar-brand">Clean Hy App</span>
+            <span class="navbar-brand">販売管理システム</span>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="ナビゲーションの切替">
               <span class="navbar-toggler-icon"></span>
             </button>
@@ -109,23 +109,7 @@
       </header>
     <% end %>
 
-    <% if notice %>
-      <div class="container mt-3">
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-          <%= notice %>
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="閉じる"></button>
-        </div>
-      </div>
-    <% end %>
-
-    <% if alert %>
-      <div class="container mt-3">
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-          <%= alert %>
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="閉じる"></button>
-        </div>
-      </div>
-    <% end %>
+    <%= render 'shared/flash' %>
 
     <%= yield %>
   </body>

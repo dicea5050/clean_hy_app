@@ -117,5 +117,52 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
+
+  // 削除ボタンのクリックイベント
+  const deleteOrderBtns = document.querySelectorAll('.delete-order-btn');
+  deleteOrderBtns.forEach(btn => {
+    btn.addEventListener('click', function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const orderId = this.dataset.orderId;
+      const isInvoiced = this.dataset.invoiced === 'true';
+
+      if (isInvoiced) {
+        // 請求書発行済みの場合は警告を表示
+        alert('請求書発行済みのため削除できません。先に請求書を削除してください');
+        return false;
+      } else {
+        // 請求書未発行の場合は確認ダイアログを表示
+        if (confirm('本当に削除しますか？')) {
+          // CSRFトークンを取得
+          const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+          // 削除用のフォームを作成
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = `/orders/${orderId}`;
+
+          // method override
+          const methodInput = document.createElement('input');
+          methodInput.type = 'hidden';
+          methodInput.name = '_method';
+          methodInput.value = 'DELETE';
+          form.appendChild(methodInput);
+
+          // CSRFトークン
+          const tokenInput = document.createElement('input');
+          tokenInput.type = 'hidden';
+          tokenInput.name = 'authenticity_token';
+          tokenInput.value = csrfToken;
+          form.appendChild(tokenInput);
+
+          // フォームを送信
+          document.body.appendChild(form);
+          form.submit();
+        }
+      }
+    });
+  });
 });
 

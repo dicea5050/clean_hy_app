@@ -225,13 +225,10 @@
                              data: { has_delivery_date: order.actual_delivery_date.present? } do %>
                     <i class="bi bi-file-earmark-text"></i>
                   <% end %>
-                  <% confirm_msg = t('confirms.destroy', default: '本当に削除しますか？') %>
-                  <%= button_to order_path(order),
-                                  method: :delete,
-                                  form: { data: { turbo_confirm: confirm_msg },
-                                          class: 'd-inline' },
-                                  class: 'btn btn-sm btn-danger',
-                                  title: '削除' do %>
+                  <%= button_tag type: 'button',
+                                  class: 'btn btn-sm btn-danger delete-order-btn',
+                                  title: '削除',
+                                  data: { order_id: order.id, invoiced: order.invoiced? } do %>
                     <i class="bi bi-trash"></i>
                   <% end %>
                 </div>

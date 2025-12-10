@@ -64,16 +64,16 @@
             <tbody>
               <% @delivery_locations.each do |location| %>
                 <tr>
-                  <td><%= location.name %></td>
+                  <td><%= delivery_location_display_name(location.name) %></td>
                   <td><%= location.postal_code.present? ? location.postal_code : '未設定' %></td>
                   <td><%= location.address.present? ? location.address : '未設定' %></td>
                   <td><%= location.phone.present? ? location.phone : '未設定' %></td>
                   <td><%= location.contact_person.present? ? location.contact_person : '未設定' %></td>
                   <td>
                     <% if location.is_main_office? %>
-                      <span class="badge bg-primary">本社</span>
+                      <span class="badge bg-primary">基本</span>
                     <% else %>
-                      <span class="badge bg-secondary">その他</span>
+                      <span class="badge bg-secondary">追加</span>
                     <% end %>
                   </td>
                 </tr>

@@ -73,7 +73,7 @@
             <%= f.collection_select :delivery_location_id,
                 @delivery_locations || [],
                 :id,
-                :name,
+                :display_name,
                 { include_blank: true, selected: @order.delivery_location_id || (@delivery_locations&.find(&:is_main_office)&.id || @delivery_locations&.first&.id) },
                 { class: "form-select", required: true, disabled: @delivery_locations.blank?, id: "order_delivery_location_id" } %>
             <% if @delivery_locations.blank? %>

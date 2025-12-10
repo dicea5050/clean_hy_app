@@ -89,40 +89,39 @@
             </div>
           </div>
 
-          <div class="col-md-4">
-            <label class="form-label">承認状態</label>
-            <div class="row g-2">
-              <% Invoice::APPROVAL_STATUSES.values.each do |status| %>
-                <div class="col-auto me-2">
-                  <div class="form-check">
-                    <%= check_box_tag 'search[approval_statuses][]',
-                        status,
-                        params.dig(:search, :approval_statuses)&.include?(status),
-                        id: "status_#{status}",
-                        class: 'form-check-input' %>
-                    <label class="form-check-label" for="<%= "status_#{status}" %>"><%= status %></label>
-                  </div>
+          <!-- 承認状態と入金状況を同じ行に配置 -->
+          <div class="col-12 clear-left">
+            <div class="d-flex align-items-start flex-wrap">
+              <div class="me-5">
+                <label class="form-label">承認状態</label>
+                <div class="d-flex flex-wrap gap-3">
+                  <% Invoice::APPROVAL_STATUSES.values.each do |status| %>
+                    <div class="form-check">
+                      <%= check_box_tag 'search[approval_statuses][]',
+                          status,
+                          params.dig(:search, :approval_statuses)&.include?(status),
+                          id: "status_#{status}",
+                          class: 'form-check-input' %>
+                      <label class="form-check-label" for="<%= "status_#{status}" %>"><%= status %></label>
+                    </div>
+                  <% end %>
                 </div>
-              <% end %>
-            </div>
-          </div>
-
-          <!-- 3行目：入金状況 -->
-          <div class="col-md-4 clear-left">
-            <label class="form-label">入金状況</label>
-            <div class="row g-2">
-              <% Invoice::PAYMENT_STATUSES.values.each do |status| %>
-                <div class="col-auto me-2">
-                  <div class="form-check">
-                    <%= check_box_tag 'search[payment_statuses][]',
-                        status,
-                        params.dig(:search, :payment_statuses)&.include?(status),
-                        id: "payment_status_#{status}",
-                        class: 'form-check-input' %>
-                    <label class="form-check-label" for="<%= "payment_status_#{status}" %>"><%= status %></label>
-                  </div>
+              </div>
+              <div class="ms-5">
+                <label class="form-label">入金状況</label>
+                <div class="d-flex flex-wrap gap-3">
+                  <% Invoice::PAYMENT_STATUSES.values.each do |status| %>
+                    <div class="form-check">
+                      <%= check_box_tag 'search[payment_statuses][]',
+                          status,
+                          params.dig(:search, :payment_statuses)&.include?(status),
+                          id: "payment_status_#{status}",
+                          class: 'form-check-input' %>
+                      <label class="form-check-label" for="<%= "payment_status_#{status}" %>"><%= status %></label>
+                    </div>
+                  <% end %>
                 </div>
-              <% end %>
+              </div>
             </div>
           </div>
 
@@ -215,15 +214,13 @@
               <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#receiptModal<%= invoice.id %>" title="領収書">
                 <i class="bi bi-receipt"></i>
               </button>
-              <% confirm_msg = t('confirms.destroy', default: '本当に削除しますか？') %>
-              <%= button_to invoice_path(invoice),
-                              method: :delete,
-                              form: { data: { turbo_confirm: confirm_msg },
-                                      class: 'd-inline' },
-                              class: 'btn btn-sm btn-danger',
-                              title: '削除' do %>
+              <button type="button" 
+                      class="btn btn-sm btn-danger delete-invoice-btn" 
+                      data-invoice-id="<%= invoice.id %>"
+                      data-payment-status="<%= invoice.payment_status %>"
+                      title="削除">
                 <i class="bi bi-trash"></i>
-              <% end %>
+              </button>
             </div>
           </td>
         </tr>

@@ -202,9 +202,8 @@ class OrdersController < ApplicationController
       csv_data.each do |row|
         row_count += 1
 
-        # データの存在確認
+        # データの存在確認（空行はスキップ）
         if row.fields.compact.empty?
-          validation_errors << "#{row_count}行目: データが空です"
           next
         end
 
@@ -234,6 +233,23 @@ class OrdersController < ApplicationController
             return
           end
 
+          # 納品先の取得（顧客の本社納品先を自動設定）
+          customer = Customer.find_by(id: customer_id)
+          if customer.nil?
+            redirect_to import_csv_orders_path, alert: "取引先が見つかりません。"
+            return
+          end
+          delivery_location = customer.delivery_locations.find_by(is_main_office: true)
+          if delivery_location.nil?
+            # 本社納品先がない場合は最初の納品先を使用
+            delivery_location = customer.delivery_locations.first
+          end
+          if delivery_location.nil?
+            redirect_to import_csv_orders_path, alert: "取引先に納品先が登録されていません。"
+            return
+          end
+          delivery_location_id = delivery_location.id
+
           if payment_method_id.blank?
             redirect_to import_csv_orders_path, alert: "支払い方法を選択してください。"
             return
@@ -262,6 +278,18 @@ class OrdersController < ApplicationController
           end
 
           customer_id = customer.id
+
+          # 納品先の取得（顧客の本社納品先を自動設定）
+          delivery_location = customer.delivery_locations.find_by(is_main_office: true)
+          if delivery_location.nil?
+            # 本社納品先がない場合は最初の納品先を使用
+            delivery_location = customer.delivery_locations.first
+          end
+          if delivery_location.nil?
+            error_messages << "取引先に納品先が登録されていません: #{customer_code || customer_name}"
+            next
+          end
+          delivery_location_id = delivery_location.id
 
           # 支払方法の特定
           payment_method_id = nil
@@ -293,6 +321,7 @@ class OrdersController < ApplicationController
           orders_data[order_key] = {
             customer_id: customer_id,
             payment_method_id: payment_method_id,
+            delivery_location_id: delivery_location_id,
             order_date: params[:use_form_values] == "1" ? form_order_date : order_date,
             expected_delivery_date: params[:use_form_values] == "1" ? form_expected_delivery_date : expected_delivery_date,
             actual_delivery_date: params[:use_form_values] == "1" ? form_actual_delivery_date : actual_delivery_date,
@@ -331,6 +360,18 @@ class OrdersController < ApplicationController
         tax_rate = row["税率"].present? ? row["税率"].to_f : (product.tax_rate&.rate || 10.0)
         unit_price = row["単価"].present? ? row["単価"].to_f : product.price
 
+        # 規格の取得（CSVに指定がない場合は空欄のまま）
+        product_specification_id = nil
+        if row["規格"].present?
+          product_specification = ProductSpecification.active.find_by(name: row["規格"])
+          if product_specification.present?
+            product_specification_id = product_specification.id
+          else
+            error_messages << "規格が見つかりません: #{row['規格']}"
+            next
+          end
+        end
+
         # 1受注あたり2明細までの制限チェック
         if orders_data[order_key][:order_items].length >= 2
           error_messages << "#{row_count}行目: 1受注あたり2明細まで登録できます。3つ目以降の明細は登録後に手動で追加してください。"
@@ -340,6 +381,7 @@ class OrdersController < ApplicationController
         # 受注項目を追加
         orders_data[order_key][:order_items] << {
           product_id: product.id,
+          product_specification_id: product_specification_id,
           quantity: quantity,
           unit_price: unit_price,
           tax_rate: tax_rate,
@@ -379,9 +421,12 @@ class OrdersController < ApplicationController
           order = Order.new(
             customer_id: data[:customer_id],
             payment_method_id: data[:payment_method_id],
+            delivery_location_id: data[:delivery_location_id],
             order_date: data[:order_date],
             expected_delivery_date: data[:expected_delivery_date],
-            actual_delivery_date: data[:actual_delivery_date]
+            actual_delivery_date: data[:actual_delivery_date],
+            is_shop_order: false,  # CSVインポート時は「自社」として登録
+            skip_specification_validation: true  # CSVインポート時は規格を必須にしない
           )
 
           # 注文項目を作成
@@ -525,12 +570,12 @@ class OrdersController < ApplicationController
     # CSVデータを生成
     csv_data = CSV.generate(force_quotes: true) do |csv|
       # ヘッダー行
-      csv << [ "取引先コード", "取引先名", "支払方法", "受注日", "予定納品日", "確定納品日", "商品コード", "商品名", "数量", "単価", "税率", "単位", "備考" ]
+      csv << [ "取引先コード", "取引先名", "支払方法", "受注日", "予定納品日", "確定納品日", "商品コード", "商品名", "規格", "数量", "単価", "税率", "単位", "備考" ]
       # データ行（1受注に2明細の例）
-      csv << [ "C001", "株式会社A", "銀行振込", "2023-05-01", "2023-05-10", "", "P001", "商品A", "2", "1000", "10", "個", "サンプル備考1" ]
-      csv << [ "C001", "株式会社A", "銀行振込", "2023-05-01", "2023-05-10", "", "P002", "商品B", "3", "2000", "8", "箱", "サンプル備考2" ]
+      csv << [ "C001", "株式会社A", "銀行振込", "2023-05-01", "2023-05-10", "", "P001", "商品A", "", "2", "1000", "10", "個", "サンプル備考1" ]
+      csv << [ "C001", "株式会社A", "銀行振込", "2023-05-01", "2023-05-10", "", "P002", "商品B", "", "3", "2000", "8", "箱", "サンプル備考2" ]
       # 別の受注の例
-      csv << [ "C002", "株式会社B", "代金引換", "2023-05-02", "2023-05-15", "", "P003", "商品C", "1", "3000", "10", "セット", "サンプル備考3" ]
+      csv << [ "C002", "株式会社B", "代金引換", "2023-05-02", "2023-05-15", "", "P003", "商品C", "", "1", "3000", "10", "セット", "サンプル備考3" ]
     end
 
     # UTF-8 BOMを追加

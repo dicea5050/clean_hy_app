@@ -117,7 +117,9 @@ class DeliverySlipPdf < Prawn::Document
 
       if @order.delivery_location.present?
         text "【納品先】", size: (is_top_half ? 9 : 7), style: :bold
-        text "#{@order.delivery_location.name}", size: (is_top_half ? 9 : 7)
+        # 内部管理用の表記（（本社）、（基本）、（追加））を削除
+        display_name = @order.delivery_location.name.to_s.gsub(/（本社）|（基本）|（追加）/, '')
+        text "#{display_name}", size: (is_top_half ? 9 : 7)
         text "〒#{@order.delivery_location.postal_code}", size: (is_top_half ? 9 : 7)
         text @order.delivery_location.address, size: (is_top_half ? 9 : 7)
         text "TEL: #{@order.delivery_location.phone}", size: (is_top_half ? 9 : 7) if @order.delivery_location.phone.present?

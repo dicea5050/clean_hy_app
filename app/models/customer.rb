@@ -115,7 +115,7 @@ class Customer < ApplicationRecord
   # 顧客作成時に本社納品先を自動登録
   def create_main_office_delivery_location
     delivery_locations.create(
-      name: "#{company_name}（本社）",
+      name: "#{company_name}（基本）",
       postal_code: postal_code,
       address: address,
       phone: phone_number,
@@ -130,7 +130,7 @@ class Customer < ApplicationRecord
 
     if main_office
       main_office.update(
-        name: "#{company_name}（本社）",
+        name: "#{company_name}（基本）",
         postal_code: postal_code,
         address: address,
         phone: phone_number,

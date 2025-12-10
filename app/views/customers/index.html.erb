@@ -45,13 +45,27 @@
     <table class="table customers-index-table" style="table-layout: fixed; width: 100%;">
       <thead>
         <tr>
-          <th style="width: 120px;">顧客コード</th>
-          <th style="width: 320px;">顧客名</th>
-          <th style="width: 160px;">電話番号</th>
-          <th style="width: 160px;">FAX番号</th>
-          <th style="width: 160px;">支払い方法</th>
-          <th style="width: 130px;">請求方法</th>
-          <th style="width: 100px;">請求締日</th>
+          <th style="width: 120px;">
+            <%= sortable_column "顧客コード", "customer_code", @sort_column, @sort_direction, params %>
+          </th>
+          <th style="width: 320px;">
+            <%= sortable_column "顧客名", "company_name", @sort_column, @sort_direction, params %>
+          </th>
+          <th style="width: 160px;">
+            <%= sortable_column "電話番号", "phone_number", @sort_column, @sort_direction, params %>
+          </th>
+          <th style="width: 160px;">
+            <%= sortable_column "FAX番号", "fax_number", @sort_column, @sort_direction, params %>
+          </th>
+          <th style="width: 160px;">
+            <%= sortable_column "支払い方法", "payment_method", @sort_column, @sort_direction, params %>
+          </th>
+          <th style="width: 130px;">
+            <%= sortable_column "請求方法", "invoice_delivery_method", @sort_column, @sort_direction, params %>
+          </th>
+          <th style="width: 100px;">
+            <%= sortable_column "請求締日", "billing_closing_day", @sort_column, @sort_direction, params %>
+          </th>
           <th style="width: 140px;">操作</th>
         </tr>
       </thead>

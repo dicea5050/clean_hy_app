@@ -64,7 +64,7 @@
       <strong>お届け先</strong>
     <% end %>
     <div class="d-flex align-items-center gap-3">
-      <%= f.collection_select :delivery_location_id, @delivery_locations, :id, :name,
+      <%= f.collection_select :delivery_location_id, @delivery_locations, :id, :display_name,
                             { prompt: 'お届け先を選択してください' },
                             { class: 'form-select', id: 'delivery-location-select', style: 'width: 450px;', required: true } %>
       <span id="delivery-location-address" class="text-muted" style="display: none;"></span>

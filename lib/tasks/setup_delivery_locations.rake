@@ -6,7 +6,7 @@ namespace :customers do
       next if customer.delivery_locations.exists?(is_main_office: true)
 
       delivery_location = customer.delivery_locations.create(
-        name: "#{customer.company_name}（本社）",
+        name: "#{customer.company_name}（基本）",
         postal_code: customer.postal_code,
         address: customer.address,
         phone: customer.phone_number,

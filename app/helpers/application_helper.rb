@@ -71,7 +71,12 @@ module ApplicationHelper
   end
 
   def delivery_location_type_badge_text(is_main_office)
-    is_main_office ? "本社" : "支店"
+    is_main_office ? "基本" : "追加"
+  end
+
+  # 納品先名を表示用に変換（（本社）を（基本）に置き換え）
+  def delivery_location_display_name(name)
+    name.to_s.gsub('（本社）', '（基本）')
   end
 
   # 有効/無効ステータスに応じたバッジのクラスとテキストを返す（汎用）
@@ -90,5 +95,34 @@ module ApplicationHelper
 
   def bank_account_status_badge_text(disabled)
     disabled ? "無効" : "有効"
+  end
+
+  # ソート可能なカラムヘッダーを生成するヘルパーメソッド
+  def sortable_column(title, column, current_sort, current_direction, params_hash)
+    # 現在のソートカラムと一致する場合、方向を切り替える
+    if current_sort == column
+      new_direction = current_direction == 'asc' ? 'desc' : 'asc'
+      icon_class = current_direction == 'asc' ? 'bi-arrow-up' : 'bi-arrow-down'
+    else
+      new_direction = 'asc'
+      icon_class = nil
+    end
+
+    # パラメータを保持しながらソートパラメータを更新
+    # ActionController::Parametersの場合はpermitしてからto_hでハッシュに変換
+    if params_hash.respond_to?(:permit)
+      link_params = params_hash.permit(:sort, :direction, :page, :customer_code, :company_name).to_h.symbolize_keys
+    else
+      link_params = params_hash.dup
+    end
+    
+    link_params[:sort] = column
+    link_params[:direction] = new_direction
+    link_params.delete(:page) # ページネーションをリセット
+
+    link_to customers_path(link_params), class: "text-decoration-none text-dark d-flex align-items-center" do
+      content_tag(:span, title) +
+      (icon_class ? content_tag(:i, "", class: "bi #{icon_class} ms-1") : content_tag(:i, "", class: "bi bi-arrow-down-up ms-1 text-muted", style: "opacity: 0.3"))
+    end
   end
 end

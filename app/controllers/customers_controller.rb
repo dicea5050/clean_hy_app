@@ -7,7 +7,7 @@ class CustomersController < ApplicationController
   before_action :set_customer, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @customers = Customer.order(:company_name)
+    @customers = Customer.includes(:payment_method)
 
     # 顧客コードで検索
     if params[:customer_code].present?
@@ -19,7 +19,37 @@ class CustomersController < ApplicationController
       @customers = @customers.where("company_name LIKE ?", "%#{params[:company_name]}%")
     end
 
+    # 並び替え
+    sort_column = params[:sort] || 'company_name'
+    sort_direction = params[:direction] || 'asc'
+    
+    # セキュリティ対策：許可されたカラムのみソート可能
+    allowed_sort_columns = %w[customer_code company_name phone_number fax_number payment_method invoice_delivery_method billing_closing_day]
+    sort_column = 'company_name' unless allowed_sort_columns.include?(sort_column)
+    sort_direction = 'asc' unless %w[asc desc].include?(sort_direction)
+    
+    # 支払い方法でソートする場合はjoinsが必要
+    if sort_column == 'payment_method'
+      @customers = @customers.left_joins(:payment_method)
+                             .order("payment_methods.name #{sort_direction} NULLS LAST")
+    elsif sort_column == 'customer_code'
+      # 顧客コードは数値としてソート（数値のみの場合は数値として、そうでない場合は文字列として）
+      @customers = @customers.order(
+        Arel.sql("CASE 
+          WHEN customer_code ~ '^[0-9]+$' THEN CAST(customer_code AS INTEGER)
+          ELSE NULL
+        END #{sort_direction} NULLS LAST"),
+        "customer_code #{sort_direction}"
+      )
+    else
+      @customers = @customers.order("#{sort_column} #{sort_direction}")
+    end
+
     @customers = @customers.page(params[:page]).per(25)
+    
+    # ビューで使用するための変数
+    @sort_column = sort_column
+    @sort_direction = sort_direction
   end
 
   def show
@@ -152,6 +182,7 @@ class CustomersController < ApplicationController
 
   # CSVアップロード画面を表示
   def import_csv
+    @payment_methods = PaymentMethod.where(active: true).order(:name)
   end
 
   # CSVファイルを処理して一括登録
@@ -196,8 +227,7 @@ class CustomersController < ApplicationController
                           headers: true,
                           encoding: "UTF-8",
                           col_sep: ",",
-                          quote_char: '"',
-                          force_quotes: true)
+                          quote_char: '"')
 
       # デバッグ用：読み込まれたヘッダーを出力
       Rails.logger.info "読み込まれたヘッダー: #{csv_data.headers.inspect}"
@@ -216,6 +246,13 @@ class CustomersController < ApplicationController
         return
       end
 
+      # デフォルトの支払い方法を取得（トランザクション外で一度だけ取得）
+      default_payment_method = PaymentMethod.where(active: true).first
+      if default_payment_method.nil?
+        redirect_to import_csv_customers_path, alert: "アクティブな支払い方法が存在しません。先に支払い方法を登録してください。"
+        return
+      end
+
       # トランザクションを開始して顧客を作成
       ActiveRecord::Base.transaction do
         csv_data.each do |row|
@@ -224,6 +261,7 @@ class CustomersController < ApplicationController
           # データの存在確認
           if row.fields.compact.empty?
             validation_errors << "#{row_count}行目: データが空です"
+            error_count += 1
             next
           end
 
@@ -239,6 +277,7 @@ class CustomersController < ApplicationController
           email = row["メールアドレス"]&.strip
           invoice_delivery_method_text = row["請求書送付方法"]&.strip
           billing_closing_day = row["請求締日"]&.strip
+          payment_method_name = row["支払い方法"]&.strip
 
           # 必須項目の検証
           if customer_code.blank?
@@ -309,10 +348,26 @@ class CustomersController < ApplicationController
             next
           end
 
+          # 支払い方法の取得
+          payment_method_id = nil
+          if payment_method_name.present?
+            # CSVに支払い方法が指定されている場合
+            payment_method = PaymentMethod.where(active: true).find_by(name: payment_method_name)
+            if payment_method.nil?
+              validation_errors << "#{row_count}行目: 支払い方法「#{payment_method_name}」が見つかりません。有効な支払い方法を指定してください。"
+              error_count += 1
+              next
+            end
+            payment_method_id = payment_method.id
+          else
+            # CSVに支払い方法が指定されていない場合、デフォルトを使用
+            payment_method_id = default_payment_method.id
+          end
+
           # 既存の顧客コードが存在するかチェック
           existing_customer = Customer.find_by(customer_code: customer_code)
           if existing_customer
-            # 既存の顧客を更新
+            # 既存の顧客を更新（支払い方法も更新）
             customer = existing_customer
             customer.assign_attributes(
               company_name: company_name,
@@ -324,7 +379,8 @@ class CustomersController < ApplicationController
               fax_number: fax_number,
               email: email,
               invoice_delivery_method: invoice_delivery_method,
-              billing_closing_day: billing_closing_day
+              billing_closing_day: billing_closing_day,
+              payment_method_id: payment_method_id
             )
           else
             # 新規顧客を作成
@@ -339,7 +395,8 @@ class CustomersController < ApplicationController
               fax_number: fax_number,
               email: email,
               invoice_delivery_method: invoice_delivery_method,
-              billing_closing_day: billing_closing_day
+              billing_closing_day: billing_closing_day,
+              payment_method_id: payment_method_id
             )
           end
 
@@ -350,6 +407,11 @@ class CustomersController < ApplicationController
             error_messages << "#{row_count}行目（顧客コード: #{customer_code}）: #{customer.errors.full_messages.join(', ')}"
             error_count += 1
           end
+        end
+
+        # エラーがある場合はトランザクションをロールバック
+        if validation_errors.present? || error_messages.present?
+          raise ActiveRecord::Rollback
         end
       end
 

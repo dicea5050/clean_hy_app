@@ -91,7 +91,7 @@
             <% if @delivery_locations.present? %>
               <% @delivery_locations.each do |location| %>
                 <tr>
-                  <td><%= location.name %></td>
+                  <td><%= delivery_location_display_name(location.name) %></td>
                   <td><%= location.postal_code %></td>
                   <td><%= location.address %></td>
                   <td><%= location.phone %></td>
