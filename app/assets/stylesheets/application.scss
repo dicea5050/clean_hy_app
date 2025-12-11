@@ -62,9 +62,26 @@ h2 .badge, .h2 .badge {
 #company_name_suggestions {
   max-height: 200px;
   overflow-y: auto;
+  overflow-x: hidden; // 横スクロールを無効化
   border: 1px solid #dee2e6;
   border-radius: 0.375rem;
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  z-index: 1050 !important; // Bootstrapのmodalと同じレベル（テーブルより前面に表示）
+  // スクロールバーのスタイルを改善
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+    &:hover {
+      background: #555;
+    }
+  }
 }
 
 .suggestion-item {
@@ -113,7 +130,23 @@ h4, .h4 {
   border-top: none;
   max-height: 200px;
   overflow-y: auto;
-  z-index: 1000;
+  overflow-x: hidden; // 横スクロールを無効化
+  z-index: 1050 !important; // Bootstrapのmodalと同じレベル（テーブルより前面に表示）
+  // スクロールバーのスタイルを改善
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+    &:hover {
+      background: #555;
+    }
+  }
 }
 
 // フォームグループのスペーシング（共通化）
@@ -390,9 +423,22 @@ h4, .h4 {
   font-weight: 400;
 }
 
+// 検索フォームを含むcardのz-indexを設定（検索候補を前面に表示するため）
+.card.mb-4 {
+  position: relative;
+  z-index: 10 !important; // テーブルより前面に配置
+}
+
+// 検索フォーム内のposition-relativeコンテナのz-indexを設定
+.card-body .position-relative {
+  z-index: 1051 !important; // 検索候補の親要素も前面に配置
+}
+
 // マスター系一覧ページのテーブルレイアウト修正
 // table-responsive内のテーブルを100%幅にして右側の余白をなくす
 .table-responsive {
+  position: relative; // スタッキングコンテキストを確立
+  z-index: 1; // 検索候補より後ろに配置
   table {
     width: 100% !important;
     margin-bottom: 0;
@@ -404,7 +450,16 @@ h4, .h4 {
 // マスター系一覧ページのテーブル：改行を防ぎスクロールにする（共通設定）
 // card-body内のテーブルで横スクロールを有効化
 .card-body {
-  overflow-x: auto;
+  // 検索フォーム部分にはoverflowを適用しない（検索候補が隠れないように）
+  > form {
+    overflow: visible !important;
+  }
+  
+  // テーブル部分のみoverflow-xを適用
+  > .table-responsive,
+  > table {
+    overflow-x: auto;
+  }
   
   // マスター系テーブルと請求書一覧テーブルの共通設定
   table[class*="-index-table"],

@@ -12198,9 +12198,25 @@ h2 .badge, .h2 .badge {
 #company_name_suggestions {
   max-height: 200px;
   overflow-y: auto;
+  overflow-x: hidden;
   border: 1px solid #dee2e6;
   border-radius: 0.375rem;
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  z-index: 1050 !important;
+}
+#company_name_suggestions::-webkit-scrollbar {
+  width: 8px;
+}
+#company_name_suggestions::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+#company_name_suggestions::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+#company_name_suggestions::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 .suggestion-item {
@@ -12246,7 +12262,22 @@ h4, .h4 {
   border-top: none;
   max-height: 200px;
   overflow-y: auto;
-  z-index: 1000;
+  overflow-x: hidden;
+  z-index: 1050 !important;
+}
+.autocomplete-results::-webkit-scrollbar {
+  width: 8px;
+}
+.autocomplete-results::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+.autocomplete-results::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+.autocomplete-results::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 .form-group-spacing {
@@ -12520,13 +12551,30 @@ h4, .h4 {
   font-weight: 400;
 }
 
+.card.mb-4 {
+  position: relative;
+  z-index: 10 !important;
+}
+
+.card-body .position-relative {
+  z-index: 1051 !important;
+}
+
+.table-responsive {
+  position: relative;
+  z-index: 1;
+}
 .table-responsive table {
   width: 100% !important;
   margin-bottom: 0;
   table-layout: auto;
 }
 
-.card-body {
+.card-body > form {
+  overflow: visible !important;
+}
+.card-body > .table-responsive,
+.card-body > table {
   overflow-x: auto;
 }
 .card-body table[class*=-index-table] thead th,
