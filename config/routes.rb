@@ -92,6 +92,7 @@ Rails.application.routes.draw do
       post :bulk_request_approval
       post :bulk_send_email
       post :bulk_download_pdf
+      post :bulk_create_individual
     end
     member do
       get :pdf

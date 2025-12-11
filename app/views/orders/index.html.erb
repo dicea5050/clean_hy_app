@@ -159,6 +159,7 @@
 
     <div class="text-left mt-4 mb-4">
       <button type="button" class="btn btn-success me-2" id="create-invoice-btn" disabled>選択した受注情報を合算して請求書を発行</button>
+      <button type="button" class="btn btn-info me-2" id="bulk-create-individual-invoice-btn" disabled>選択した受注情報を個別に請求書を一括発行</button>
       <%= link_to 'CSVインポート', import_csv_orders_path, class: 'btn btn-success me-2' %>
       <%= link_to '新規受注', new_order_path, class: 'btn btn-primary' %>
     </div>
@@ -167,7 +168,9 @@
       <table class="table orders-index-table" style="table-layout: fixed; width: 100%;">
         <thead>
           <tr>
-            <th class="text-center" style="width: 30px;"></th>
+            <th class="text-center" style="width: 30px;">
+              <input type="checkbox" id="select-all-orders" title="すべて選択">
+            </th>
             <th class="text-center" style="width: 130px;">受注番号</th>
             <th class="text-center" style="width: 220px;">顧客名</th>
             <th class="text-center" style="width: 70px;">注文元</th>

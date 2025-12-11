@@ -284,7 +284,7 @@ class SalesReportsController < ApplicationController
   def calculate_sales_data(start_date, end_date)
     # OrderItemから売上データを取得（税抜き金額）
     order_items = OrderItem.joins(:order, :product)
-                           .where(orders: { order_date: start_date..end_date })
+                           .where("orders.order_date >= ? AND orders.order_date <= ?", start_date, end_date)
                            .where.not(products: { id: nil })
 
     # 商品ごと、月ごとに集計

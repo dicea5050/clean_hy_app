@@ -32,6 +32,8 @@ module CleanHyApp
 
     # タイムゾーンを東京(JST +9:00)に設定
     config.time_zone = "Tokyo"
+    # ActiveRecordのデフォルトタイムゾーンをUTCに設定（Railsが自動的にTokyoタイムゾーンに変換）
+    config.active_record.default_timezone = :utc
 
     # Bootstrapのアセット設定
     config.assets.paths << Rails.root.join("node_modules")

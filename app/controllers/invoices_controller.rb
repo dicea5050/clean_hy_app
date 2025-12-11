@@ -1,7 +1,7 @@
 class InvoicesController < ApplicationController
   before_action :require_viewer_or_editor_access
   before_action :require_viewer_show_only
-  before_action :require_editor, only: [ :new, :create, :edit, :update, :destroy, :bulk_request_approval, :pdf, :receipt, :send_email, :bulk_send_email, :bulk_download_pdf, :mark_printed ]
+  before_action :require_editor, only: [ :new, :create, :edit, :update, :destroy, :bulk_request_approval, :pdf, :receipt, :send_email, :bulk_send_email, :bulk_download_pdf, :mark_printed, :bulk_create_individual ]
   before_action :set_invoice, only: [ :show, :edit, :update, :destroy, :send_email, :mark_printed ]
 
   def index
@@ -528,6 +528,77 @@ class InvoicesController < ApplicationController
     rescue => e
       Rails.logger.error "印刷済みマークエラー: #{e.message}"
       redirect_to invoice_path(@invoice), alert: "印刷済みマークに失敗しました: #{e.message}"
+    end
+  end
+
+  # 個別請求書一括発行
+  def bulk_create_individual
+    order_ids = params[:order_ids]&.split(",")
+
+    if order_ids.blank?
+      redirect_to orders_path, alert: "受注が選択されていません。"
+      return
+    end
+
+    orders = Order.includes(:customer, :order_items).where(id: order_ids)
+    success_count = 0
+    error_count = 0
+    error_messages = []
+
+    orders.each do |order|
+      # 確定納品日が未入力の受注はスキップ
+      unless order.actual_delivery_date.present?
+        error_count += 1
+        error_messages << "受注番号 #{order.order_number}: 確定納品日が未入力です"
+        next
+      end
+
+      # 既に請求書が発行済みの受注はスキップ（念のためチェック）
+      if order.invoiced?
+        error_count += 1
+        error_messages << "受注番号 #{order.order_number}: 既に請求書が発行済みです"
+        next
+      end
+
+      begin
+        # 各受注に対して個別の請求書を作成
+        invoice = Invoice.new(
+          customer_id: order.customer_id,
+          invoice_date: Date.today,
+          due_date: nil,
+          notes: nil
+        )
+
+        if invoice.save
+          # 受注を請求書に関連付け
+          invoice.invoice_orders.create!(order_id: order.id)
+          success_count += 1
+        else
+          error_count += 1
+          error_messages << "受注番号 #{order.order_number}: #{invoice.errors.full_messages.join(', ')}"
+        end
+      rescue => e
+        error_count += 1
+        error_messages << "受注番号 #{order.order_number}: #{e.message}"
+        Rails.logger.error "個別請求書作成エラー (Order #{order.id}): #{e.message}"
+        Rails.logger.error e.backtrace.join("\n")
+      end
+    end
+
+    # フラッシュメッセージを構築
+    if success_count > 0
+      notice = "#{success_count}件の請求書を個別に発行しました。"
+      if error_count > 0
+        notice += " (#{error_count}件失敗)"
+        flash[:alert] = error_messages.join("<br>").html_safe
+      end
+      redirect_to orders_path, notice: notice
+    else
+      alert_message = "請求書の発行に失敗しました。"
+      if error_messages.any?
+        alert_message += "<br>#{error_messages.join('<br>')}".html_safe
+      end
+      redirect_to orders_path, alert: alert_message
     end
   end
 
